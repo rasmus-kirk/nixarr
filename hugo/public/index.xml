@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>Option Documentation for Rasmus Kirk&#39;s Nix Modules</title>
+    <link>https://rasmus-kirk.github.io/nix-modules/</link>
+    <description>Recent content on Option Documentation for Rasmus Kirk&#39;s Nix Modules</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language><atom:link href="https://rasmus-kirk.github.io/nix-modules/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Options Documentation</title>
+      <link>https://rasmus-kirk.github.io/nix-modules/home-manager/</link>
+      <pubDate>Thu, 07 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://rasmus-kirk.github.io/nix-modules/home-manager/</guid>
+      <description>kirk.fonts.enable Whether to enable Enable my fonts, namely fira-code with nerdfonts. Note that this is required for kirk modules that use the nerdfont icons to function properly..
+Type: boolean
+Default
+false Example
+true kirk.foot.alpha Alpha value of the foot terminal.
+Type: floating point number
+Default
+0.85 kirk.foot.colorscheme A colorscheme attribute set.
+Type: attribute set
+Default
+{&amp;#34;bg&amp;#34;:&amp;#34;282828&amp;#34;,&amp;#34;black&amp;#34;:&amp;#34;1d2021&amp;#34;,&amp;#34;blue&amp;#34;:&amp;#34;458588&amp;#34;,&amp;#34;bright&amp;#34;:{&amp;#34;black&amp;#34;:&amp;#34;928374&amp;#34;,&amp;#34;blue&amp;#34;:&amp;#34;83a598&amp;#34;,&amp;#34;green&amp;#34;:&amp;#34;b8bb26&amp;#34;,&amp;#34;orange&amp;#34;:&amp;#34;fe8019&amp;#34;,&amp;#34;purple&amp;#34;:&amp;#34;d3869b&amp;#34;,&amp;#34;red&amp;#34;:&amp;#34;fb4934&amp;#34;,&amp;#34;teal&amp;#34;:&amp;#34;8ec07c&amp;#34;,&amp;#34;white&amp;#34;:&amp;#34;fbf1c7&amp;#34;,&amp;#34;yellow&amp;#34;:&amp;#34;fabd2f&amp;#34;},&amp;#34;fg&amp;#34;:&amp;#34;ebdbb2&amp;#34;,&amp;#34;green&amp;#34;:&amp;#34;98971a&amp;#34;,&amp;#34;orange&amp;#34;:&amp;#34;d65d0e&amp;#34;,&amp;#34;purple&amp;#34;:&amp;#34;b16286&amp;#34;,&amp;#34;red&amp;#34;:&amp;#34;cc241d&amp;#34;,&amp;#34;teal&amp;#34;:&amp;#34;689d6a&amp;#34;,&amp;#34;white&amp;#34;:&amp;#34;d5c4a1&amp;#34;,&amp;#34;yellow&amp;#34;:&amp;#34;d79921&amp;#34;} kirk.foot.enable Whether to enable foot terminal emulator.
+Type: boolean
+Default
+false Example
+true kirk.foot.enableKeyBindings Whether or not to enable my keybindings.</description>
+    </item>
+    
+    <item>
+      <title>Options Documentation</title>
+      <link>https://rasmus-kirk.github.io/nix-modules/nixos/</link>
+      <pubDate>Thu, 07 Dec 2023 00:00:00 +0000</pubDate>
+      
+      <guid>https://rasmus-kirk.github.io/nix-modules/nixos/</guid>
+      <description>kirk.nixosScripts.configDir Path to the nixos configuration.
+Type: path
+Default
+&amp;#34;/etc/nixos&amp;#34; kirk.nixosScripts.enable Whether to enable Nixos scripts
+Required options:
+machine . Type: boolean
+Default
+false Example
+true kirk.nixosScripts.machine REQUIRED! The machine to run on.
+Type: null or string
+Default
+null kirk.servarr.acmeMail REQUIRED! The ACME mail.
+Type: null or string
+Default
+null kirk.servarr.domainName REQUIRED! The domain name to host jellyfin on.
+Type: null or string
+Default
+null kirk.servarr.enable Whether to enable My servarr setup.</description>
+    </item>
+    
+    <item>
+      <title></title>
+      <link>https://rasmus-kirk.github.io/nix-modules/test/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://rasmus-kirk.github.io/nix-modules/test/</guid>
+      <description>Nixos options Home manager options</description>
+    </item>
+    
+    <item>
+      <title>Options Documentation</title>
+      <link>https://rasmus-kirk.github.io/nix-modules/header/</link>
+      <pubDate>Mon, 01 Jan 0001 00:00:00 +0000</pubDate>
+      
+      <guid>https://rasmus-kirk.github.io/nix-modules/header/</guid>
+      <description></description>
+    </item>
+    
+  </channel>
+</rss>

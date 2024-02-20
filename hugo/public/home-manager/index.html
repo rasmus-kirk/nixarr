@@ -1,0 +1,338 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head><title>Options Documentation &ndash; Option Documentation for Rasmus Kirk&#39;s Nix Modules</title>
+
+
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta charset="UTF-8"/>
+
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css" integrity="sha512-1sCRPdkRXhBV2PBLUdRb4tMg1w2YPf37qatUFeS7zlBy7jJI8Lf4VHwWfZZfpXtYSLy85pkm9GaYVYMfw5BC1A==" crossorigin="anonymous" />
+
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/academicons/1.9.1/css/academicons.min.css" integrity="sha512-b1ASx0WHgVFL5ZQhTgiPWX+68KjS38Jk87jg7pe+qC7q9YkEtFq0z7xCglv7qGIs/68d3mAp+StfC8WKC5SSAg==" crossorigin="anonymous" />
+
+
+<link rel="stylesheet" href="https://rasmus-kirk.github.io/nix-modules/css/palettes/base16-dark.css">
+<link rel="stylesheet" href="https://rasmus-kirk.github.io/nix-modules/css/risotto.css">
+<link rel="stylesheet" href="https://rasmus-kirk.github.io/nix-modules/css/custom.css">
+</head>
+
+    <body>
+        <div class="page">
+
+            <header class="page__header"><nav class="page__nav main-nav">
+    <ul>
+    <h1 class="page__logo"><a href="https://rasmus-kirk.github.io/nix-modules/" class="page__logo-inner">Option Documentation for Rasmus Kirk&#39;s Nix Modules</a></h1>
+    
+    
+    </ul>
+</nav>
+
+</header>
+
+            <section class="page__body">
+    <header class="content__header">
+        <h1>Options Documentation</h1>
+    </header>
+    
+    <div class="content__body">
+        <h2 id="kirkfontsenable">kirk.fonts.enable</h2>
+<p>Whether to enable Enable my fonts, namely fira-code with nerdfonts. Note that this is required for kirk modules that use the nerdfont icons to function properly..</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkfootalpha">kirk.foot.alpha</h2>
+<p>Alpha value of the foot terminal.</p>
+<p><em><em>Type</em></em>:
+floating point number</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>0.85
+</code></pre><h2 id="kirkfootcolorscheme">kirk.foot.colorscheme</h2>
+<p>A colorscheme attribute set.</p>
+<p><em><em>Type</em></em>:
+attribute set</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>{&#34;bg&#34;:&#34;282828&#34;,&#34;black&#34;:&#34;1d2021&#34;,&#34;blue&#34;:&#34;458588&#34;,&#34;bright&#34;:{&#34;black&#34;:&#34;928374&#34;,&#34;blue&#34;:&#34;83a598&#34;,&#34;green&#34;:&#34;b8bb26&#34;,&#34;orange&#34;:&#34;fe8019&#34;,&#34;purple&#34;:&#34;d3869b&#34;,&#34;red&#34;:&#34;fb4934&#34;,&#34;teal&#34;:&#34;8ec07c&#34;,&#34;white&#34;:&#34;fbf1c7&#34;,&#34;yellow&#34;:&#34;fabd2f&#34;},&#34;fg&#34;:&#34;ebdbb2&#34;,&#34;green&#34;:&#34;98971a&#34;,&#34;orange&#34;:&#34;d65d0e&#34;,&#34;purple&#34;:&#34;b16286&#34;,&#34;red&#34;:&#34;cc241d&#34;,&#34;teal&#34;:&#34;689d6a&#34;,&#34;white&#34;:&#34;d5c4a1&#34;,&#34;yellow&#34;:&#34;d79921&#34;}
+</code></pre><h2 id="kirkfootenable">kirk.foot.enable</h2>
+<p>Whether to enable foot terminal emulator.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkfootenablekeybindings">kirk.foot.enableKeyBindings</h2>
+<p>Whether or not to enable my keybindings.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkfootfontsize">kirk.foot.fontSize</h2>
+<p>Font size of the terminal.</p>
+<p><em><em>Type</em></em>:
+signed integer</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>15
+</code></pre><h2 id="kirkfzfcolorscheme">kirk.fzf.colorscheme</h2>
+<p>A colorscheme attribute set.</p>
+<p><em><em>Type</em></em>:
+attribute set</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>{&#34;bg&#34;:&#34;282828&#34;,&#34;black&#34;:&#34;1d2021&#34;,&#34;blue&#34;:&#34;458588&#34;,&#34;bright&#34;:{&#34;black&#34;:&#34;928374&#34;,&#34;blue&#34;:&#34;83a598&#34;,&#34;green&#34;:&#34;b8bb26&#34;,&#34;orange&#34;:&#34;fe8019&#34;,&#34;purple&#34;:&#34;d3869b&#34;,&#34;red&#34;:&#34;fb4934&#34;,&#34;teal&#34;:&#34;8ec07c&#34;,&#34;white&#34;:&#34;fbf1c7&#34;,&#34;yellow&#34;:&#34;fabd2f&#34;},&#34;fg&#34;:&#34;ebdbb2&#34;,&#34;green&#34;:&#34;98971a&#34;,&#34;orange&#34;:&#34;d65d0e&#34;,&#34;purple&#34;:&#34;b16286&#34;,&#34;red&#34;:&#34;cc241d&#34;,&#34;teal&#34;:&#34;689d6a&#34;,&#34;white&#34;:&#34;d5c4a1&#34;,&#34;yellow&#34;:&#34;d79921&#34;}
+</code></pre><h2 id="kirkfzfenable">kirk.fzf.enable</h2>
+<p>Whether to enable foot terminal emulator.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkfzfenablezshintegration">kirk.fzf.enableZshIntegration</h2>
+<p>Whether to enable zsh integration.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkgitenable">kirk.git.enable</h2>
+<p>Whether to enable git.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkgituseremail">kirk.git.userEmail</h2>
+<p>What email address to use for git.</p>
+<p><em><em>Type</em></em>:
+string</p>
+<h2 id="kirkgitusername">kirk.git.userName</h2>
+<p>Username to use for git.</p>
+<p><em><em>Type</em></em>:
+string</p>
+<h2 id="kirkgruvboxcolorscheme">kirk.gruvbox.colorscheme</h2>
+<p>A definition for the gruvbox theme.</p>
+<p><em><em>Type</em></em>:
+attribute set</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>{&#34;bg&#34;:&#34;282828&#34;,&#34;black&#34;:&#34;1d2021&#34;,&#34;blue&#34;:&#34;458588&#34;,&#34;bright&#34;:{&#34;black&#34;:&#34;928374&#34;,&#34;blue&#34;:&#34;83a598&#34;,&#34;green&#34;:&#34;b8bb26&#34;,&#34;orange&#34;:&#34;fe8019&#34;,&#34;purple&#34;:&#34;d3869b&#34;,&#34;red&#34;:&#34;fb4934&#34;,&#34;teal&#34;:&#34;8ec07c&#34;,&#34;white&#34;:&#34;fbf1c7&#34;,&#34;yellow&#34;:&#34;fabd2f&#34;},&#34;fg&#34;:&#34;ebdbb2&#34;,&#34;green&#34;:&#34;98971a&#34;,&#34;orange&#34;:&#34;d65d0e&#34;,&#34;purple&#34;:&#34;b16286&#34;,&#34;red&#34;:&#34;cc241d&#34;,&#34;teal&#34;:&#34;689d6a&#34;,&#34;white&#34;:&#34;d5c4a1&#34;,&#34;yellow&#34;:&#34;d79921&#34;}
+</code></pre><h2 id="kirkhelixenable">kirk.helix.enable</h2>
+<p>Whether to enable helix text editor.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkhelixextrapackages">kirk.helix.extraPackages</h2>
+<p>Extra packages to install, for example LSP&rsquo;s.</p>
+<p><em><em>Type</em></em>:
+list of package</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>[]
+</code></pre><h2 id="kirkhelixinstallmostlsps">kirk.helix.installMostLsps</h2>
+<p>Whether or not to install most of the LSP&rsquo;s that helix supports.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkhomemanagerscriptsconfigdir">kirk.homeManagerScripts.configDir</h2>
+<p>Path to the home-manager configuration.</p>
+<p><em><em>Type</em></em>:
+null or path</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>null
+</code></pre><h2 id="kirkhomemanagerscriptsenable">kirk.homeManagerScripts.enable</h2>
+<p>Whether to enable home manager scripts.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkhomemanagerscriptsmachine">kirk.homeManagerScripts.machine</h2>
+<p>Path to the home-manager configuration.</p>
+<p><em><em>Type</em></em>:
+null or string</p>
+<h2 id="kirkjitendailyword">kirk.jiten.dailyWord</h2>
+<p>Enable daily japanese word prompt.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkjitenenable">kirk.jiten.enable</h2>
+<p>Whether to enable jiten japanese dictionary.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkjoshutoenable">kirk.joshuto.enable</h2>
+<p>Whether to enable joshuto file manager.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkjoshutoenablezshintegration">kirk.joshuto.enableZshIntegration</h2>
+<p>Adds the auto-cd <code>j</code> command to zsh.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkkakouneenable">kirk.kakoune.enable</h2>
+<p>Whether to enable kakoune text editor.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirksshenable">kirk.ssh.enable</h2>
+<p>Whether to enable ssh with extra config.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirksshidentitypath">kirk.ssh.identityPath</h2>
+<p>The directory containing the path to the identity file.</p>
+<p><em><em>Type</em></em>:
+null or path</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>null
+</code></pre><h2 id="kirkterminaltoolsautoupdatetealdeer">kirk.terminalTools.autoUpdateTealdeer</h2>
+<p>Whether to auto-update tealdeer.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkterminaltoolsenable">kirk.terminalTools.enable</h2>
+<p>Whether to enable Quality of life terminal tools.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkterminaltoolsenablezshintegration">kirk.terminalTools.enableZshIntegration</h2>
+<p>Whether to enable zsh integration for bat.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkterminaltoolstheme">kirk.terminalTools.theme</h2>
+<p>What syntax highlighting colorscheme to use.</p>
+<p><em><em>Type</em></em>:
+string</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>&#34;gruvbox-dark&#34;
+</code></pre><h2 id="kirkterminaltoolstrashcleanerenable">kirk.terminalTools.trashCleaner.enable</h2>
+<p>Enable the trash-cli cleanup script</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkterminaltoolstrashcleanerpersistance">kirk.terminalTools.trashCleaner.persistance</h2>
+<p>How many days a file stays in trash before getting cleaned up.</p>
+<p><em><em>Type</em></em>:
+signed integer or floating point number</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>30
+</code></pre><h2 id="kirkuserdirsautosortdownloads">kirk.userDirs.autoSortDownloads</h2>
+<p>Whether or not to auto-sort downloads.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkuserdirsenable">kirk.userDirs.enable</h2>
+<p>Whether to enable userDirs.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkzathuracolorscheme">kirk.zathura.colorscheme</h2>
+<p>A colorscheme attribute set.</p>
+<p><em><em>Type</em></em>:
+attribute set</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>{&#34;bg&#34;:&#34;282828&#34;,&#34;black&#34;:&#34;1d2021&#34;,&#34;blue&#34;:&#34;458588&#34;,&#34;bright&#34;:{&#34;black&#34;:&#34;928374&#34;,&#34;blue&#34;:&#34;83a598&#34;,&#34;green&#34;:&#34;b8bb26&#34;,&#34;orange&#34;:&#34;fe8019&#34;,&#34;purple&#34;:&#34;d3869b&#34;,&#34;red&#34;:&#34;fb4934&#34;,&#34;teal&#34;:&#34;8ec07c&#34;,&#34;white&#34;:&#34;fbf1c7&#34;,&#34;yellow&#34;:&#34;fabd2f&#34;},&#34;fg&#34;:&#34;ebdbb2&#34;,&#34;green&#34;:&#34;98971a&#34;,&#34;orange&#34;:&#34;d65d0e&#34;,&#34;purple&#34;:&#34;b16286&#34;,&#34;red&#34;:&#34;cc241d&#34;,&#34;teal&#34;:&#34;689d6a&#34;,&#34;white&#34;:&#34;d5c4a1&#34;,&#34;yellow&#34;:&#34;d79921&#34;}
+</code></pre><h2 id="kirkzathuraenable">kirk.zathura.enable</h2>
+<p>Whether to enable foot terminal emulator.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkzathuraenablekeybindings">kirk.zathura.enableKeyBindings</h2>
+<p>Whether or not to enable my keybindings.</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre><h2 id="kirkzshenable">kirk.zsh.enable</h2>
+<p>Whether to enable zsh configuration..</p>
+<p><em><em>Type</em></em>:
+boolean</p>
+<p><em><em>Default</em></em></p>
+<pre tabindex="0"><code>false
+</code></pre><p><em><em>Example</em></em></p>
+<pre tabindex="0"><code>true
+</code></pre>
+    </div>
+    <footer class="content__footer"></footer>
+
+            </section>
+
+            <section class="page__aside">
+                <div class="aside__about">
+
+<ul class="aside__social-links">
+    
+</ul>
+</div>
+                <hr>
+                <div class="aside__content">
+    
+    
+        <p>
+            By Rasmus Kirk, 
+            2023-12-07
+        </p>
+    
+
+    
+
+                </div>
+            </section>
+
+            <footer class="page__footer"><p>
+    
+    
+    
+    
+    
+    
+    
+    
+</p>
+<br /><br />
+<p class="copyright"></p>
+<p class="advertisement">Powered by <a href="https://gohugo.io/">hugo</a> and <a href="https://github.com/joeroe/risotto">risotto</a>.</p>
+</footer>
+
+        </div>
+    </body>
+
+</html>
