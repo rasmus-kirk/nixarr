@@ -12,7 +12,7 @@
       {
         config._module.check = false;
       }
-      inputs.home-manager.nixosModules.default
+      #inputs.home-manager.nixosModules.default
       ./servarr
     ];
   };

@@ -10,9 +10,9 @@
 # the namespace should use a vpn or not.
 with builtins;
 with lib; let
-  cfg = config.kirk.vpnnamespace;
+  cfg = config.util.vpnnamespace;
 in {
-  options.kirk.vpnnamespace = {
+  options.util.vpnnamespace = {
     enable =
       mkEnableOption (lib.mdDoc "VPN Namespace")
       // {

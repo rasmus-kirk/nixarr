@@ -4,11 +4,12 @@
   ...
 }:
 with lib; let
-  cfg = config.kirk.servarr.jellyfin;
+  cfg = config.servarr.jellyfin;
   defaultPort = 8096;
-  servarr = config.kirk.servarr;
+  servarr = config.servarr;
+  dnsServers = config.lib.vpn.dnsServers;
 in {
-  options.kirk.servarr.jellyfin = {
+  options.servarr.jellyfin = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -96,7 +97,7 @@ in {
         defaults.email = cfg.nginx.acmeMail;
       };
 
-      kirk.vpnnamespace.portMappings = [
+      util.vpnnamespace.portMappings = [
         (
           mkIf cfg.useVpn {
             From = defaultPort;

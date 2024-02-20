@@ -7,11 +7,11 @@
 }:
 with lib; let
   defaultPort = 9696;
-  dnsServers = config.kirk.vpnnamespace.dnsServer;
-  servarr = config.kirk.servarr;
-  cfg = config.kirk.servarr.prowlarr;
+  dnsServers = config.lib.vpn.dnsServers;
+  servarr = config.servarr;
+  cfg = config.servarr.prowlarr;
 in {
-  options.kirk.servarr.prowlarr = {
+  options.servarr.prowlarr = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -39,7 +39,7 @@ in {
       openFirewall = true;
     };
 
-    kirk.vpnnamespace.portMappings = [
+    util.vpnnamespace.portMappings = [
       (
         mkIf cfg.useVpn {
           From = defaultPort;

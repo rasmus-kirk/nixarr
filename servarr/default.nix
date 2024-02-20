@@ -4,7 +4,7 @@
   ...
 }:
 with lib; let
-  cfg = config.kirk.servarr;
+  cfg = config.servarr;
 in {
   imports = [
     ./jellyfin
@@ -14,10 +14,9 @@ in {
     ./sonarr
     ./prowlarr
     ./transmission
-    ../util
   ];
 
-  options.kirk.servarr = {
+  options.servarr = {
     enable = mkEnableOption ''
       My servarr setup. Lets you host the servarr services optionally
       through a VPN. It is possible, BUT NOT RECOMENDED, to have
@@ -113,6 +112,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    imports = [
+      ../util
+    ];
+
     users.groups = {
       media = {
         members = cfg.mediaUsers;

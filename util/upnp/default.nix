@@ -6,9 +6,9 @@
   ...
 }:
 with lib; let
-  cfg = config.kirk.upnp;
+  cfg = config.util.upnp;
 in {
-  options.kirk.upnp = {
+  options.util.upnp = {
     enable = mkEnableOption "Enable port forwarding using UPNP.";
 
     openTcpPorts = mkOption {

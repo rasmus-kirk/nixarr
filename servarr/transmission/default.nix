@@ -6,11 +6,11 @@
   ...
 }:
 with lib; let
-  cfg = config.kirk.servarr.transmission;
-  servarr = config.kirk.servarr;
+  cfg = config.servarr.transmission;
+  servarr = config.servarr;
   dnsServers = config.lib.vpn.dnsServers;
 in {
-  options.kirk.servarr.transmission = {
+  options.servarr.transmission = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -100,7 +100,7 @@ in {
         // cfg.extraConfig;
     };
 
-    kirk.vpnnamespace = mkIf cfg.useVpn {
+    util.vpnnamespace = mkIf cfg.useVpn {
       portMappings = [
         {
           From = cfg.uiPort;

@@ -6,12 +6,12 @@
   ...
 }:
 with lib; let
-  cfg = config.kirk.servarr.radarr;
+  cfg = config.servarr.radarr;
   defaultPort = 7878;
-  servarr = config.kirk.servarr;
-  dnsServers = config.kirk.vpnnamespace.dnsServers;
+  servarr = config.servarr;
+  dnsServers = config.lib.vpn.dnsServers;
 in {
-  options.kirk.servarr.radarr = {
+  options.servarr.radarr = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -39,7 +39,7 @@ in {
       dataDir = cfg.stateDir;
     };
 
-    kirk.vpnnamespace.portMappings = [
+    util.vpnnamespace.portMappings = [
       (
         mkIf cfg.useVpn {
           From = defaultPort;

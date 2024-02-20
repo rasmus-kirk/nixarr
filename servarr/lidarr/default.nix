@@ -4,10 +4,11 @@
   ...
 }:
 with lib; let
-  cfg = config.kirk.servarr.lidarr;
-  servarr = config.kirk.servarr;
+  cfg = config.servarr.lidarr;
+  dnsServers = config.lib.vpn.dnsServers;
+  servarr = config.servarr;
 in {
-  options.kirk.servarr.lidarr = {
+  options.servarr.lidarr = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -35,7 +36,7 @@ in {
       dataDir = cfg.stateDir;
     };
 
-    kirk.vpnnamespace.portMappings = [
+    util.vpnnamespace.portMappings = [
       (
         mkIf cfg.useVpn {
           From = defaultPort;
