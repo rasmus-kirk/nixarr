@@ -3,6 +3,11 @@
 This is a nixos module that aims to make the installation and management of
 running the "*Arrs" as easy, and pain free, as possible.
 
+## Options
+
+The documentation for the options can be found
+[here](https://rasmus-kirk.github.io/servarr.enable/)
+
 ## Features
 
 - **Run services through a VPN:** You can run any service that this module
