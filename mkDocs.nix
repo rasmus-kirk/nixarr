@@ -23,6 +23,6 @@ in
   # create a derivation for capturing the markdown output
   runCommand "options-doc.md" {} ''
     mkdir -p $out
-    cat ${optionsDocNixos.optionsCommonMark} | tail -n +210 >> $out/nixos.md
+    cat ${optionsDocNixos.optionsCommonMark} | tail -n +58 >> $out/nixos.md
     sed -i '/\*Declared by:\*/{N;d;}' $out/nixos.md
   ''
