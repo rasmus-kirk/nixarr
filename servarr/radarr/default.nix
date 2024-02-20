@@ -39,17 +39,19 @@ in {
       dataDir = cfg.stateDir;
     };
 
-    kirk.vpnnamespace.portMappings = [(
-      mkIf cfg.useVpn {
-        From = defaultPort;
-        To = defaultPort;
-      }
-    )];
+    kirk.vpnnamespace.portMappings = [
+      (
+        mkIf cfg.useVpn {
+          From = defaultPort;
+          To = defaultPort;
+        }
+      )
+    ];
 
-    containers.radarr= mkIf cfg.useVpn {
+    containers.radarr = mkIf cfg.useVpn {
       autoStart = true;
       ephemeral = true;
-      extraFlags = [ "--network-namespace-path=/var/run/netns/wg" ];
+      extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
 
       bindMounts = {
         "${servarr.mediaDir}".isReadOnly = false;
@@ -103,6 +105,5 @@ in {
         };
       };
     };
-
   };
 }

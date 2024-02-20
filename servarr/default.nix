@@ -14,8 +14,9 @@ in {
     ./sonarr
     ./prowlarr
     ./transmission
+    ../util
   ];
-  
+
   options.kirk.servarr = {
     enable = mkEnableOption ''
       My servarr setup. Lets you host the servarr services optionally
@@ -71,7 +72,7 @@ in {
           Extra DNS servers for the VPN. If your wg config has a DNS field,
           then this should not be necessary.
         '';
-        example = [ "1.1.1.2" ];
+        example = ["1.1.1.2"];
       };
 
       vpnTestService = {
@@ -95,7 +96,7 @@ in {
           if you're port forwarding on your VPN provider and you're setting
           up services that is not covered in by this module.
         '';
-        example = [ 46382 38473 ];
+        example = [46382 38473];
       };
 
       openUdpPorts = mkOption {
@@ -106,7 +107,7 @@ in {
           if you're port forwarding on your VPN provider and you're setting
           up services that is not covered in by this module.
         '';
-        example = [ 46382 38473 ];
+        example = [46382 38473];
       };
     };
   };

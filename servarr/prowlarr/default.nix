@@ -38,18 +38,20 @@ in {
       enable = true;
       openFirewall = true;
     };
-  
-    kirk.vpnnamespace.portMappings = [(
-      mkIf cfg.useVpn {
-        From = defaultPort;
-        To = defaultPort;
-      }
-    )];
+
+    kirk.vpnnamespace.portMappings = [
+      (
+        mkIf cfg.useVpn {
+          From = defaultPort;
+          To = defaultPort;
+        }
+      )
+    ];
 
     containers.prowlarr = mkIf cfg.useVpn {
       autoStart = true;
       ephemeral = true;
-      extraFlags = [ "--network-namespace-path=/var/run/netns/wg" ];
+      extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
 
       bindMounts = {
         "/var/lib/prowlarr" = {

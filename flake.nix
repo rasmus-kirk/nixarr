@@ -1,5 +1,5 @@
 {
-  description = "Kirk nix modules";
+  description = "The servarr.enable nixos module";
 
   nixConfig = {
     extra-substituters = ["https://nix-community.cachix.org"];
@@ -46,12 +46,8 @@
 
       flake = {
         nixosModules = rec {
-          kirk = import ./nixos;
-          default = kirk;
-        };
-        homeManagerModules = rec {
-          kirk = import ./home-manager;
-          default = kirk;
+          servarr = import ./servarr;
+          default = servarr;
         };
       };
 
@@ -71,8 +67,8 @@
         };
 
         packages = {
-          docs = pkgs.callPackage ./mkDocs.nix { inherit inputs; };
-          hugo = pkgs.callPackage ./mkHugo.nix { inherit inputs; };
+          docs = pkgs.callPackage ./mkDocs.nix {inherit inputs;};
+          hugo = pkgs.callPackage ./mkHugo.nix {inherit inputs;};
         };
 
         devshells.default = {
@@ -89,20 +85,4 @@
         };
       };
     };
-
-  #  outputs = {
-  #    self,
-  #    }: {
-  #    nixosModules.kirk = import ./nixos;
-  #    nixosModules.default = self.nixosModules.kirk;
-  #
-  #    homeManagerModules.kirk = import ./home-manager;
-  #    homeManagerModules.default = self.homeManagerModules.kirk;
-  #
-  #    # TODO: Find a way to generate documentation from modules using the same
-  #    #       tools as nixos. See ./mkDocs.nix
-  #
-  #    #packages.x86_64-linux.mkdocs = {};
-  #    #defaultPackage.x86_64-linux = self.packages.x86_64-linux.report;
-  #  };
 }

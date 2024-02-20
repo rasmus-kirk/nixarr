@@ -1,6 +1,5 @@
 # TODO: Dir creation and file permissions in nix
 {
-  pkgs,
   config,
   lib,
   ...
@@ -49,7 +48,7 @@ in {
     containers.sonarr = mkIf cfg.useVpn {
       autoStart = true;
       ephemeral = true;
-      extraFlags = [ "--network-namespace-path=/var/run/netns/wg" ];
+      extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
 
       bindMounts = {
         "${servarr.mediaDir}".isReadOnly = false;

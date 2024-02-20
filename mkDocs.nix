@@ -55,7 +55,6 @@
   optionsDocNixos = nixosOptionsDoc {
     inherit (evalNixos) options;
   };
-
 in
   # create a derivation for capturing the markdown output
   runCommand "options-doc.md" {} ''

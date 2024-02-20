@@ -17,7 +17,7 @@ in {
       description = lib.mdDoc ''
         What TCP ports to open using UPNP.
       '';
-      example = [ 46382 38473 ];
+      example = [46382 38473];
     };
 
     openUdpPorts = mkOption {
@@ -26,7 +26,7 @@ in {
       description = lib.mdDoc ''
         What UDP ports to open using UPNP.
       '';
-      example = [ 46382 38473 ];
+      example = [46382 38473];
     };
   };
 
@@ -64,28 +64,29 @@ in {
     '';
 
     systemd = {
-      services.upnpc = let 
+      services.upnpc = let
         upnp-ports = pkgs.writeShellApplication {
           name = "upnp-ports";
 
           runtimeInputs = with pkgs; [miniupnpc];
 
           text = (
-            strings.concatMapStrings (x: "upnpc -r ${builtins.toString x} UDP" + "\n") cfg.openUpdPorts ++
-            strings.concatMapStrings (x: "upnpc -r ${builtins.toString x} TCP" + "\n") cfg.openTcpPorts ++
-            ''echo "Successfully requested upnp ports to be opened".''
+            strings.concatMapStrings (x: "upnpc -r ${builtins.toString x} UDP" + "\n") cfg.openUpdPorts
+            ++ strings.concatMapStrings (x: "upnpc -r ${builtins.toString x} TCP" + "\n") cfg.openTcpPorts
+            ++ ''echo "Successfully requested upnp ports to be opened".''
           );
         };
-      in mkIf cfg.upnp.enable {
-        enable = true;
-        description = "Sets port on router";
-        script = "${upnp-ports}/bin/upnp-ports";
+      in
+        mkIf cfg.upnp.enable {
+          enable = true;
+          description = "Sets port on router";
+          script = "${upnp-ports}/bin/upnp-ports";
 
-        serviceConfig = {
-          User = "root";
-          Type = "oneshot";
+          serviceConfig = {
+            User = "root";
+            Type = "oneshot";
+          };
         };
-      };
 
       timers = {
         upnpc = mkIf cfg.upnp.enable {
