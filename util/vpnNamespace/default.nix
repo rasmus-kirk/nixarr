@@ -110,9 +110,9 @@ in {
 
     dnsServers = mkOption {
       type = with types; nullOr (listOf str);
-      default = loadDns wireguardConfigFile; #[ "1.1.1.2" ];
+      default = [];
       description = lib.mdDoc ''
-        YOUR VPN WILL LEAK IF THIS IS NOT SET. The dns address of your vpn.
+        DNS servers to append to any found in the wg-quick config file.
       '';
       example = ["1.1.1.2"];
     };

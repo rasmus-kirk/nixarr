@@ -1,19 +1,6 @@
 {
   imports = [
-    ./fonts
-    ./foot
-    ./fzf
-    ./git
-    ./gruvboxTheme
-    ./helix
-    ./homeManagerScripts
-    ./jiten
-    ./joshuto
-    ./kakoune
-    ./ssh
-    ./terminalTools
-    ./userDirs
-    ./zathura
-    ./zsh
+    ./upnp
+    ./vpnNamespace
   ];
 }
