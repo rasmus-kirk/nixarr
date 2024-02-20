@@ -3,7 +3,8 @@
 This is a nixos module that aims to make the installation and management of
 running the "*Arrs" as easy, and pain free, as possible.
 
-**Features**
+## Features
+
 - **Run services through a VPN:** You can run any service that this module
   supports through a VPN, fx `servarr.*.useVpn = true;`
 - **Automatic Directories, Users and Permissions:** The module automatically
@@ -24,6 +25,8 @@ servarr.vpn = {
   wgConf = "/data/.secret/wg.conf";
 }
 ```
+
+## Examples
 
 Full example can be seen below:
 
