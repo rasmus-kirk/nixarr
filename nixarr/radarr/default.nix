@@ -12,27 +12,22 @@ with lib; let
   dnsServers = config.lib.vpn.dnsServers;
 in {
   options.nixarr.radarr = {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Enable radarr";
-    };
+    enable = mkEnableOption "Enable the Radarr service.";
 
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/nixarr/radarr";
-      description = lib.mdDoc "The state directory for radarr";
+      description = "The state directory for radarr.";
     };
 
-    useVpn = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Use VPN with radarr";
-    };
+    vpn.enable = mkEnableOption ''
+      Route Radarr traffic through the VPN. Requires that `nixarr.vpn`
+      is configured.
+    '';
   };
 
   config = mkIf cfg.enable {
-    services.radarr = mkIf (!cfg.useVpn) {
+    services.radarr = mkIf (!cfg.vpn.enable) {
       enable = cfg.enable;
       user = "radarr";
       group = "media";
@@ -41,14 +36,14 @@ in {
 
     util.vpnnamespace.portMappings = [
       (
-        mkIf cfg.useVpn {
+        mkIf cfg.vpn.enable {
           From = defaultPort;
           To = defaultPort;
         }
       )
     ];
 
-    containers.radarr = mkIf cfg.useVpn {
+    containers.radarr = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
@@ -84,7 +79,7 @@ in {
       };
     };
 
-    services.nginx = mkIf cfg.useVpn {
+    services.nginx = mkIf cfg.vpn.enable {
       enable = true;
 
       recommendedTlsSettings = true;

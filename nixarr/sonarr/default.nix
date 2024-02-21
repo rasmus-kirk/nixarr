@@ -14,24 +14,23 @@ in {
     enable = mkOption {
       type = types.bool;
       default = false;
-      description = lib.mdDoc "Enable sonarr";
+      description = "Enable the Sonarr service.";
     };
 
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/sonarr";
-      description = lib.mdDoc "The state directory for sonarr";
+      description = "The state directory for Sonarr.";
     };
 
-    useVpn = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Use VPN with sonarr";
-    };
+    vpn.enable = mkEnableOption ''
+      Route Readarr traffic through the VPN. Requires that `nixarr.vpn`
+      is configured.
+    '';
   };
 
   config = mkIf cfg.enable {
-    services.sonarr = mkIf (!cfg.useVpn) {
+    services.sonarr = mkIf (!cfg.vpn.enable) {
       enable = cfg.enable;
       user = "sonarr";
       group = "media";
@@ -39,13 +38,13 @@ in {
     };
 
     util.vpnnamespace.portMappings = [
-      (mkIf cfg.useVpn {
+      (mkIf cfg.vpn.enable {
         From = defaultPort;
         To = defaultPort;
       })
     ];
 
-    containers.sonarr = mkIf cfg.useVpn {
+    containers.sonarr = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
@@ -83,7 +82,7 @@ in {
       };
     };
 
-    services.nginx = mkIf cfg.useVpn {
+    services.nginx = mkIf cfg.vpn.enable {
       enable = true;
 
       recommendedTlsSettings = true;

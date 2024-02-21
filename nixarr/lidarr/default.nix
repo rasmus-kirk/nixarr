@@ -9,23 +9,18 @@ with lib; let
   nixarr = config.nixarr;
 in {
   options.nixarr.lidarr = {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Enable lidarr";
-    };
+    enable = mkEnableOption "Enable the Lidarr service.";
 
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/nixarr/lidarr";
-      description = lib.mdDoc "The state directory for lidarr";
+      description = "The state directory for Lidarr";
     };
 
-    useVpn = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Use VPN with prowlarr";
-    };
+    vpn.enable = mkEnableOption ''
+      Route Lidarr traffic through the VPN. Requires that `nixarr.vpn`
+      is configured
+    '';
   };
 
   config = mkIf cfg.enable {
@@ -38,14 +33,14 @@ in {
 
     util.vpnnamespace.portMappings = [
       (
-        mkIf cfg.useVpn {
+        mkIf cfg.vpn.enable {
           From = defaultPort;
           To = defaultPort;
         }
       )
     ];
 
-    containers.lidarr = mkIf cfg.useVpn {
+    containers.lidarr = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
@@ -81,7 +76,7 @@ in {
       };
     };
 
-    services.nginx = mkIf cfg.useVpn {
+    services.nginx = mkIf cfg.vpn.enable {
       enable = true;
 
       recommendedTlsSettings = true;

@@ -37,25 +37,21 @@ in {
       Remember to read the options.
     '';
 
-    mediaUsers = mkOption {
-      type = with types; listOf str;
-      default = [];
-      description = "Extra users to add the the media group, giving access to the media directory. You probably want to add your own user here.";
-    };
-
     mediaDir = mkOption {
       type = types.path;
       default = "/data/media";
-      description = "The location of the media directory for the services.";
+      description = ''
+        The location of the media directory for the services.
+      '';
     };
 
     stateDir = mkOption {
       type = types.path;
       default = "/data/.state";
-      description = "The location of the state directory for the services.";
+      description = ''
+        The location of the state directory for the services.
+      '';
     };
-
-    upnp.enable = mkEnableOption "Enable automatic port forwarding using UPNP.";
 
     vpn = {
       enable = mkEnableOption ''Enable vpn'';
@@ -69,7 +65,7 @@ in {
       dnsServers = mkOption {
         type = with types; nullOr (listOf str);
         default = null;
-        description = lib.mdDoc ''
+        description = ''
           Extra DNS servers for the VPN. If your wg config has a DNS field,
           then this should not be necessary.
         '';
@@ -77,12 +73,15 @@ in {
       };
 
       vpnTestService = {
-        enable = mkEnableOption "Enable the vpn test service.";
+        enable = mkEnableOption ''
+          Enable the vpn test service. Useful for testing DNS leaks or VPN
+          port forwarding.
+        '';
 
         port = mkOption {
           type = types.port;
           default = 12300;
-          description = lib.mdDoc ''
+          description = ''
             The port that the vpn test service listens to.
           '';
           example = 58403;
@@ -93,9 +92,9 @@ in {
         type = with types; listOf port;
         default = [];
         description = lib.mdDoc ''
-          What TCP ports to allow incoming traffic from. You might need this
-          if you're port forwarding on your VPN provider and you're setting
-          up services that is not covered in by this module.
+          What TCP ports to allow traffic from. You might need this if you're
+          port forwarding on your VPN provider and you're setting up services
+          not covered in by this module that uses the VPN.
         '';
         example = [46382 38473];
       };
@@ -104,9 +103,9 @@ in {
         type = with types; listOf port;
         default = [];
         description = lib.mdDoc ''
-          What UDP ports to allow incoming traffic from. You might need this
-          if you're port forwarding on your VPN provider and you're setting
-          up services that is not covered in by this module.
+          What UDP ports to allow traffic from. You might need this if you're
+          port forwarding on your VPN provider and you're setting up services
+          not covered in by this module that uses the VPN.
         '';
         example = [46382 38473];
       };
@@ -169,7 +168,7 @@ in {
 
     systemd.tmpfiles.rules = [
       # State dirs
-      "d '${cfg.stateDir}'                        0755 root         root  - -"
+      "d '${cfg.stateDir}'                       0755 root         root  - -"
       "d '${cfg.stateDir}/nixarr'                0755 root         root  - -"
       "d '${cfg.stateDir}/nixarr/jellyfin'       0700 jellyfin     root  - -"
       "d '${cfg.stateDir}/nixarr/transmission'   0700 transmission root  - -"
@@ -196,9 +195,7 @@ in {
       "d '${cfg.mediaDir}/torrents/readarr'       0755 transmission media - -"
     ];
 
-    kirk.upnp.enable = cfg.upnp.enable;
-
-    kirk.vpnnamespace = {
+    util.vpnnamespace = {
       enable = true;
       accessibleFrom = [
         "192.168.1.0/24"

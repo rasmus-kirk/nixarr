@@ -9,23 +9,18 @@ with lib; let
   dnsServers = config.lib.vpn.dnsServers;
 in {
   options.nixarr.readarr = {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Enable readarr";
-    };
+    enable = mkEnableOption "Enable the Readarr service";
 
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/nixarr/readarr";
-      description = lib.mdDoc "The state directory for readarr";
+      description = "The state directory for Readarr";
     };
 
-    useVpn = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Use VPN with prowlarr";
-    };
+    vpn.enable = mkEnableOption ''
+      Route Readarr traffic through the VPN. Requires that `nixarr.vpn`
+      is configured.
+    '';
   };
 
   config = mkIf cfg.enable {
@@ -38,14 +33,14 @@ in {
 
     util.vpnnamespace.portMappings = [
       (
-        mkIf cfg.useVpn {
+        mkIf cfg.vpn.enable {
           From = defaultPort;
           To = defaultPort;
         }
       )
     ];
 
-    containers.readarr = mkIf cfg.useVpn {
+    containers.readarr = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
@@ -81,7 +76,7 @@ in {
       };
     };
 
-    services.nginx = mkIf cfg.useVpn {
+    services.nginx = mkIf cfg.vpn.enable {
       enable = true;
 
       recommendedTlsSettings = true;

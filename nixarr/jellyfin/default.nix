@@ -10,57 +10,68 @@ with lib; let
   dnsServers = config.lib.vpn.dnsServers;
 in {
   options.nixarr.jellyfin = {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "enable jellyfin";
-    };
+    enable = mkEnableOption "Enable the Jellyfin service.";
 
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/nixarr/jellyfin";
-      description = lib.mdDoc "The state directory for jellyfin";
+      description = "The state directory for Jellyfin.";
     };
 
-    useVpn = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Use VPN with prowlarr";
-    };
+    vpn.enable = mkEnableOption ''
+      Route Jellyfin traffic through the VPN. Requires that `nixarr.vpn`
+      is configured
+    '';
 
-    nginx = {
-      enable = mkEnableOption "Enable nginx for jellyfin";
+    expose = {
+      enable = mkEnableOption ''
+        Enable nginx for Jellyfin, exposing the web service to the internet.
+      '';
+
+      upnp = mkOption {
+        type = types.bool;
+        default = false;
+        description = "Use UPNP to try to open ports 80 and 443 on your router.";
+      };
 
       domainName = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = "REQUIRED! The domain name to host jellyfin on.";
+        description = "REQUIRED! The domain name to host Jellyfin on.";
       };
 
       acmeMail = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = "REQUIRED! The ACME mail.";
+        description = "REQUIRED! The ACME mail required for the letsencrypt bot.";
       };
     };
   };
 
   config =
-    #assert (!(cfg.useVpn && cfg.nginx.enable)) || abort "useVpn not compatible with nginx.enable.";
+    # TODO: this doesn't work. I don't know why :(
+    #assert (!(cfg.vpn.enable && cfg.nginx.enable)) || abort "vpn.enable not compatible with nginx.enable.";
     #assert (cfg.nginx.enable -> (cfg.nginx.domainName != null && cfg.nginx.acmeMail != null)) || abort "Both nginx.domain and nginx.acmeMail needs to be set if nginx.enable is set.";
     mkIf cfg.enable
     {
-      services.jellyfin.enable = cfg.enable;
+      services.jellyfin = {
+        enable    = cfg.enable;
+        logDir    = "${cfg.stateDir}/log";
+        cacheDir  = "${cfg.stateDir}/cache";
+        dataDir   = "${cfg.stateDir}/data";
+        configDir = "${cfg.stateDir}/config";
+      };
 
-      networking.firewall.allowedTCPPorts =
-        if cfg.nginx.enable
-        then [
-          80 # http
-          443 # https
-        ]
-        else [];
+      networking.firewall = mkIf cfg.nginx.enable {
+        allowedTCPPorts = [ 80 443 ];
+      };
 
-      services.nginx = mkIf (cfg.nginx.enable || cfg.useVpn) {
+      util.upnp = mkIf cfg.nginx.upnp.enable {
+        enable = true;
+        openTcpPorts = [ 80 443 ];
+      };
+
+      services.nginx = mkIf (cfg.nginx.enable || cfg.vpn.enable) {
         enable = true;
 
         recommendedTlsSettings = true;
@@ -77,7 +88,7 @@ in {
           };
         };
 
-        virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = mkIf cfg.useVpn {
+        virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = mkIf cfg.vpn.enable {
           listen = [
             {
               addr = "0.0.0.0";
@@ -99,14 +110,14 @@ in {
 
       util.vpnnamespace.portMappings = [
         (
-          mkIf cfg.useVpn {
+          mkIf cfg.vpn.enable {
             From = defaultPort;
             To = defaultPort;
           }
         )
       ];
 
-      containers.jellyfin = mkIf cfg.useVpn {
+      containers.jellyfin = mkIf cfg.vpn.enable {
         autoStart = true;
         ephemeral = true;
         extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
@@ -132,8 +143,10 @@ in {
 
           services.jellyfin = {
             enable = true;
-            group = "jellyfin";
-            dataDir = "${cfg.stateDir}";
+            logDir = "${cfg.stateDir}/log";
+            cacheDir = "${cfg.stateDir}/cache";
+            dataDir = "${cfg.stateDir}/data";
+            configDir = "${cfg.stateDir}/config";
           };
 
           system.stateVersion = "23.11";

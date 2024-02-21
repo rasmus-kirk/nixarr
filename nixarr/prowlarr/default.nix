@@ -12,53 +12,40 @@ with lib; let
   cfg = config.nixarr.prowlarr;
 in {
   options.nixarr.prowlarr = {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Enable prowlarr";
-    };
+    enable = mkEnableOption "Enable the Prowlarr service.";
 
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/nixarr/prowlarr";
-      description = lib.mdDoc ''
-        The state directory for prowlarr. Currently doesn't work, except with VPN.
-      '';
+      description = "The state directory for Prowlarr.";
     };
 
-    useVpn = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Use VPN with prowlarr";
-    };
+    vpn.enable = mkEnableOption ''
+      Route Prowlarr traffic through the VPN. Requires that `nixarr.vpn`
+      is configured.
+    '';
   };
 
   config = mkIf cfg.enable {
-    services.prowlarr = mkIf (!cfg.useVpn) {
+    util.services.prowlarr = mkIf (!cfg.vpn.enable) {
       enable = true;
-      openFirewall = true;
+      dataDir = cfg.statedir;
     };
 
     util.vpnnamespace.portMappings = [
       (
-        mkIf cfg.useVpn {
+        mkIf cfg.vpn.enable {
           From = defaultPort;
           To = defaultPort;
         }
       )
     ];
 
-    containers.prowlarr = mkIf cfg.useVpn {
+    containers.prowlarr = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
-
-      bindMounts = {
-        "/var/lib/prowlarr" = {
-          hostPath = cfg.stateDir;
-          isReadOnly = false;
-        };
-      };
+      bindMounts."${cfg.statedir}".isReadOnly = false;
 
       config = {
         users.groups.prowlarr = {};
@@ -74,16 +61,16 @@ in {
         services.resolved.enable = true;
         networking.nameservers = dnsServers;
 
-        services.prowlarr = {
+        util.services.prowlarr = {
           enable = true;
-          openFirewall = true;
+          dataDir = cfg.stateDir;
         };
 
         system.stateVersion = "23.11";
       };
     };
 
-    services.nginx = mkIf cfg.useVpn {
+    services.nginx = mkIf cfg.vpn.enable {
       enable = true;
 
       recommendedTlsSettings = true;

@@ -11,61 +11,62 @@ with lib; let
   dnsServers = config.lib.vpn.dnsServers;
 in {
   options.nixarr.transmission = {
-    enable = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Enable transmission";
-    };
+    enable = mkEnableOption "Enable the Transmission service.";
 
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/nixarr/transmission";
-      description = lib.mdDoc "The state directory for transmission. Only works with useVpn option.";
+      description = ''
+        The state directory for Transmission. 
+        
+        **BUG**: Only works when the `nixarr.transmission.vpn.enable` option
+        is set.
+      '';
     };
 
     downloadDir = mkOption {
       type = types.path;
       default = "${nixarr.mediaDir}/torrents";
-      description = lib.mdDoc ''
-        The directory for transmission to download to.
+      description = ''
+        The directory for Transmission to download to.
       '';
     };
 
-    useVpn = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Run transmission through VPN";
-    };
+    vpn.enable = mkEnableOption ''
+      Route Transmission traffic through the VPN. Requires that `nixarr.vpn`
+      is configured.
+    '';
 
-    useFlood = mkOption {
-      type = types.bool;
-      default = false;
-      description = lib.mdDoc "Use the flood UI";
-    };
+    flood.enable = mkEnableOption "Use the flood web-UI";
 
     peerPort = mkOption {
       type = types.port;
       default = 50000;
-      description = "transmission peer traffic port.";
+      description = "Transmission peer traffic port.";
     };
 
     uiPort = mkOption {
       type = types.port;
       default = 9091;
-      description = "transmission web-UI port.";
+      description = "Transmission web-UI port.";
     };
 
     extraConfig = mkOption {
       type = types.attrs;
       default = {};
-      description = "Extra settings config for the transmission service.";
+      description = ''
+        Extra config settings for the Transmission service. See the
+        `services.transmission.settings` section of the `configuration.nix`
+        manual.
+      '';
     };
   };
 
   config = mkIf cfg.enable {
-    services.transmission = mkIf (!cfg.useVpn) {
+    services.transmission = mkIf (!cfg.vpn.enable) {
       enable = true;
       group = "media";
+      # TODO: This doesn't work, and it should...
       #home = cfg.stateDir;
       webHome =
         if cfg.useFlood
@@ -82,25 +83,32 @@ in {
           watch-dir-enabled = true;
           watch-dir = "${nixarr.mediaDir}/torrents/.watch";
 
+          rpc-bind-address = "192.168.15.1";
           rpc-port = cfg.uiPort;
-          rpc-whitelist-enabled = true;
+          rpc-whitelist-enabled = false;
           rpc-whitelist = "192.168.15.1,127.0.0.1";
-          rpc-authentication-required = true;
+          rpc-authentication-required = false;
 
           blocklist-enabled = true;
           blocklist-url = "https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz";
 
+          peer-port = cfg.peerPort;
+          dht-enabled = true;
+          pex-enabled = true;
+          utp-enabled = false;
           encryption = 1;
-          utp-enabled = true;
           port-forwarding-enabled = false;
 
           anti-brute-force-enabled = true;
           anti-brute-force-threshold = 10;
+
+          # 0 = None, 1 = Critical, 2 = Error, 3 = Warn, 4 = Info, 5 = Debug, 6 = Trace
+          message-level = 3;
         }
         // cfg.extraConfig;
     };
 
-    util.vpnnamespace = mkIf cfg.useVpn {
+    util.vpnnamespace = mkIf cfg.vpn.enable {
       portMappings = [
         {
           From = cfg.uiPort;
@@ -111,7 +119,7 @@ in {
       openTcpPorts = [cfg.peerPort];
     };
 
-    containers.transmission = mkIf cfg.useVpn {
+    containers.transmission = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
@@ -207,7 +215,7 @@ in {
       };
     };
 
-    services.nginx = mkIf cfg.useVpn {
+    services.nginx = mkIf cfg.vpn.enable {
       enable = true;
 
       recommendedTlsSettings = true;
