@@ -11,6 +11,10 @@ with lib; let
   nixarr = config.nixarr;
   cfg = config.nixarr.prowlarr;
 in {
+  imports = [
+    ./prowlarr-module
+  ];
+
   options.nixarr.prowlarr = {
     enable = mkEnableOption "Enable the Prowlarr service.";
 
@@ -29,7 +33,7 @@ in {
   config = mkIf cfg.enable {
     util.services.prowlarr = mkIf (!cfg.vpn.enable) {
       enable = true;
-      dataDir = cfg.statedir;
+      dataDir = cfg.stateDir;
     };
 
     util.vpnnamespace.portMappings = [
@@ -45,7 +49,7 @@ in {
       autoStart = true;
       ephemeral = true;
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
-      bindMounts."${cfg.statedir}".isReadOnly = false;
+      bindMounts."${cfg.stateDir}".isReadOnly = false;
 
       config = {
         users.groups.prowlarr = {};

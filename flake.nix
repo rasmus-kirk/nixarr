@@ -7,12 +7,7 @@
   };
 
   inputs = {
-    #nixpkgs.url = "github:nixos/nixpkgs/22.11";
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-    nixpkgs-flood.url = "github:3JlOy-PYCCKUi/nixpkgs/flood-module";
-    #nixpkgs-unstable.url = "github:nixos/nixpkgs/nixpkgs-unstable";
-
-    home-manager.url = "github:nix-community/home-manager";
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";

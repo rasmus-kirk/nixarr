@@ -115,10 +115,7 @@ in {
 
   config = mkIf cfg.enable {
     users.groups = {
-      media = {
-        members = cfg.mediaUsers;
-        gid = 992;
-      };
+      media.gid = 992;
       prowlarr = {};
       transmission = {};
       jellyfin = {};

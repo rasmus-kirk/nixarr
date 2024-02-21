@@ -1,5 +1,7 @@
 # Nixarr
 
+![Logo](./docs/img/logo-1.webp)
+
 This is a nixos module that aims to make the installation and management of
 running the "*Arrs" as easy, and pain free, as possible.
 

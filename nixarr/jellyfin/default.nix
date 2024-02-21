@@ -25,14 +25,12 @@ in {
 
     expose = {
       enable = mkEnableOption ''
-        Enable nginx for Jellyfin, exposing the web service to the internet.
+        Enable expose for Jellyfin, exposing the web service to the internet.
       '';
 
-      upnp = mkOption {
-        type = types.bool;
-        default = false;
-        description = "Use UPNP to try to open ports 80 and 443 on your router.";
-      };
+      upnp.enable = mkEnableOption ''
+        Use UPNP to try to open ports 80 and 443 on your router.
+      '';
 
       domainName = mkOption {
         type = types.nullOr types.str;
@@ -50,8 +48,8 @@ in {
 
   config =
     # TODO: this doesn't work. I don't know why :(
-    #assert (!(cfg.vpn.enable && cfg.nginx.enable)) || abort "vpn.enable not compatible with nginx.enable.";
-    #assert (cfg.nginx.enable -> (cfg.nginx.domainName != null && cfg.nginx.acmeMail != null)) || abort "Both nginx.domain and nginx.acmeMail needs to be set if nginx.enable is set.";
+    #assert (!(cfg.vpn.enable && cfg.expose.enable)) || abort "vpn.enable not compatible with expose.enable.";
+    #assert (cfg.expose.enable -> (cfg.expose.domainName != null && cfg.expose.acmeMail != null)) || abort "Both expose.domain and expose.acmeMail needs to be set if expose.enable is set.";
     mkIf cfg.enable
     {
       services.jellyfin = {
@@ -62,23 +60,23 @@ in {
         configDir = "${cfg.stateDir}/config";
       };
 
-      networking.firewall = mkIf cfg.nginx.enable {
+      networking.firewall = mkIf cfg.expose.enable {
         allowedTCPPorts = [ 80 443 ];
       };
 
-      util.upnp = mkIf cfg.nginx.upnp.enable {
+      util.upnp = mkIf cfg.expose.upnp.enable {
         enable = true;
         openTcpPorts = [ 80 443 ];
       };
 
-      services.nginx = mkIf (cfg.nginx.enable || cfg.vpn.enable) {
+      services.nginx = mkIf (cfg.expose.enable || cfg.vpn.enable) {
         enable = true;
 
         recommendedTlsSettings = true;
         recommendedOptimisation = true;
         recommendedGzipSettings = true;
 
-        virtualHosts."${builtins.replaceStrings ["\n"] [""] cfg.nginx.domainName}" = mkIf cfg.nginx.enable {
+        virtualHosts."${builtins.replaceStrings ["\n"] [""] cfg.expose.domainName}" = mkIf cfg.expose.enable {
           enableACME = true;
           forceSSL = true;
           locations."/" = {
@@ -103,9 +101,9 @@ in {
         };
       };
 
-      security.acme = mkIf cfg.nginx.enable {
+      security.acme = mkIf cfg.expose.enable {
         acceptTerms = true;
-        defaults.email = cfg.nginx.acmeMail;
+        defaults.email = cfg.expose.acmeMail;
       };
 
       util.vpnnamespace.portMappings = [

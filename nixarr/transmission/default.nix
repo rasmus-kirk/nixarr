@@ -69,7 +69,7 @@ in {
       # TODO: This doesn't work, and it should...
       #home = cfg.stateDir;
       webHome =
-        if cfg.useFlood
+        if cfg.flood.enable
         then pkgs.flood-for-transmission
         else null;
       package = pkgs.transmission_4;
@@ -158,7 +158,7 @@ in {
           # This is maybe wrong, too afraid to fix it lol
           group = "media";
           webHome =
-            if cfg.useFlood
+            if cfg.flood.enable
             then pkgs.flood-for-transmission
             else null;
           package = pkgs.transmission_4;

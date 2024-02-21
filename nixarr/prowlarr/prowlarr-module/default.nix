@@ -62,7 +62,7 @@ in
     };
 
     users.users = mkIf (cfg.user == "prowlarr") {
-      sonarr = {
+      prowlarr = {
         group = cfg.group;
         home = cfg.dataDir;
         uid = 293;
