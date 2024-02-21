@@ -90,12 +90,14 @@ Add DDNS-support.
 
 ### State Directories
 
-- [ ] Jellyfin: PR is merged, just need to do add it here
-- [ ] prowlarr: Works for vpn, probably need to create my own prowlarr systemd service...
-- [x] sonarr: Works
-- [x] radarr: Works
-- [x] lidarr: Works
-- [x] readarr: Works
+- [x] Jellyfin: Works
+- [x] Prowlarr: Works
+- [x] Sonarr: Works
+- [x] Radarr: Works
+- [x] Lidarr: Works
+- [x] Readarr: Works
+- [ ] Transmission: Works for VPN, get weird bug, if
+  `services.transmission.dataDir` is set.
 
 ### Buildarr
 
@@ -120,8 +122,3 @@ Create support for the [cross-seed](https://github.com/cross-seed/cross-seed) se
 - [ ] Package with nix
 - [ ] Create nix service daemon
 - [ ] Add to nixpkgs
-
-### UPNP
-
-I have created and tested a UPNP module, I just need to elegantly integrate
-it to the module.
