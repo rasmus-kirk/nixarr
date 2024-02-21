@@ -14,6 +14,7 @@ in {
     ./sonarr
     ./prowlarr
     ./transmission
+    ../util
   ];
 
   options.nixarr = {
@@ -113,10 +114,6 @@ in {
   };
 
   config = mkIf cfg.enable {
-    imports = [
-      ../util
-    ];
-
     users.groups = {
       media = {
         members = cfg.mediaUsers;
