@@ -25,13 +25,13 @@ pkgs.writeShellApplication {
     sed '/^`[^`]*`$/s/`\(.*\)`/```nix\n\1\n```/g' "$tmpdir"/pre.md > "$tmpdir"/done.md
 
     mkdir -p out
-    cp styling.css out
+    cp docs/styling/style.css out
     pandoc \
       --standalone \
-      --highlight-style gruvbox.theme \
-      --metadata title="Nixarr" \
+      --highlight-style docs/styling/gruvbox.theme \
+      --metadata title="Nixarr - Option Documentation" \
       --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
-      --css=styling.css \
+      --css=style.css \
       -V lang=en \
       -V --mathjax \
       -f markdown+smart \
