@@ -4,11 +4,11 @@
   ...
 }:
 with lib; let
-  cfg = config.servarr.readarr;
-  servarr = config.servarr;
+  cfg = config.nixarr.readarr;
+  nixarr = config.nixarr;
   dnsServers = config.lib.vpn.dnsServers;
 in {
-  options.servarr.readarr = {
+  options.nixarr.readarr = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -17,7 +17,7 @@ in {
 
     stateDir = mkOption {
       type = types.path;
-      default = "${servarr.stateDir}/servarr/readarr";
+      default = "${nixarr.stateDir}/nixarr/readarr";
       description = lib.mdDoc "The state directory for readarr";
     };
 
@@ -51,7 +51,7 @@ in {
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
 
       bindMounts = {
-        "${servarr.mediaDir}".isReadOnly = false;
+        "${nixarr.mediaDir}".isReadOnly = false;
         "${cfg.stateDir}".isReadOnly = false;
       };
 

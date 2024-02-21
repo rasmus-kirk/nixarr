@@ -6,11 +6,11 @@
   ...
 }:
 with lib; let
-  cfg = config.servarr.transmission;
-  servarr = config.servarr;
+  cfg = config.nixarr.transmission;
+  nixarr = config.nixarr;
   dnsServers = config.lib.vpn.dnsServers;
 in {
-  options.servarr.transmission = {
+  options.nixarr.transmission = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -19,13 +19,13 @@ in {
 
     stateDir = mkOption {
       type = types.path;
-      default = "${servarr.stateDir}/servarr/transmission";
+      default = "${nixarr.stateDir}/nixarr/transmission";
       description = lib.mdDoc "The state directory for transmission. Only works with useVpn option.";
     };
 
     downloadDir = mkOption {
       type = types.path;
-      default = "${servarr.mediaDir}/torrents";
+      default = "${nixarr.mediaDir}/torrents";
       description = lib.mdDoc ''
         The directory for transmission to download to.
       '';
@@ -76,11 +76,11 @@ in {
       openPeerPorts = true;
       settings =
         {
-          download-dir = "${servarr.mediaDir}/torrents";
+          download-dir = "${nixarr.mediaDir}/torrents";
           incomplete-dir-enabled = true;
-          incomplete-dir = "${servarr.mediaDir}/torrents/.incomplete";
+          incomplete-dir = "${nixarr.mediaDir}/torrents/.incomplete";
           watch-dir-enabled = true;
-          watch-dir = "${servarr.mediaDir}/torrents/.watch";
+          watch-dir = "${nixarr.mediaDir}/torrents/.watch";
 
           rpc-port = cfg.uiPort;
           rpc-whitelist-enabled = true;
@@ -117,7 +117,7 @@ in {
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
 
       bindMounts = {
-        "${servarr.mediaDir}/torrents".isReadOnly = false;
+        "${nixarr.mediaDir}/torrents".isReadOnly = false;
         "/var/lib/transmission" = {
           hostPath = cfg.stateDir;
           isReadOnly = false;
@@ -158,11 +158,11 @@ in {
           openPeerPorts = true;
           settings =
             {
-              download-dir = "${servarr.mediaDir}/torrents";
+              download-dir = "${nixarr.mediaDir}/torrents";
               incomplete-dir-enabled = true;
-              incomplete-dir = "${servarr.mediaDir}/torrents/.incomplete";
+              incomplete-dir = "${nixarr.mediaDir}/torrents/.incomplete";
               watch-dir-enabled = true;
-              watch-dir = "${servarr.mediaDir}/torrents/.watch";
+              watch-dir = "${nixarr.mediaDir}/torrents/.watch";
 
               rpc-bind-address = "192.168.15.1";
               rpc-port = cfg.uiPort;

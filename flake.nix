@@ -1,5 +1,5 @@
 {
-  description = "The servarr.enable nixos module";
+  description = "The Nixarr Nixos Module for Hosting the \"*Arrs\"";
 
   nixConfig = {
     extra-substituters = ["https://nix-community.cachix.org"];
@@ -46,8 +46,8 @@
 
       flake = {
         nixosModules = rec {
-          servarr = import ./servarr;
-          default = servarr;
+          nixarr = import ./nixarr;
+          default = nixarr;
         };
       };
 

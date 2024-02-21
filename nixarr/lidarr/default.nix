@@ -1,57 +1,57 @@
-# TODO: Dir creation and file permissions in nix
 {
   config,
   lib,
   ...
 }:
 with lib; let
-  cfg = config.servarr.sonarr;
-  defaultPort = 8989;
-  servarr = config.servarr;
+  cfg = config.nixarr.lidarr;
   dnsServers = config.lib.vpn.dnsServers;
+  nixarr = config.nixarr;
 in {
-  options.servarr.sonarr = {
+  options.nixarr.lidarr = {
     enable = mkOption {
       type = types.bool;
       default = false;
-      description = lib.mdDoc "Enable sonarr";
+      description = lib.mdDoc "Enable lidarr";
     };
 
     stateDir = mkOption {
       type = types.path;
-      default = "${servarr.stateDir}/sonarr";
-      description = lib.mdDoc "The state directory for sonarr";
+      default = "${nixarr.stateDir}/nixarr/lidarr";
+      description = lib.mdDoc "The state directory for lidarr";
     };
 
     useVpn = mkOption {
       type = types.bool;
       default = false;
-      description = lib.mdDoc "Use VPN with sonarr";
+      description = lib.mdDoc "Use VPN with prowlarr";
     };
   };
 
   config = mkIf cfg.enable {
-    services.sonarr = mkIf (!cfg.useVpn) {
+    services.lidarr = {
       enable = cfg.enable;
-      user = "sonarr";
+      user = "lidarr";
       group = "media";
       dataDir = cfg.stateDir;
     };
 
     util.vpnnamespace.portMappings = [
-      (mkIf cfg.useVpn {
-        From = defaultPort;
-        To = defaultPort;
-      })
+      (
+        mkIf cfg.useVpn {
+          From = defaultPort;
+          To = defaultPort;
+        }
+      )
     ];
 
-    containers.sonarr = mkIf cfg.useVpn {
+    containers.lidarr = mkIf cfg.useVpn {
       autoStart = true;
       ephemeral = true;
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
 
       bindMounts = {
-        "${servarr.mediaDir}".isReadOnly = false;
+        "${nixarr.mediaDir}".isReadOnly = false;
         "${cfg.stateDir}".isReadOnly = false;
       };
 
@@ -59,8 +59,8 @@ in {
         users.groups.media = {
           gid = config.users.groups.media.gid;
         };
-        users.users.sonarr = {
-          uid = lib.mkForce config.users.users.sonarr.uid;
+        users.users.lidarr = {
+          uid = lib.mkForce config.users.users.lidarr.uid;
           isSystemUser = true;
           group = "media";
         };
@@ -71,12 +71,10 @@ in {
         services.resolved.enable = true;
         networking.nameservers = dnsServers;
 
-        users.groups.media = {};
-
-        services.sonarr = {
-          enable = cfg.enable;
+        services.lidarr = {
+          enable = true;
           group = "media";
-          dataDir = cfg.stateDir;
+          dataDir = "${cfg.stateDir}";
         };
 
         system.stateVersion = "23.11";

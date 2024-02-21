@@ -4,12 +4,12 @@
   ...
 }:
 with lib; let
-  cfg = config.servarr.jellyfin;
+  cfg = config.nixarr.jellyfin;
   defaultPort = 8096;
-  servarr = config.servarr;
+  nixarr = config.nixarr;
   dnsServers = config.lib.vpn.dnsServers;
 in {
-  options.servarr.jellyfin = {
+  options.nixarr.jellyfin = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -18,7 +18,7 @@ in {
 
     stateDir = mkOption {
       type = types.path;
-      default = "${servarr.stateDir}/servarr/jellyfin";
+      default = "${nixarr.stateDir}/nixarr/jellyfin";
       description = lib.mdDoc "The state directory for jellyfin";
     };
 
@@ -112,7 +112,7 @@ in {
         extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
 
         bindMounts = {
-          "${servarr.mediaDir}/library".isReadOnly = false;
+          "${nixarr.mediaDir}/library".isReadOnly = false;
           "${cfg.stateDir}".isReadOnly = false;
         };
 

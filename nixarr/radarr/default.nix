@@ -6,12 +6,12 @@
   ...
 }:
 with lib; let
-  cfg = config.servarr.radarr;
+  cfg = config.nixarr.radarr;
   defaultPort = 7878;
-  servarr = config.servarr;
+  nixarr = config.nixarr;
   dnsServers = config.lib.vpn.dnsServers;
 in {
-  options.servarr.radarr = {
+  options.nixarr.radarr = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -20,7 +20,7 @@ in {
 
     stateDir = mkOption {
       type = types.path;
-      default = "${servarr.stateDir}/servarr/radarr";
+      default = "${nixarr.stateDir}/nixarr/radarr";
       description = lib.mdDoc "The state directory for radarr";
     };
 
@@ -54,7 +54,7 @@ in {
       extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
 
       bindMounts = {
-        "${servarr.mediaDir}".isReadOnly = false;
+        "${nixarr.mediaDir}".isReadOnly = false;
         "${cfg.stateDir}".isReadOnly = false;
       };
 

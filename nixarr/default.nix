@@ -4,7 +4,7 @@
   ...
 }:
 with lib; let
-  cfg = config.servarr;
+  cfg = config.nixarr;
 in {
   imports = [
     ./jellyfin
@@ -16,13 +16,15 @@ in {
     ./transmission
   ];
 
-  options.servarr = {
+  options.nixarr = {
     enable = mkEnableOption ''
-      My servarr setup. Lets you host the servarr services optionally
-      through a VPN. It is possible, BUT NOT RECOMENDED, to have
-      prowlarr/sonarr/radarr/readarr/lidarr behind a VPN. Generally, you
-      should use VPN on transmission and maybe jellyfin, depending on your
-      setup. Also sets permissions and creates folders.
+      Primarily, lets you host the "*Arrs" services optionally through a VPN.
+
+      It is possible, _but not recommended_, to have
+      prowlarr/sonarr/radarr/readarr/lidarr behind a VPN, because it can cause
+      rate limiting issues. Generally, you should use VPN on transmission
+      and maybe jellyfin, depending on your setup. Also sets permissions
+      and creates directories.
 
       - Jellyfin
       - Lidarr
@@ -168,14 +170,14 @@ in {
     systemd.tmpfiles.rules = [
       # State dirs
       "d '${cfg.stateDir}'                        0755 root         root  - -"
-      "d '${cfg.stateDir}/servarr'                0755 root         root  - -"
-      "d '${cfg.stateDir}/servarr/jellyfin'       0700 jellyfin     root  - -"
-      "d '${cfg.stateDir}/servarr/transmission'   0700 transmission root  - -"
-      "d '${cfg.stateDir}/servarr/sonarr'         0700 sonarr       root  - -"
-      "d '${cfg.stateDir}/servarr/radarr'         0700 radarr       root  - -"
-      "d '${cfg.stateDir}/servarr/readarr'        0700 readarr      root  - -"
-      "d '${cfg.stateDir}/servarr/lidarr'         0700 lidarr       root  - -"
-      "d '${cfg.stateDir}/servarr/prowlarr'       0700 prowlarr     root  - -"
+      "d '${cfg.stateDir}/nixarr'                0755 root         root  - -"
+      "d '${cfg.stateDir}/nixarr/jellyfin'       0700 jellyfin     root  - -"
+      "d '${cfg.stateDir}/nixarr/transmission'   0700 transmission root  - -"
+      "d '${cfg.stateDir}/nixarr/sonarr'         0700 sonarr       root  - -"
+      "d '${cfg.stateDir}/nixarr/radarr'         0700 radarr       root  - -"
+      "d '${cfg.stateDir}/nixarr/readarr'        0700 readarr      root  - -"
+      "d '${cfg.stateDir}/nixarr/lidarr'         0700 lidarr       root  - -"
+      "d '${cfg.stateDir}/nixarr/prowlarr'       0700 prowlarr     root  - -"
 
       # Media dirs
       "d '${cfg.mediaDir}'                        0775 root         media - -"

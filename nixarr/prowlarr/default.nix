@@ -8,10 +8,10 @@
 with lib; let
   defaultPort = 9696;
   dnsServers = config.lib.vpn.dnsServers;
-  servarr = config.servarr;
-  cfg = config.servarr.prowlarr;
+  nixarr = config.nixarr;
+  cfg = config.nixarr.prowlarr;
 in {
-  options.servarr.prowlarr = {
+  options.nixarr.prowlarr = {
     enable = mkOption {
       type = types.bool;
       default = false;
@@ -20,7 +20,7 @@ in {
 
     stateDir = mkOption {
       type = types.path;
-      default = "${servarr.stateDir}/servarr/prowlarr";
+      default = "${nixarr.stateDir}/nixarr/prowlarr";
       description = lib.mdDoc ''
         The state directory for prowlarr. Currently doesn't work, except with VPN.
       '';

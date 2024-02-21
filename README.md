@@ -1,4 +1,4 @@
-# servarr.enable
+# Nixarr
 
 This is a nixos module that aims to make the installation and management of
 running the "*Arrs" as easy, and pain free, as possible.
@@ -6,24 +6,24 @@ running the "*Arrs" as easy, and pain free, as possible.
 ## Options
 
 The documentation for the options can be found
-[here](https://rasmus-kirk.github.io/servarr.enable/)
+[here](https://rasmus-kirk.github.io/nixarr/)
 
 ## Features
 
 - **Run services through a VPN:** You can run any service that this module
-  supports through a VPN, fx `servarr.*.useVpn = true;`
+  supports through a VPN, fx `nixarr.*.useVpn = true;`
 - **Automatic Directories, Users and Permissions:** The module automatically
   creates directories and users for your media library. It also sets sane
   permissions.
 - **State Management:** All services support state management and all state
-  that they manage is by default in `/data/.state/servarr/*`
+  that they manage is by default in `/data/.state/nixarr/*`
 - **Optional Automatic Port Forwarding:** This module has a UPNP module that
   lets services request ports from your router automatically, if you enable it.
 
 To run services through a VPN, you must provide a wg-quick config file:
 
 ```nix
-servarr.vpn = {
+nixarr.vpn = {
   enable = true;
   # IMPORTANT: This file must _not_ be in the config git directory
   # You can usually get this wireguard file from your VPN provider
@@ -36,12 +36,12 @@ servarr.vpn = {
 Full example can be seen below:
 
 ```nix
-servarr = {
+nixarr = {
   enable = true;
   # These two values are also the default, but you can set them to whatever
   # else you want
   mediaDir = "/data/media";
-  stateDir = "/data/media/.state/servarr";
+  stateDir = "/data/media/.state/nixarr";
 
   vpn = {
     enable = true;
@@ -87,7 +87,7 @@ Add DDNS-support.
 
 ### State Directories
 
-- [ ] Jellyfin: PR is merged, wait for nixpkgs to update
+- [ ] Jellyfin: PR is merged, just need to do add it here
 - [ ] prowlarr: Works for vpn, probably need to create my own prowlarr systemd service...
 - [x] sonarr: Works
 - [x] radarr: Works
@@ -100,7 +100,7 @@ Using buildarr would allow setup services to integrate with each other upon
 activation with no user input, definitely nice.
 
 Needs to be added to nixpkgs, not too hard, but is not worth it if the
-project is abandoned
+project is abandoned.
 
 - [ ] Package with nix
 - [ ] Add to nixpkgs
@@ -112,7 +112,7 @@ idea how this could be done, but would simplify things _a lot_.
 
 ### cross-seed
 
-Create a cross-seed service.
+Create support for the [cross-seed](https://github.com/cross-seed/cross-seed) service.
 
 - [ ] Package with nix
 - [ ] Create nix service daemon
