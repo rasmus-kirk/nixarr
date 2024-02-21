@@ -9,7 +9,7 @@ subject to change.
 ## Options
 
 The documentation for the options can be found
-[here](https://rasmus-kirk.github.io/nixarr/)
+[here](https://nixarr.rasmuskirk.com/)
 
 ## Features
 
