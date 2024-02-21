@@ -3,6 +3,9 @@
 This is a nixos module that aims to make the installation and management of
 running the "*Arrs" as easy, and pain free, as possible.
 
+Note that this is still in a somewhat alpha state and options are still 
+subject to change.
+
 ## Options
 
 The documentation for the options can be found
