@@ -36,13 +36,13 @@ jobs:
 
       - run: nix build .#docs
 
-      - run: nix run .#hugo
+      - run: nix run .#pandoc
 
-      - name: Store hugo
+      - name: Store pandoc
         uses: ./.github/actions/upload-artifact
         with:
-          name: hugo
-          path: ./hugo/public
+          name: pandoc
+          path: ./out
 
   deploy-docs:
     needs: generate-doc-options
@@ -57,7 +57,7 @@ jobs:
       - name: Get nix build output
         uses: ./.github/actions/download-artifact
         with:
-          name: hugo
+          name: pandoc
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
@@ -65,7 +65,7 @@ jobs:
       - name: Upload GH pages artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: './hugo/public'
+          path: './out'
 
       - name: Deploy to GitHub Pages
         id: deployment

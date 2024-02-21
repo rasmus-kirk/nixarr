@@ -68,7 +68,7 @@
 
         packages = {
           docs = pkgs.callPackage ./mkDocs.nix {inherit inputs;};
-          hugo = pkgs.callPackage ./mkHugo.nix {inherit inputs;};
+          pandoc = pkgs.callPackage ./mkPandoc.nix {inherit inputs;};
         };
 
         devshells.default = {
