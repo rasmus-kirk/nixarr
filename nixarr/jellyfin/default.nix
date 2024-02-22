@@ -64,7 +64,7 @@ in {
         allowedTCPPorts = [ 80 443 ];
       };
 
-      util.upnp = mkIf cfg.expose.upnp.enable {
+      util-nixarr.upnp = mkIf cfg.expose.upnp.enable {
         enable = true;
         openTcpPorts = [ 80 443 ];
       };
@@ -106,7 +106,7 @@ in {
         defaults.email = cfg.expose.acmeMail;
       };
 
-      util.vpnnamespace.portMappings = [
+      util-nixarr.vpnnamespace.portMappings = [
         (
           mkIf cfg.vpn.enable {
             From = defaultPort;

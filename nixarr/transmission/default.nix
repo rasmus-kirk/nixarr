@@ -108,7 +108,7 @@ in {
         // cfg.extraConfig;
     };
 
-    util.vpnnamespace = mkIf cfg.vpn.enable {
+    util-nixarr.vpnnamespace = mkIf cfg.vpn.enable {
       portMappings = [
         {
           From = cfg.uiPort;

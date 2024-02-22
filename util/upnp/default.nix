@@ -6,9 +6,9 @@
   ...
 }:
 with lib; let
-  cfg = config.util.upnp;
+  cfg = config.util-nixarr.upnp;
 in {
-  options.util.upnp = {
+  options.util-nixarr.upnp = {
     enable = mkEnableOption "Enable port forwarding using UPNP.";
 
     openTcpPorts = mkOption {

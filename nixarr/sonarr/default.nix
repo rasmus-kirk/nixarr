@@ -37,7 +37,7 @@ in {
       dataDir = cfg.stateDir;
     };
 
-    util.vpnnamespace.portMappings = [
+    util-nixarr.vpnnamespace.portMappings = [
       (mkIf cfg.vpn.enable {
         From = defaultPort;
         To = defaultPort;

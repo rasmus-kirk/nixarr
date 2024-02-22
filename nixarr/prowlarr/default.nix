@@ -31,12 +31,12 @@ in {
   };
 
   config = mkIf cfg.enable {
-    util.services.prowlarr = mkIf (!cfg.vpn.enable) {
+    util-nixarr.services.prowlarr = mkIf (!cfg.vpn.enable) {
       enable = true;
       dataDir = cfg.stateDir;
     };
 
-    util.vpnnamespace.portMappings = [
+    util-nixarr.vpnnamespace.portMappings = [
       (
         mkIf cfg.vpn.enable {
           From = defaultPort;
@@ -65,7 +65,7 @@ in {
         services.resolved.enable = true;
         networking.nameservers = dnsServers;
 
-        util.services.prowlarr = {
+        util-nixarr.services.prowlarr = {
           enable = true;
           dataDir = cfg.stateDir;
         };

@@ -189,7 +189,7 @@ in {
       "d '${cfg.mediaDir}/torrents/readarr'       0755 transmission media - -"
     ];
 
-    util.vpnnamespace = {
+    util-nixarr.vpnnamespace = {
       enable = true;
       accessibleFrom = [
         "192.168.1.0/24"

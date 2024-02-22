@@ -19,10 +19,12 @@ pkgs.writeShellApplication {
         next;
     }
     { print }  # Print all lines, including those inside code blocks
-    ' block=0 result/nixos.md > "$tmpdir"/pre.md
+    ' block=0 result/nixos.md > "$tmpdir"/1.md
     # inline code "blocks" to nix code blocks
     # shellcheck disable=SC2016
-    sed '/^`[^`]*`$/s/`\(.*\)`/```nix\n\1\n```/g' "$tmpdir"/pre.md > "$tmpdir"/done.md
+    sed '/^`[^`]*`$/s/`\(.*\)`/```nix\n\1\n```/g' "$tmpdir"/1.md > "$tmpdir"/2.md
+    # Remove bottom util-nixarr options
+    sed '/util-nixarr/,$d' "$tmpdir"/2.md > "$tmpdir"/done.md
 
     mkdir -p out
     cp docs/styling/style.css out

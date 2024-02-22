@@ -10,9 +10,9 @@
 # the namespace should use a vpn or not.
 with builtins;
 with lib; let
-  cfg = config.util.vpnnamespace;
+  cfg = config.util-nixarr.vpnnamespace;
 in {
-  options.util.vpnnamespace = {
+  options.util-nixarr.vpnnamespace = {
     enable =
       mkEnableOption (lib.mdDoc "VPN Namespace")
       // {

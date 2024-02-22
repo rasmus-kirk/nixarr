@@ -46,7 +46,7 @@ nixarr = {
   # These two values are also the default, but you can set them to whatever
   # else you want
   mediaDir = "/data/media";
-  stateDir = "/data/media/.state/nixarr";
+  stateDir = "/data/media/.state";
 
   vpn = {
     enable = true;
@@ -59,7 +59,7 @@ nixarr = {
     enable = true;
     # These options set up a nginx HTTPS reverse proxy, so you can access
     # Jellyfin on your domain with HTTPS
-    nginx = {
+    expose = {
       enable = true;
       domainName = "your.domain.com";
       acmeMail = "your@email.com"; # Required for ACME-bot
@@ -68,12 +68,47 @@ nixarr = {
 
   transmission = {
     enable = true;
-    useVpn = true;
+    vpn.enable = true;
     peerPort = 50000; # Set this to the port forwarded by your VPN
   };
 
   # It is possible for this module to run the *Arrs through a VPN, but it
-  # is generally not recommended
+  # is generally not recommended, as it can cause rate-limiting issues.
+  sonarr.enable = true;
+  radarr.enable = true;
+  prowlarr.enable = true;
+  readarr.enable = true;
+  lidarr.enable = true;
+};
+```
+
+Another example where port forwarding is not an option. This could be for
+example if you're living in a dorm:
+
+```nix
+nixarr = {
+  enable = true;
+
+  vpn = {
+    enable = true;
+    wgConf = "/data/.secret/wg.conf";
+  };
+
+  jellyfin = {
+    enable = true;
+    vpn = {
+      enable = true;
+      # Access the Jellyfin web-ui from the internet
+      openWebPort = true;
+    };
+  };
+
+  transmission = {
+    enable = true;
+    vpn.enable = true;
+    peerPort = 50000; # Set this to the port forwarded by your VPN
+  };
+
   sonarr.enable = true;
   radarr.enable = true;
   prowlarr.enable = true;

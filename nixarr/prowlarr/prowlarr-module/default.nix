@@ -3,11 +3,11 @@
 with lib;
 
 let
-  cfg = config.util.services.prowlarr;
+  cfg = config.util-nixarr.services.prowlarr;
 in
 {
   options = {
-    util.services.prowlarr = {
+    util-nixarr.services.prowlarr = {
       enable = mkEnableOption "Prowlarr";
 
       package = mkPackageOption pkgs "prowlarr" { };
