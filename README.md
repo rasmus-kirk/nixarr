@@ -5,6 +5,9 @@
 This is a nixos module that aims to make the installation and management of
 running the "*Arrs" as easy, and pain free, as possible.
 
+If you have problems or feedback, feel free to join [the
+discord](https://discord.gg/n9ga99KwWC).
+
 Note that this is still in a somewhat alpha state and options are still 
 subject to change.
 
