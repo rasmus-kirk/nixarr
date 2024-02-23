@@ -16,7 +16,7 @@ The documentation for the options can be found
 ## Features
 
 - **Run services through a VPN:** You can run any service that this module
-  supports through a VPN, fx `nixarr.*.useVpn = true;`
+  supports through a VPN, fx `nixarr.*.vpn.enable = true;`
 - **Automatic Directories, Users and Permissions:** The module automatically
   creates directories and users for your media library. It also sets sane
   permissions.
