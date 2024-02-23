@@ -122,6 +122,10 @@ nixarr = {
 
 ## Todo
 
+### Documentation
+
+Add a wiki with documentation and guides.
+
 ### DDNS
 
 Add DDNS-support.

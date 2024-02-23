@@ -36,12 +36,12 @@ jobs:
 
       - run: nix build .#docs
 
-      - run: nix run .#pandoc
+      - run: mkdir -p out && cp ./result/* out
 
-      - name: Store pandoc
+      - name: Store docs
         uses: ./.github/actions/upload-artifact
         with:
-          name: pandoc
+          name: docs
           path: ./out
 
   deploy-docs:
@@ -57,7 +57,7 @@ jobs:
       - name: Get nix build output
         uses: ./.github/actions/download-artifact
         with:
-          name: pandoc
+          name: docs
 
       - name: Setup Pages
         uses: actions/configure-pages@v3
