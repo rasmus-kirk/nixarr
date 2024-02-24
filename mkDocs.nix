@@ -52,7 +52,9 @@ in pkgs.stdenv.mkDerivation {
       # shellcheck disable=SC2016
       sed '/^`[^`]*`$/s/`\(.*\)`/```nix\n\1\n```/g' "$tmpdir"/1.md > "$tmpdir"/2.md
       # Remove bottom util-nixarr options
-      sed '/util-nixarr/,$d' "$tmpdir"/2.md > "$tmpdir"/done.md
+      sed '/util-nixarr/,$d' "$tmpdir"/2.md > "$tmpdir"/3.md
+      # Make h2 header to h3
+      sed 's/^##/###/g' "$tmpdir"/3.md > "$tmpdir"/done.md
 
       pandoc \
         --standalone \

@@ -106,7 +106,8 @@ footer .content {
 }
 
 .content-wrap {
-  padding-bottom: 2.5rem;
+  padding-bottom: 4rem;
+  overflow-wrap: break-word;
 }
 
 a {

@@ -85,10 +85,10 @@ nixarr = {
 };
 ```
 
-Another example where port forwarding is not an option. This could be for
-example if you're living in a dorm:
+Another example where port forwarding is not an option. This could be useful
+for example if you're living in a dorm without access to port forwarding:
 
-```nix{.numberLines}
+```nix {.numberLines}
 nixarr = {
   enable = true;
 
@@ -120,49 +120,8 @@ nixarr = {
 };
 ```
 
-## Todo
+## VPN
 
-### Documentation
-
-Add a wiki with documentation and guides.
-
-### DDNS
-
-Add DDNS-support.
-
-- [ ] Njalla
-
-### State Directories
-
-- [x] Jellyfin: Works
-- [x] Prowlarr: Works
-- [x] Sonarr: Works
-- [x] Radarr: Works
-- [x] Lidarr: Works
-- [x] Readarr: Works
-- [ ] Transmission: Works for VPN, get weird bug, if
-  `services.transmission.dataDir` is set.
-
-### Buildarr
-
-Using buildarr would allow setup services to integrate with each other upon
-activation with no user input, definitely nice.
-
-Needs to be added to nixpkgs, not too hard, but is not worth it if the
-project is abandoned.
-
-- [ ] Package with nix
-- [ ] Add to nixpkgs
-
-### DNS leaks
-
-Prevent DNS leaks _without using containerization,_ as is currently done. No
-idea how this could be done, but would simplify things _a lot_.
-
-### cross-seed
-
-Create support for the [cross-seed](https://github.com/cross-seed/cross-seed) service.
-
-- [ ] Package with nix
-- [ ] Create nix service daemon
-- [ ] Add to nixpkgs
+It's recommended that the VPN you're using has support for port forwarding. I
+suggest [AirVpn](https://airvpn.org/), since they accept Monero, but you can
+use whatever you want.
