@@ -1,6 +1,6 @@
 # Nixarr
 
-![Logo](./docs/img/logo-1.webp)
+![Logo](./docs/img/logo-2.png)
 
 This is a nixos module that aims to make the installation and management of
 running the "*Arrs" as easy, and pain free, as possible.
@@ -14,7 +14,7 @@ subject to change.
 ## Options
 
 The documentation for the options can be found
-[here](https://nixarr.rasmuskirk.com/)
+[here](https://nixarr.rasmuskirk.com/options)
 
 ## Features
 
@@ -30,7 +30,7 @@ The documentation for the options can be found
 
 To run services through a VPN, you must provide a wg-quick config file:
 
-```nix
+```nix {.numberLines}
 nixarr.vpn = {
   enable = true;
   # IMPORTANT: This file must _not_ be in the config git directory
@@ -43,7 +43,7 @@ nixarr.vpn = {
 
 Full example can be seen below:
 
-```nix
+```nix {.numberLines}
 nixarr = {
   enable = true;
   # These two values are also the default, but you can set them to whatever
@@ -88,7 +88,7 @@ nixarr = {
 Another example where port forwarding is not an option. This could be for
 example if you're living in a dorm:
 
-```nix
+```nix{.numberLines}
 nixarr = {
   enable = true;
 

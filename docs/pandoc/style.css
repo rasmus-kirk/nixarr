@@ -26,8 +26,8 @@
 }
 
 html {
-  font-size: 100%;
-  overflow-y: scroll;
+  /* font-size: 100%; */
+  /* overflow-y: scroll; */
   -webkit-text-size-adjust: 100%;
   -ms-text-size-adjust: 100%;
 }
@@ -35,12 +35,78 @@ html {
 body {
   color: var(--fg0);
   font-family: century_supra_a, Georgia, serif;
-  font-size: 12px;
+  font-size: 16px;
   line-height: 1.7;
-  padding: 1em;
-  margin: auto;
-  max-width: 38em;
   background: var(--bge);
+  margin: 0;
+}
+
+main {
+  min-height: 100vh;
+  position: relative;
+}
+
+#header {
+  background-color: #066678;
+  padding: 0.3rem 0;
+  color: #faf8e4;
+  border-bottom: 1px solid #458587;
+  font-size: 2rem;
+}
+
+nav {
+  color: #faf8e4;
+  background-color: #054c5a;
+}
+
+nav .content {
+  display: flex;
+  padding: 0;
+}
+
+nav a {
+  color: #458587;
+  text-decoration: none;
+  font-size: 1em;
+  padding: 0.15em 1em;
+}
+
+nav a.active {
+  background-color: #458587;
+  color: #faf8e4 !important;
+}
+
+nav a:visited {
+  color: #458587;
+}
+
+footer {
+  height: 2rem;
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  background-color: #03333b;
+  border-top: 0.5rem solid #458587;
+  color: #faf8e4;
+  display: flex;
+  font-size: 0.8rem;
+}
+
+footer .content {
+  display: flex;
+  align-items: center;
+  gap: 1em;
+  height: 100%;
+}
+
+.content {
+  margin: auto;
+  padding: 0 0.5rem;
+  max-width: 50rem;
+}
+
+.content-wrap {
+  padding-bottom: 2.5rem;
 }
 
 a {
@@ -96,7 +162,7 @@ img {
 h1, h2, h3, h4, h5, h6 {
   color: var(--fg0);
   line-height: 125%;
-  margin-top: 1em;
+  /* margin-top: 1em; */
   font-weight: normal;
 }
 
@@ -105,7 +171,7 @@ h4, h5, h6 {
 }
 
 h1 {
-  font-size: 2.5em;
+  font-size: 2.25em;
 }
 
 h2 {
@@ -274,16 +340,6 @@ table td {
   text-align: center;
 }
 
-@media only screen and (min-width: 480px) {
-  body {
-    font-size: 14px;
-  }
-}
-@media only screen and (min-width: 768px) {
-  body {
-    font-size: 16px;
-  }
-}
 @media print {
   * {
     background: transparent !important;
@@ -294,8 +350,12 @@ table td {
 
   body {
     font-size: 12pt;
+  }
+  
+  .content {
     max-width: 100%;
   }
+
 
   a, a:visited {
     text-decoration: underline;

@@ -1,7 +1,6 @@
 {
   lib,
   pkgs,
-  runCommand,
   nixosOptionsDoc,
   ...
 }: let
@@ -26,7 +25,7 @@ in pkgs.stdenv.mkDerivation {
     buildPhase = ''
       tmpdir=$(mktemp -d)
       mkdir -p $out
-      cp docs/styling/style.css $out
+      cp -r docs/pandoc/style.css docs $out
 
       # Generate md docs
       cat ${optionsDocNixos.optionsCommonMark} | tail -n +58 >> "$tmpdir"/nixos.md
@@ -57,14 +56,30 @@ in pkgs.stdenv.mkDerivation {
 
       pandoc \
         --standalone \
-        --highlight-style docs/styling/gruvbox.theme \
+        --highlight-style docs/pandoc/gruvbox.theme \
         --metadata title="Nixarr - Option Documentation" \
+        --template docs/pandoc/template.html \
         --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
-        --css=style.css \
+        --css style.css \
+        -V lang=en \
+        -V --mathjax \
+        -f markdown+smart \
+        -o $out/options.html \
+        "$tmpdir"/done.md
+
+      tail -n +2 README.md > "$tmpdir/index.md"
+
+      pandoc \
+        --standalone \
+        --highlight-style docs/pandoc/gruvbox.theme \
+        --template docs/pandoc/template.html \
+        --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
+        --metadata title="Nixarr" \
+        --css style.css \
         -V lang=en \
         -V --mathjax \
         -f markdown+smart \
         -o $out/index.html \
-        "$tmpdir"/done.md
+        "$tmpdir/index.md"
     '';
   }

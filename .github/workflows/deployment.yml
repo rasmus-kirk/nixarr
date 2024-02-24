@@ -36,7 +36,7 @@ jobs:
 
       - run: nix build .#docs
 
-      - run: mkdir -p out && cp ./result/* out
+      - run: mkdir -p out && cp -r ./result/* out
 
       - name: Store docs
         uses: ./.github/actions/upload-artifact
