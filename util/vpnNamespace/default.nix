@@ -13,29 +13,25 @@ with lib; let
   cfg = config.util-nixarr.vpnnamespace;
 in {
   options.util-nixarr.vpnnamespace = {
-    enable =
-      mkEnableOption (lib.mdDoc "VPN Namespace")
-      // {
-        description = lib.mdDoc ''
-          Whether to enable the VPN namespace.
+    enable = mkEnableOption  ''
+      Whether to enable the VPN namespace.
 
-          To access the namespace a veth pair is used to
-          connect the vpn namespace and the default namespace
-          through a linux bridge. One end of the pair is
-          connected to the linux bridge on the default namespace.
-          The other end is connected to the vpn namespace.
+      To access the namespace a veth pair is used to
+      connect the vpn namespace and the default namespace
+      through a linux bridge. One end of the pair is
+      connected to the linux bridge on the default namespace.
+      The other end is connected to the vpn namespace.
 
-          Systemd services can be run within the namespace by
-          adding these options:
+      Systemd services can be run within the namespace by
+      adding these options:
 
-          bindsTo = [ "netns@wg.service" ];
-          requires = [ "network-online.target" ];
-          after = [ "wg.service" ];
-          serviceConfig = {
-            NetworkNamespacePath = "/var/run/netns/wg";
-          };
-        '';
+      bindsTo = [ "netns@wg.service" ];
+      requires = [ "network-online.target" ];
+      after = [ "wg.service" ];
+      serviceConfig = {
+        NetworkNamespacePath = "/var/run/netns/wg";
       };
+    '';
 
     accessibleFrom = mkOption {
       type = types.listOf types.str;

@@ -55,7 +55,7 @@ in {
     };
 
     vpn = {
-      enable = mkEnableOption ''Enable vpn'';
+      enable = mkEnableOption "Enable vpn";
 
       wgConf = mkOption {
         type = types.nullOr types.path;
@@ -150,7 +150,7 @@ in {
       };
       transmission = {
         isSystemUser = true;
-        group = "transmission";
+        group = "media";
         uid = lib.mkForce 70;
       };
       prowlarr = {
@@ -190,7 +190,7 @@ in {
     ];
 
     util-nixarr.vpnnamespace = {
-      enable = true;
+      enable = cfg.vpn.enable;
       accessibleFrom = [
         "192.168.1.0/24"
         "127.0.0.1"
