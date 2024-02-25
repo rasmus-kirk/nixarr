@@ -119,6 +119,10 @@ in {
       openTcpPorts = [cfg.peerPort];
     };
 
+    systemd.services."container@transmission" = mkIf cfg.vpn.enable {
+      requires = ["wg.service"];
+    };
+
     containers.transmission = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;

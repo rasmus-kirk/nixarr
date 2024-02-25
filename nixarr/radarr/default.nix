@@ -43,6 +43,10 @@ in {
       )
     ];
 
+    systemd.services."container@radarr" = mkIf cfg.vpn.enable {
+      requires = ["wg.service"];
+    };
+
     containers.radarr = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;
