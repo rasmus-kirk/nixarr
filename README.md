@@ -125,3 +125,8 @@ nixarr = {
 It's recommended that the VPN you're using has support for port forwarding. I
 suggest [AirVpn](https://airvpn.org/), since they accept Monero, but you can
 use whatever you want.
+
+## Domain Registrars
+
+If you need a domain registrar I suggest [Njalla](https://njal.la/), they
+are privacy oriented, support DDNS and accept Monero.
