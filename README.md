@@ -129,7 +129,7 @@ use whatever you want.
 
 ## Domain Registrars
 
-If you need a domain registrar I suggest [Njalla](https://njal.la/), they
-are privacy-oriented, support DDNS and accept Monero. Note that you don't
-technically don't "own" the domain for privacy reasons, they "lease" it to
+If you need a domain registrar I suggest [Njalla](https://njal.la/),
+they are privacy-oriented, support DDNS and accept Monero. Note that you
+don't technically "own" the domain for privacy reasons, they "lease" it to
 you. However, this also means that you don't have to give _any_ personal data.
