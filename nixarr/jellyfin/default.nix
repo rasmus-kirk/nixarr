@@ -24,27 +24,66 @@ in {
     '';
 
     expose = {
-      enable = mkEnableOption ''
-        Expose the Jellyfin web service to the internet.
+      vpn = {
+        enable = mkEnableOption ''
+          **Required options:** 
+        
+          - `nixarr.jellyfin.vpn.enable`
+          - `nixarr.jellyfin.expose.vpn.port`
 
-        **Important:** Do _not_ enable this without setting up Jellyfin
-        authentication through localhost first!
-      '';
+          Expose the Jellyfin web service to the internet, allowing anyone to
+          access it.
 
-      upnp.enable = mkEnableOption ''
-        Use UPNP to try to open ports 80 and 443 on your router.
-      '';
+          **Important:** Do _not_ enable this without setting up Jellyfin
+          authentication through localhost first!
+        '';
 
-      domainName = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        description = "**REQUIRED:** The domain name to host Jellyfin on.";
+        port = {
+          type = with types; nullOr port;
+          default = null;
+          description = ''
+            **Required options:** `nixarr.jellyfin.expose.vpn.enable`
+
+            The port to access jellyfin on. Get this port from your VPN provider.
+
+            **Important:** Do _not_ enable this without setting up Jellyfin
+            authentication through localhost first!
+          '';
+        };
       };
 
-      acmeMail = mkOption {
-        type = types.nullOr types.str;
-        default = null;
-        description = "**REQUIRED:** The ACME mail required for the letsencrypt bot.";
+      https = {
+        enable = mkEnableOption ''
+          **Required options:** 
+        
+          - `nixarr.jellyfin.expose.https.acmeMail`
+          - `nixarr.jellyfin.expose.https.domainName`
+
+          **Conflicting options:** `nixarr.jellyfin.vpn.enable`
+
+          Expose the Jellyfin web service to the internet with https support,
+          allowing anyone to access it.
+
+          **Important:** Do _not_ enable this without setting up Jellyfin
+          authentication through localhost first!
+        '';
+
+
+        upnp.enable = mkEnableOption ''
+          Use UPNP to try to open ports 80 and 443 on your router.
+        '';
+
+        domainName = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "The domain name to host Jellyfin on.";
+        };
+
+        acmeMail = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          description = "The ACME mail required for the letsencrypt bot.";
+        };
       };
     };
   };
@@ -67,23 +106,23 @@ in {
         configDir = "${cfg.stateDir}/config";
       };
 
-      networking.firewall = mkIf cfg.expose.enable {
+      networking.firewall = mkIf cfg.expose.https.enable {
         allowedTCPPorts = [80 443];
       };
 
-      util-nixarr.upnp = mkIf cfg.expose.upnp.enable {
+      util-nixarr.upnp = mkIf cfg.expose.https.upnp.enable {
         enable = true;
         openTcpPorts = [80 443];
       };
 
-      services.nginx = mkIf (cfg.expose.enable || cfg.vpn.enable) {
+      services.nginx = mkIf (cfg.expose.https.enable || cfg.vpn.enable) {
         enable = true;
 
         recommendedTlsSettings = true;
         recommendedOptimisation = true;
         recommendedGzipSettings = true;
 
-        virtualHosts."${builtins.replaceStrings ["\n"] [""] cfg.expose.domainName}" = mkIf cfg.expose.enable {
+        virtualHosts."${builtins.replaceStrings ["\n"] [""] cfg.expose.https.domainName}" = mkIf cfg.expose.https.enable {
           enableACME = true;
           forceSSL = true;
           locations."/" = {
@@ -106,9 +145,19 @@ in {
             proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
           };
         };
+
+        virtualHosts."${config.util-nixarr.vpn.address}:${builtins.toString cfg.expose.vpn.port}" = mkIf cfg.expose.vpn.enable {
+          enableACME = true;
+          forceSSL = true;
+          locations."/" = {
+            recommendedProxySettings = true;
+            proxyWebsockets = true;
+            proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+          };
+        };
       };
 
-      security.acme = mkIf cfg.expose.enable {
+      security.acme = mkIf cfg.expose.https.enable {
         acceptTerms = true;
         defaults.email = cfg.expose.acmeMail;
       };
