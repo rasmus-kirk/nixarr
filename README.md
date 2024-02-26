@@ -9,8 +9,48 @@ as possible.
 If you have problems or feedback, feel free to join [the
 discord](https://discord.gg/n9ga99KwWC).
 
-Note that this is still in a somewhat alpha state, bugs are around and
-options are still subject to change, but the general format won't change.
+Note that this is still in a somewhat alpha state, beware!
+
+- Bugs are around
+- Options are still subject to change
+- Some options are mostly untested
+
+The general format won't change however. If you do still use it, any feedback
+is greatly appreciated.
+
+## Importing this module
+
+To use this module, add it to your flake inputs in your nix flake file:
+
+```nix {.numberLines}
+{
+  description = "Your nix flake";
+
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixarr.url = "github:rasmus-kirk/nixarr";
+  };
+
+  outputs = { 
+    nixpkgs,
+    nixarr,
+    ...
+  }@inputs: {
+    nixosConfigurations = {
+      servarr = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
+
+        modules = [
+          ./nixos/servarr/configuration.nix
+          nixarr.nixosModules.default
+        ];
+
+        specialArgs = { inherit inputs; };
+      };
+    };
+  };
+}
+```
 
 ## Options
 
@@ -20,12 +60,12 @@ The documentation for the options can be found
 ## Features
 
 - **Run services through a VPN:** You can run any service that this module
-  supports through a VPN, fx `nixarr.*.vpn.enable = true;`
+  supports through a VPN, fx `nixarr.transmission.vpn.enable = true;`
 - **Automatic Directories, Users and Permissions:** The module automatically
   creates directories and users for your media library. It also sets sane
   permissions.
 - **State Management:** All services support state management and all state
-  that they manage is by default in `/data/.state/nixarr/*`
+  that they manage is located by default in `/data/.state/nixarr/*`
 - **Optional Automatic Port Forwarding:** This module has a UPNP module that
   lets services request ports from your router automatically, if you enable it.
 
@@ -42,7 +82,11 @@ nixarr.vpn = {
 
 ## Examples
 
-Full example can be seen below:
+This example does the following:
+
+- Runs a jellyfin server and exposes it to the internet with HTTPS support.
+- Runs the transmission torrent client through a vpn
+- Runs all "*Arrs" supported by this module
 
 ```nix {.numberLines}
 nixarr = {
@@ -63,7 +107,7 @@ nixarr = {
     enable = true;
     # These options set up a nginx HTTPS reverse proxy, so you can access
     # Jellyfin on your domain with HTTPS
-    expose = {
+    expose.https = {
       enable = true;
       domainName = "your.domain.com";
       acmeMail = "your@email.com"; # Required for ACME-bot
@@ -86,8 +130,14 @@ nixarr = {
 };
 ```
 
-Another example where port forwarding is not an option. This could be useful
-for example if you're living in a dorm without access to port forwarding:
+Another example where port forwarding is not an option. This is useful if,
+for example, you're living in a dorm that does not allow port forwarding. This
+example does the following:
+
+- Runs Jellyfin and exposes it to the internet on a set port
+- Starts openssh and runs it through the VPN so that it can be accessed
+  outside your home network
+- Runs all the supported "*Arrs"
 
 ```nix {.numberLines}
 nixarr = {
@@ -100,12 +150,20 @@ nixarr = {
 
   jellyfin = {
     enable = true;
-    vpn = {
+    vpn.enable = true;
+
+    # Access the Jellyfin web-ui from the internet.
+    # Get this port from your VPN provider
+    expose.vpn = {
       enable = true;
-      # Access the Jellyfin web-ui from the internet
-      openWebPort = true;
+      port = 12345;
     };
   };
+
+  # Setup SSH service that runs through VPN.
+  # Lets you connect through ssh from the internet without having access to
+  # port forwarding
+  openssh.vpn.enable = true;
 
   transmission = {
     enable = true;
@@ -119,9 +177,43 @@ nixarr = {
   readarr.enable = true;
   lidarr.enable = true;
 };
+
+# The `openssh.vpn.enable` option does not enable openssh, so we do that here:
+# We disable password authentication as it's generally insecure.
+services.openssh = {
+  enable = true;
+  settings.PasswordAuthentication = false;
+  # Get this port from your VPN provider
+  ports = [ 54321 ]
+};
+# Adds your public keys as trusted devices
+users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
+  ./path/to/public/key/machine.pub}
+];
 ```
 
-## VPN
+In both examples, you don't have access to the "*Arrs" or torrent client
+without being on your home network or accessing them through localhost. If
+you have SSH setup you can use SSH tunneling. Simply run:
+
+```sh
+ssh -N user@ip \
+  -L 6001:localhost:9091 \
+  -L 6002:localhost:9696 \
+  -L 6003:localhost:8989 \
+  -L 6004:localhost:7878 \
+  -L 6005:localhost:8686 \
+  -L 6006:localhost:8787
+```
+
+Replace `user` with your user and `ip` with the public ip, or domain if set
+up, of your server. This lets you access the services on `localhost:6000`
+through `localhost:6006`.
+
+Another solution is to use [tailscale](https://tailscale.com/) or to setup
+your own VPN [manually with wireguard](https://nixos.wiki/wiki/WireGuard).
+
+## VPN Providers
 
 It's recommended that the VPN you're using has support for port forwarding. I
 suggest [AirVpn](https://airvpn.org/), since they accept Monero, but you can
