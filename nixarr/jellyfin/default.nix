@@ -133,51 +133,56 @@ in {
         openTcpPorts = [80 443];
       };
 
-      services.nginx = mkIf (cfg.expose.https.enable || cfg.vpn.enable) {
-        enable = true;
+      services.nginx = mkMerge [
+        (mkIf (cfg.expose.https.enable || cfg.vpn.enable) {
+          enable = true;
 
-        recommendedTlsSettings = true;
-        recommendedOptimisation = true;
-        recommendedGzipSettings = true;
-
-        virtualHosts."${builtins.replaceStrings ["\n"] [""] cfg.expose.https.domainName}" = mkIf cfg.expose.https.enable {
-          enableACME = true;
-          forceSSL = true;
-          locations."/" = {
-            recommendedProxySettings = true;
-            proxyWebsockets = true;
-            proxyPass = "http://127.0.0.1:${builtins.toString defaultPort}";
+          recommendedTlsSettings = true;
+          recommendedOptimisation = true;
+          recommendedGzipSettings = true;
+        })
+        (mkIf cfg.expose.https.enable {
+          virtualHosts."${builtins.replaceStrings ["\n"] [""] cfg.expose.https.domainName}" = {
+            enableACME = true;
+            forceSSL = true;
+            locations."/" = {
+              recommendedProxySettings = true;
+              proxyWebsockets = true;
+              proxyPass = "http://127.0.0.1:${builtins.toString defaultPort}";
+            };
           };
-        };
-
-        virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = mkIf cfg.vpn.enable {
-          listen = [
-            {
-              addr = "0.0.0.0";
-              port = defaultPort;
-            }
-          ];
-          locations."/" = {
-            recommendedProxySettings = true;
-            proxyWebsockets = true;
-            proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+        })
+        (mkIf cfg.vpn.enable {
+          virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = mkIf cfg.vpn.enable {
+            listen = [
+              {
+                addr = "0.0.0.0";
+                port = defaultPort;
+              }
+            ];
+            locations."/" = {
+              recommendedProxySettings = true;
+              proxyWebsockets = true;
+              proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+            };
           };
-        };
-      } // mkIf cfg.expose.vpn.enable {
-        virtualHosts."${cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = {
-          enableACME = true;
-          forceSSL = true;
-          locations."/" = {
-            recommendedProxySettings = true;
-            proxyWebsockets = true;
-            proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+        })
+        (mkIf cfg.expose.vpn.enable {
+          virtualHosts."${cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = {
+            enableACME = true;
+            forceSSL = true;
+            locations."/" = {
+              recommendedProxySettings = true;
+              proxyWebsockets = true;
+              proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+            };
           };
-        };
-      };
+        })
+      ];
 
       security.acme = mkIf cfg.expose.https.enable {
         acceptTerms = true;
-        defaults.email = cfg.expose.acmeMail;
+        defaults.email = cfg.expose.https.acmeMail;
       };
 
       util-nixarr.vpnnamespace.portMappings = [
