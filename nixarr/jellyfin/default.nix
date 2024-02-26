@@ -25,7 +25,10 @@ in {
 
     expose = {
       enable = mkEnableOption ''
-        Enable expose for Jellyfin, exposing the web service to the internet.
+        Expose the Jellyfin web service to the internet.
+
+        **Important:** Do _not_ enable this without setting up Jellyfin
+        authentication through localhost first!
       '';
 
       upnp.enable = mkEnableOption ''
@@ -35,13 +38,13 @@ in {
       domainName = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = "REQUIRED! The domain name to host Jellyfin on.";
+        description = "**REQUIRED:** The domain name to host Jellyfin on.";
       };
 
       acmeMail = mkOption {
         type = types.nullOr types.str;
         default = null;
-        description = "REQUIRED! The ACME mail required for the letsencrypt bot.";
+        description = "**REQUIRED:** The ACME mail required for the letsencrypt bot.";
       };
     };
   };
