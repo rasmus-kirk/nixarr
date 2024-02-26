@@ -62,7 +62,8 @@ in pkgs.stdenv.mkDerivation {
         --metadata title="Nixarr - Option Documentation" \
         --template docs/pandoc/template.html \
         --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
-        --css style.css \
+        --css docs/pandoc/style.css \
+        --lua-filter docs/pandoc/anchor-links.lua \
         -V lang=en \
         -V --mathjax \
         -f markdown+smart \
@@ -77,7 +78,7 @@ in pkgs.stdenv.mkDerivation {
         --template docs/pandoc/template.html \
         --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
         --metadata title="Nixarr" \
-        --css style.css \
+        --css docs/pandoc/style.css \
         -V lang=en \
         -V --mathjax \
         -f markdown+smart \
