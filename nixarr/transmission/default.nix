@@ -33,11 +33,21 @@ in {
     };
 
     vpn.enable = mkEnableOption ''
-      Route Transmission traffic through the VPN. Requires that `nixarr.vpn`
+      **Recommended!** Route Transmission traffic through the VPN. Requires that `nixarr.vpn`
       is configured.
     '';
 
     flood.enable = mkEnableOption "Use the flood web-UI";
+
+    privateTrackers = mkEnableOption ''
+      Disable pex and dht, which is required for some private trackers.
+
+      You don't want to enable this unless a private tracker requires you
+      to, and some don't. All torrents from private trackers are set as
+      "private", and this automatically disables dht and pex for that torrent,
+      so it shouldn't even be a necessary rule to have, but I don't make
+      their rules ¯\_(ツ)_/¯.
+    '';
 
     peerPort = mkOption {
       type = types.port;
@@ -55,9 +65,11 @@ in {
       type = types.attrs;
       default = {};
       description = ''
-        Extra config settings for the Transmission service. See the
-        `services.transmission.settings` section of the `configuration.nix`
-        manual.
+        Extra config settings for the Transmission service.
+        
+        See the `services.transmission.settings` nixos options in
+        the relevant section of the `configuration.nix` manual or on
+        [search.nixos.org](https://search.nixos.org/options?channel=unstable&query=services.transmission.settings).
       '';
     };
   };
@@ -67,7 +79,7 @@ in {
       enable = true;
       group = "media";
       # TODO: This doesn't work, and it should...
-      #home = cfg.stateDir;
+      home = cfg.stateDir;
       webHome =
         if cfg.flood.enable
         then pkgs.flood-for-transmission
@@ -85,7 +97,7 @@ in {
 
           rpc-bind-address = "192.168.15.1";
           rpc-port = cfg.uiPort;
-          rpc-whitelist-enabled = false;
+          rpc-whitelist-enabled = true;
           rpc-whitelist = "192.168.15.1,127.0.0.1";
           rpc-authentication-required = false;
 
@@ -93,8 +105,8 @@ in {
           blocklist-url = "https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz";
 
           peer-port = cfg.peerPort;
-          dht-enabled = true;
-          pex-enabled = true;
+          dht-enabled = !cfg.privateTrackers;
+          pex-enabled = !cfg.privateTrackers;
           utp-enabled = false;
           encryption = 1;
           port-forwarding-enabled = false;
@@ -186,8 +198,8 @@ in {
               blocklist-url = "https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz";
 
               peer-port = cfg.peerPort;
-              dht-enabled = true;
-              pex-enabled = true;
+              dht-enabled = !cfg.privateTrackers;
+              pex-enabled = !cfg.privateTrackers;
               utp-enabled = false;
               encryption = 1;
               port-forwarding-enabled = false;
