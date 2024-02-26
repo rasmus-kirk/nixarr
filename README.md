@@ -18,6 +18,39 @@ Note that this is still in a somewhat alpha state, beware!
 The general format won't change however. If you do still use it, any feedback
 is greatly appreciated.
 
+## Features
+
+- **Run services through a VPN:** You can run any service that this module
+  supports through a VPN, fx `nixarr.transmission.vpn.enable = true;`
+- **Automatic Directories, Users and Permissions:** The module automatically
+  creates directories and users for your media library. It also sets sane
+  permissions.
+- **State Management:** All services support state management and all state
+  that they manage is located by default in `/data/.state/nixarr/*`
+- **Optional Automatic Port Forwarding:** This module has a UPNP support that
+  lets services request ports from your router automatically, if you enable it.
+
+To run services through a VPN, you must provide a wg-quick config file,
+that is provided by most VPN providers:
+
+```nix {.numberLines}
+nixarr.vpn = {
+  enable = true;
+  # IMPORTANT: This file must _not_ be in the config git directory
+  # You can usually get this wireguard file from your VPN provider
+  wgConf = "/data/.secret/wg.conf";
+}
+```
+
+It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
+because it can cause rate limiting issues. Generally, you should use VPN on
+transmission and maybe jellyfin, depending on your setup.
+
+## Options
+
+The documentation for the options can be found
+[here](https://nixarr.rasmuskirk.com/options)
+
 ## Importing this module
 
 To use this module, add it to your flake inputs in your nix flake file:
@@ -49,34 +82,6 @@ To use this module, add it to your flake inputs in your nix flake file:
       };
     };
   };
-}
-```
-
-## Options
-
-The documentation for the options can be found
-[here](https://nixarr.rasmuskirk.com/options)
-
-## Features
-
-- **Run services through a VPN:** You can run any service that this module
-  supports through a VPN, fx `nixarr.transmission.vpn.enable = true;`
-- **Automatic Directories, Users and Permissions:** The module automatically
-  creates directories and users for your media library. It also sets sane
-  permissions.
-- **State Management:** All services support state management and all state
-  that they manage is located by default in `/data/.state/nixarr/*`
-- **Optional Automatic Port Forwarding:** This module has a UPNP module that
-  lets services request ports from your router automatically, if you enable it.
-
-To run services through a VPN, you must provide a wg-quick config file:
-
-```nix {.numberLines}
-nixarr.vpn = {
-  enable = true;
-  # IMPORTANT: This file must _not_ be in the config git directory
-  # You can usually get this wireguard file from your VPN provider
-  wgConf = "/data/.secret/wg.conf";
 }
 ```
 

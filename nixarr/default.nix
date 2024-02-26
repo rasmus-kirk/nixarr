@@ -31,7 +31,7 @@ in {
           permissions.
         - **State Management:** All services support state management and all state
           that they manage is located by default in `/data/.state/nixarr/*`
-        - **Optional Automatic Port Forwarding:** This module has a UPNP module that
+        - **Optional Automatic Port Forwarding:** This module has a UPNP support that
           lets services request ports from your router automatically, if you enable it.
       
         It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
