@@ -51,7 +51,7 @@ in {
         to, and some don't. All torrents from private trackers are set as
         "private", and this automatically disables dht and pex for that torrent,
         so it shouldn't even be a necessary rule to have, but I don't make
-        their rules ¯\_(ツ)_/¯.
+        their rules ¯\\_(ツ)_/¯.
       '';
     };
 
