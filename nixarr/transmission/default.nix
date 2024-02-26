@@ -90,9 +90,9 @@ in {
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}/nixarr/transmission'                             0700 transmission root - -"
+      "d '${cfg.stateDir}'                             0700 transmission root - -"
       # This is fixes a bug in nixpks TODO: create nixpkgs issue
-      "d '${cfg.stateDir}/nixarr/transmission/.config/transmission-daemon' 0700 transmission root - -"
+      "d '${cfg.stateDir}/.config/transmission-daemon' 0700 transmission root - -"
     ];
 
     services.transmission = mkIf (!cfg.vpn.enable) {

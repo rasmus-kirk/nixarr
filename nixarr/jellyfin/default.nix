@@ -53,7 +53,7 @@ in {
     mkIf cfg.enable
     {
       systemd.tmpfiles.rules = [
-        "d '${cfg.stateDir}/nixarr/jellyfin' 0700 jellyfin root - -"
+        "d '${cfg.stateDir}' 0700 jellyfin root - -"
       ];
 
       services.jellyfin = {

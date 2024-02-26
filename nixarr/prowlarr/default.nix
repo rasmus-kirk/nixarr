@@ -31,7 +31,7 @@ in {
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}/nixarr/prowlarr' 0700 prowlarr root - -"
+      "d '${cfg.stateDir}' 0700 prowlarr root - -"
     ];
 
     util-nixarr.services.prowlarr = mkIf (!cfg.vpn.enable) {

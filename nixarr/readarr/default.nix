@@ -25,7 +25,7 @@ in {
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}/nixarr/readarr' 0700 readarr root - -"
+      "d '${cfg.stateDir}' 0700 readarr root - -"
     ];
 
     services.readarr = {
