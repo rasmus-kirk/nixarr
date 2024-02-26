@@ -38,7 +38,7 @@ in {
           authentication through localhost first!
         '';
 
-        port = {
+        port = mkOption {
           type = with types; nullOr port;
           default = null;
           description = ''
