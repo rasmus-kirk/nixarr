@@ -29,8 +29,14 @@ in {
     '';
   };
 
-  config = mkIf cfg.enable {
-    systemd.services.openssh = mkIf (cfg.vpn.enable && config.services.openssh.enable) {
+  config = mkIf (cfg.vpn.enable && config.services.openssh.enable) {
+    util-nixarr.vpnnamespace = {
+      portMappings = builtins.map (x: { From = x; To = x; }) config.services.openssh.ports;
+      openUdpPorts = config.services.openssh.ports;
+      openTcpPorts = config.services.openssh.ports;
+    };
+
+    systemd.services.openssh = {
       bindsTo = [ "netns@wg.service" ];
       requires = [ "network-online.target" ];
       after = [ "wg.service" ];
