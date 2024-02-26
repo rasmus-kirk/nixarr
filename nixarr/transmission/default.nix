@@ -84,7 +84,6 @@ in {
     services.transmission = mkIf (!cfg.vpn.enable) {
       enable = true;
       group = "media";
-      # TODO: This doesn't work, and it should...
       home = cfg.stateDir;
       webHome =
         if cfg.flood.enable
@@ -101,7 +100,7 @@ in {
           watch-dir-enabled = true;
           watch-dir = "${nixarr.mediaDir}/torrents/.watch";
 
-          rpc-bind-address = "192.168.15.1";
+          rpc-bind-address = "127.0.0.1";
           rpc-port = cfg.uiPort;
           rpc-whitelist-enabled = true;
           rpc-whitelist = "192.168.15.1,127.0.0.1";
@@ -194,7 +193,7 @@ in {
               watch-dir-enabled = true;
               watch-dir = "${nixarr.mediaDir}/torrents/.watch";
 
-              rpc-bind-address = "127.0.0.1";
+              rpc-bind-address = "192.168.15.1";
               rpc-port = cfg.uiPort;
               rpc-whitelist-enabled = false;
               rpc-whitelist = "192.168.15.1,127.0.0.1";
