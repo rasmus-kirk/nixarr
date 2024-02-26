@@ -140,7 +140,6 @@ in {
     users.groups = {
       media.gid = 992;
       prowlarr = {};
-      transmission = {};
       streamer = {};
       torrenter = {};
     };
@@ -150,6 +149,7 @@ in {
     users.users = {
       streamer = {
         isSystemUser = true;
+        group = "streamer";
         uid = lib.mkForce 316;
       };
       sonarr = {
@@ -174,6 +174,7 @@ in {
       };
       torrenter = {
         isSystemUser = true;
+        group = "torrenter";
         uid = lib.mkForce 70;
       };
       prowlarr = {
