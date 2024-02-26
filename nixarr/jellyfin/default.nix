@@ -10,7 +10,7 @@ with lib; let
   dnsServers = config.lib.vpn.dnsServers;
 in {
   options.nixarr.jellyfin = {
-    enable = mkEnableOption "Enable the Jellyfin service.";
+    enable = mkEnableOption "the Jellyfin service.";
 
     stateDir = mkOption {
       type = types.path;
@@ -18,27 +18,35 @@ in {
       description = "The state directory for Jellyfin.";
     };
 
-    vpn.enable = mkEnableOption ''
-      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+    vpn.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
 
-      Route Jellyfin traffic through the VPN.
-    '';
+        Route Jellyfin traffic through the VPN.
+      '';
+    };
 
     expose = {
       vpn = {
-        enable = mkEnableOption ''
-          **Required options:** 
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            **Required options:** 
         
-          - [`nixarr.jellyfin.vpn.enable`](/options.html#nixarr.jellyfin.vpn.enable)
-          - [`nixarr.jellyfin.expose.vpn.port`](/options.html#nixarr.jellyfin.expose.vpn.port)
-          - [`nixarr.jellyfin.expose.vpn.accessibleFrom`](/options.html#nixarr.jellyfin.expose.vpn.accessibleFrom)
+            - [`nixarr.jellyfin.vpn.enable`](/options.html#nixarr.jellyfin.vpn.enable)
+            - [`nixarr.jellyfin.expose.vpn.port`](/options.html#nixarr.jellyfin.expose.vpn.port)
+            - [`nixarr.jellyfin.expose.vpn.accessibleFrom`](/options.html#nixarr.jellyfin.expose.vpn.accessibleFrom)
 
-          Expose the Jellyfin web service to the internet, allowing anyone to
-          access it.
+            Expose the Jellyfin web service to the internet, allowing anyone to
+            access it.
 
-          **Important:** Do _not_ enable this without setting up Jellyfin
-          authentication through localhost first!
-        '';
+            **Important:** Do _not_ enable this without setting up Jellyfin
+            authentication through localhost first!
+          '';
+        };
 
         port = mkOption {
           type = with types; nullOr port;
@@ -60,25 +68,26 @@ in {
       };
 
       https = {
-        enable = mkEnableOption ''
-          **Required options:** 
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            **Required options:** 
         
-          - [`nixarr.jellyfin.expose.https.acmeMail`](/options.html#nixarr.jellyfin.expose.https.acmeMail)
-          - [`nixarr.jellyfin.expose.https.domainName`](/options.html#nixarr.jellyfin.expose.https.domainName)
+            - [`nixarr.jellyfin.expose.https.acmeMail`](/options.html#nixarr.jellyfin.expose.https.acmeMail)
+            - [`nixarr.jellyfin.expose.https.domainName`](/options.html#nixarr.jellyfin.expose.https.domainName)
 
-          **Conflicting options:** [`nixarr.jellyfin.vpn.enable`](/options.html#nixarr.jellyfin.vpn.enable)
+            **Conflicting options:** [`nixarr.jellyfin.vpn.enable`](/options.html#nixarr.jellyfin.vpn.enable)
 
-          Expose the Jellyfin web service to the internet with https support,
-          allowing anyone to access it.
+            Expose the Jellyfin web service to the internet with https support,
+            allowing anyone to access it.
 
-          **Important:** Do _not_ enable this without setting up Jellyfin
-          authentication through localhost first!
-        '';
+            **Important:** Do _not_ enable this without setting up Jellyfin
+            authentication through localhost first!
+          '';
+        };
 
-
-        upnp.enable = mkEnableOption ''
-          Use UPNP to try to open ports 80 and 443 on your router.
-        '';
+        upnp.enable = mkEnableOption "UPNP to try to open ports 80 and 443 on your router.";
 
         domainName = mkOption {
           type = types.nullOr types.str;

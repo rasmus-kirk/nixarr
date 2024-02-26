@@ -24,9 +24,11 @@ in
     buildInputs = with pkgs; [pandoc];
     phases = ["unpackPhase" "buildPhase"];
     buildPhase = ''
-      tmpdir=$(mktemp -d)
+      #tmpdir=$(mktemp -d)
+      tmpdir="$out/debug"
       mkdir -p $out
-      cp -r docs/pandoc/style.css docs $out
+      mkdir -p $tmpdir
+      cp -r docs $out
 
       # Generate md docs
       cat ${optionsDocNixos.optionsCommonMark} | tail -n +58 >> "$tmpdir"/nixos.md

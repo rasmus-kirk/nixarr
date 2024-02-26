@@ -19,11 +19,15 @@ in {
       description = "The state directory for radarr.";
     };
 
-    vpn.enable = mkEnableOption ''
-      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+    vpn.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
 
-      Route Radarr traffic through the VPN.
-    '';
+        Route Radarr traffic through the VPN.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {

@@ -9,7 +9,7 @@ with lib; let
   nixarr = config.nixarr;
 in {
   options.nixarr.lidarr = {
-    enable = mkEnableOption "Enable the Lidarr service.";
+    enable = mkEnableOption "the Lidarr service.";
 
     stateDir = mkOption {
       type = types.path;
@@ -17,11 +17,15 @@ in {
       description = "The state directory for Lidarr";
     };
 
-    vpn.enable = mkEnableOption ''
-      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+    vpn.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
 
-      Route Lidarr traffic through the VPN.
-    '';
+        Route Lidarr traffic through the VPN.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {

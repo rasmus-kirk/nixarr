@@ -11,7 +11,7 @@ with lib; let
   dnsServers = config.lib.vpn.dnsServers;
 in {
   options.nixarr.transmission = {
-    enable = mkEnableOption "Enable the Transmission service.";
+    enable = mkEnableOption "the Transmission service.";
 
     stateDir = mkOption {
       type = types.path;
@@ -29,23 +29,31 @@ in {
       '';
     };
 
-    vpn.enable = mkEnableOption ''
-      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+    vpn.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
 
-      **Recommended:** Route Transmission traffic through the VPN.
-    '';
+        **Recommended:** Route Transmission traffic through the VPN.
+      '';
+    };
 
-    flood.enable = mkEnableOption "Use the flood web-UI";
+    flood.enable = mkEnableOption "the flood web-UI for the transmission web-UI.";
 
-    privateTrackers = mkEnableOption ''
-      Disable pex and dht, which is required for some private trackers.
+    privateTrackers = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Disable pex and dht, which is required for some private trackers.
 
-      You don't want to enable this unless a private tracker requires you
-      to, and some don't. All torrents from private trackers are set as
-      "private", and this automatically disables dht and pex for that torrent,
-      so it shouldn't even be a necessary rule to have, but I don't make
-      their rules ¯\_(ツ)_/¯.
-    '';
+        You don't want to enable this unless a private tracker requires you
+        to, and some don't. All torrents from private trackers are set as
+        "private", and this automatically disables dht and pex for that torrent,
+        so it shouldn't even be a necessary rule to have, but I don't make
+        their rules ¯\_(ツ)_/¯.
+      '';
+    };
 
     messageLevel = mkOption {
       type = types.enum [
@@ -58,7 +66,7 @@ in {
         "trace"
       ];
       default = "warn";
-      description = "Sets the message level of transmission";
+      description = "Sets the message level of transmission.";
     };
 
     peerPort = mkOption {

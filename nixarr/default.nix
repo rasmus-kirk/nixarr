@@ -18,25 +18,39 @@ in {
   ];
 
   options.nixarr = {
-    enable = mkEnableOption ''
-      Primarily, lets you host the "*Arrs" services optionally through a VPN.
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        Whether or not to enable the nixarr module. Has the following features:
 
-      It is possible, _but not recommended_, to have
-      prowlarr/sonarr/radarr/readarr/lidarr behind a VPN, because it can cause
-      rate limiting issues. Generally, you should use VPN on transmission
-      and maybe jellyfin, depending on your setup. Also sets permissions
-      and creates directories.
+        - **Run services through a VPN:** You can run any service that this module
+          supports through a VPN, fx `nixarr.transmission.vpn.enable = true;`
+        - **Automatic Directories, Users and Permissions:** The module automatically
+          creates directories and users for your media library. It also sets sane
+          permissions.
+        - **State Management:** All services support state management and all state
+          that they manage is located by default in `/data/.state/nixarr/*`
+        - **Optional Automatic Port Forwarding:** This module has a UPNP module that
+          lets services request ports from your router automatically, if you enable it.
+      
+        It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
+        because it can cause rate limiting issues. Generally, you should use
+        VPN on transmission and maybe jellyfin, depending on your setup.
 
-      - Jellyfin
-      - Lidarr
-      - Prowlarr
-      - Radarr
-      - Readarr
-      - Sonarr
-      - Transmission
+        The following services are supported:
 
-      Remember to read the options.
-    '';
+        - Jellyfin
+        - Lidarr
+        - Prowlarr
+        - Radarr
+        - Readarr
+        - Sonarr
+        - Transmission
+
+        Remember to read the options.
+      '';
+    };
 
     mediaDir = mkOption {
       type = types.path;
@@ -55,12 +69,21 @@ in {
     };
 
     vpn = {
-      enable = mkEnableOption "Enable vpn";
+      enable = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          **Required options:** [`nixarr.vpn.wgConf`](/options.html#nixarr.vpn.wgConf)
+
+          Whether or not to enable VPN support for the services that nixarr
+          supports.
+        '';
+      };
 
       wgConf = mkOption {
         type = types.nullOr types.path;
         default = null;
-        description = "REQUIRED! The path to the wireguard configuration file.";
+        description = "The path to the wireguard configuration file.";
       };
 
       dnsServers = mkOption {
@@ -75,8 +98,8 @@ in {
 
       vpnTestService = {
         enable = mkEnableOption ''
-          Enable the vpn test service. Useful for testing DNS leaks or VPN
-          port forwarding.
+          the vpn test service. Useful for testing DNS leaks or if the VPN
+          port forwarding works correctly.
         '';
 
         port = mkOption {

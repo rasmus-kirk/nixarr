@@ -15,7 +15,7 @@ in {
   ];
 
   options.nixarr.prowlarr = {
-    enable = mkEnableOption "Enable the Prowlarr service.";
+    enable = mkEnableOption "the Prowlarr service.";
 
     stateDir = mkOption {
       type = types.path;
@@ -23,11 +23,15 @@ in {
       description = "The state directory for Prowlarr.";
     };
 
-    vpn.enable = mkEnableOption ''
-      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+    vpn.enable = mkOption {
+      type = types.bool;
+      default = false;
+      description = ''
+        **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
 
-      Route Prowlarr traffic through the VPN.
-    '';
+        Route Prowlarr traffic through the VPN.
+      '';
+    };
   };
 
   config = mkIf cfg.enable {
