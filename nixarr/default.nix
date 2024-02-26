@@ -118,13 +118,14 @@ in {
       media.gid = 992;
       prowlarr = {};
       transmission = {};
-      jellyfin = {};
+      streamer = {};
+      torrenter = {};
     };
     # TODO: This is BAD. But seems necessary when using containers.
     # The prefered solution is to just remove containerization.
     # Look at https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/misc/ids.nix
     users.users = {
-      jellyfin = {
+      streamer = {
         isSystemUser = true;
         uid = lib.mkForce 316;
       };
@@ -148,9 +149,8 @@ in {
         group = "media";
         uid = lib.mkForce 309;
       };
-      transmission = {
+      torrenter = {
         isSystemUser = true;
-        group = "media";
         uid = lib.mkForce 70;
       };
       prowlarr = {
@@ -163,19 +163,19 @@ in {
     systemd.tmpfiles.rules = [
       # Media dirs
       "d '${cfg.mediaDir}'                        0775 root         media - -"
-      "d '${cfg.mediaDir}/library'                0775 jellyfin     media - -"
-      "d '${cfg.mediaDir}/library/series'         0775 jellyfin     media - -"
-      "d '${cfg.mediaDir}/library/movies'         0775 jellyfin     media - -"
-      "d '${cfg.mediaDir}/library/music'          0775 jellyfin     media - -"
-      "d '${cfg.mediaDir}/library/books'          0775 jellyfin     media - -"
-      "d '${cfg.mediaDir}/torrents'               0755 transmission media - -"
-      "d '${cfg.mediaDir}/torrents/.incomplete'   0755 transmission media - -"
-      "d '${cfg.mediaDir}/torrents/.watch'        0755 transmission media - -"
-      "d '${cfg.mediaDir}/torrents/manual'        0755 transmission media - -"
-      "d '${cfg.mediaDir}/torrents/liadarr'       0755 transmission media - -"
-      "d '${cfg.mediaDir}/torrents/radarr'        0755 transmission media - -"
-      "d '${cfg.mediaDir}/torrents/sonarr'        0755 transmission media - -"
-      "d '${cfg.mediaDir}/torrents/readarr'       0755 transmission media - -"
+      "d '${cfg.mediaDir}/library'                0775 streamer     media - -"
+      "d '${cfg.mediaDir}/library/shows'          0775 streamer     media - -"
+      "d '${cfg.mediaDir}/library/movies'         0775 streamer     media - -"
+      "d '${cfg.mediaDir}/library/music'          0775 streamer     media - -"
+      "d '${cfg.mediaDir}/library/books'          0775 streamer     media - -"
+      "d '${cfg.mediaDir}/torrents'               0755 torrenter    media - -"
+      "d '${cfg.mediaDir}/torrents/.incomplete'   0755 torrenter    media - -"
+      "d '${cfg.mediaDir}/torrents/.watch'        0755 torrenter    media - -"
+      "d '${cfg.mediaDir}/torrents/manual'        0755 torrenter    media - -"
+      "d '${cfg.mediaDir}/torrents/liadarr'       0755 torrenter    media - -"
+      "d '${cfg.mediaDir}/torrents/radarr'        0755 torrenter    media - -"
+      "d '${cfg.mediaDir}/torrents/sonarr'        0755 torrenter    media - -"
+      "d '${cfg.mediaDir}/torrents/readarr'       0755 torrenter    media - -"
     ];
 
     util-nixarr.vpnnamespace = {

@@ -90,14 +90,15 @@ in {
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}'                             0700 transmission root - -"
+      "d '${cfg.stateDir}'                             0700 torrenter root - -"
       # This is fixes a bug in nixpks TODO: create nixpkgs issue
-      "d '${cfg.stateDir}/.config/transmission-daemon' 0700 transmission root - -"
+      "d '${cfg.stateDir}/.config/transmission-daemon' 0700 torrenter root - -"
     ];
 
     services.transmission = mkIf (!cfg.vpn.enable) {
       enable = true;
-      group = "media";
+      user = "torrenter";
+      group = "torrenter";
       home = cfg.stateDir;
       webHome =
         if cfg.flood.enable
@@ -183,13 +184,13 @@ in {
       };
 
       config = {
-        users.groups.media = {
-          gid = config.users.groups.media.gid;
+        users.groups.torrenter = {
+          gid = config.users.groups.torrenter.gid;
         };
-        users.users.transmission = {
-          uid = lib.mkForce config.users.users.transmission.uid;
+        users.users.torrenter = {
+          uid = lib.mkForce config.users.users.torrenter.uid;
           isSystemUser = true;
-          group = "media";
+          group = "torrenter";
         };
 
         # Use systemd-resolved inside the container
@@ -205,8 +206,8 @@ in {
 
         services.transmission = {
           enable = true;
-          # This is maybe wrong, too afraid to fix it lol
-          group = "media";
+          user = "torrenter";
+          group = "torrenter";
           webHome =
             if cfg.flood.enable
             then pkgs.flood-for-transmission

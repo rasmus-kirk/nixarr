@@ -95,11 +95,13 @@ in {
     mkIf cfg.enable
     {
       systemd.tmpfiles.rules = [
-        "d '${cfg.stateDir}' 0700 jellyfin root - -"
+        "d '${cfg.stateDir}' 0700 streamer root - -"
       ];
 
       services.jellyfin = {
         enable = cfg.enable;
+        user = "streamer";
+        group = "streamer";
         logDir = "${cfg.stateDir}/log";
         cacheDir = "${cfg.stateDir}/cache";
         dataDir = "${cfg.stateDir}/data";
@@ -186,11 +188,13 @@ in {
         };
 
         config = {
-          users.groups.jellyfin = {};
-          users.users.jellyfin = {
-            uid = lib.mkForce config.users.users.jellyfin.uid;
+          users.groups.streamer = {
+            gid = config.users.groups.streamer.gid;
+          };
+          users.users.streamer = {
+            uid = lib.mkForce config.users.users.streamer.uid;
             isSystemUser = true;
-            group = "jellyfin";
+            group = "streamer";
           };
 
           # Use systemd-resolved inside the container
@@ -201,6 +205,8 @@ in {
 
           services.jellyfin = {
             enable = true;
+            user = "streamer";
+            group = "streamer";
             logDir = "${cfg.stateDir}/log";
             cacheDir = "${cfg.stateDir}/cache";
             dataDir = "${cfg.stateDir}/data";
