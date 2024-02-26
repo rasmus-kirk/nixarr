@@ -49,6 +49,20 @@ in {
       their rules ¯\_(ツ)_/¯.
     '';
 
+    messageLevel = mkOption {
+      type = types.enum [
+        "none"
+        "critical"
+        "error"
+        "warn"
+        "info"
+        "debug"
+        "trace"
+      ];
+      default = "warn";
+      description = "Sets the message level of transmission";
+    };
+
     peerPort = mkOption {
       type = types.port;
       default = 50000;
@@ -120,7 +134,22 @@ in {
           anti-brute-force-threshold = 10;
 
           # 0 = None, 1 = Critical, 2 = Error, 3 = Warn, 4 = Info, 5 = Debug, 6 = Trace
-          message-level = 3;
+          message-level =
+            if cfg.messageLevel == "none"
+            then 0
+            else if cfg.messageLevel == "critical"
+            then 1
+            else if cfg.messageLevel == "error"
+            then 2
+            else if cfg.messageLevel == "warn"
+            then 3
+            else if cfg.messageLevel == "info"
+            then 4
+            else if cfg.messageLevel == "debug"
+            then 5
+            else if cfg.messageLevel == "trace"
+            then 6
+            else null;
         }
         // cfg.extraConfig;
     };
