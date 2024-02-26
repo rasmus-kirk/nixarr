@@ -163,8 +163,8 @@ in {
             proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
           };
         };
-
-        virtualHosts."${cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = mkIf cfg.expose.vpn.enable {
+      } // mkIf cfg.expose.vpn.enable {
+        virtualHosts."${cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = {
           enableACME = true;
           forceSSL = true;
           locations."/" = {
