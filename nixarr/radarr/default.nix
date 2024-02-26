@@ -1,6 +1,5 @@
 # TODO: Dir creation and file permissions in nix
 {
-  pkgs,
   config,
   lib,
   ...
@@ -27,6 +26,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d '${cfg.stateDir}/nixarr/radarr' 0700 radarr root - -"
+    ];
+
     services.radarr = mkIf (!cfg.vpn.enable) {
       enable = cfg.enable;
       user = "radarr";

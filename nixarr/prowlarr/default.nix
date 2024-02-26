@@ -1,6 +1,5 @@
 # TODO: Dir creation and file permissions in nix
 {
-  pkgs,
   config,
   lib,
   ...
@@ -31,6 +30,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d '${cfg.stateDir}/nixarr/prowlarr' 0700 prowlarr root - -"
+    ];
+
     util-nixarr.services.prowlarr = mkIf (!cfg.vpn.enable) {
       enable = true;
       dataDir = cfg.stateDir;

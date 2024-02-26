@@ -17,8 +17,8 @@ in {
       type = types.path;
       default = "${nixarr.stateDir}/nixarr/transmission";
       description = ''
-        The state directory for Transmission. 
-        
+        The state directory for Transmission.
+
         **BUG**: Only works when the `nixarr.transmission.vpn.enable` option
         is set.
       '';
@@ -66,7 +66,7 @@ in {
       default = {};
       description = ''
         Extra config settings for the Transmission service.
-        
+
         See the `services.transmission.settings` nixos options in
         the relevant section of the `configuration.nix` manual or on
         [search.nixos.org](https://search.nixos.org/options?channel=unstable&query=services.transmission.settings).
@@ -75,6 +75,12 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d '${cfg.stateDir}/nixarr/transmission'                             0700 transmission root - -"
+      # This is fixes a bug in nixpks TODO: create nixpkgs issue
+      "d '${cfg.stateDir}/nixarr/transmission/.config/transmission-daemon' 0700 transmission root - -"
+    ];
+
     services.transmission = mkIf (!cfg.vpn.enable) {
       enable = true;
       group = "media";

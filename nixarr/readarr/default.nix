@@ -24,6 +24,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d '${cfg.stateDir}/nixarr/readarr' 0700 readarr root - -"
+    ];
+
     services.readarr = {
       enable = cfg.enable;
       user = "readarr";

@@ -52,21 +52,25 @@ in {
     #assert (cfg.expose.enable -> (cfg.expose.domainName != null && cfg.expose.acmeMail != null)) || abort "Both expose.domain and expose.acmeMail needs to be set if expose.enable is set.";
     mkIf cfg.enable
     {
+      systemd.tmpfiles.rules = [
+        "d '${cfg.stateDir}/nixarr/jellyfin' 0700 jellyfin root - -"
+      ];
+
       services.jellyfin = {
-        enable    = cfg.enable;
-        logDir    = "${cfg.stateDir}/log";
-        cacheDir  = "${cfg.stateDir}/cache";
-        dataDir   = "${cfg.stateDir}/data";
+        enable = cfg.enable;
+        logDir = "${cfg.stateDir}/log";
+        cacheDir = "${cfg.stateDir}/cache";
+        dataDir = "${cfg.stateDir}/data";
         configDir = "${cfg.stateDir}/config";
       };
 
       networking.firewall = mkIf cfg.expose.enable {
-        allowedTCPPorts = [ 80 443 ];
+        allowedTCPPorts = [80 443];
       };
 
       util-nixarr.upnp = mkIf cfg.expose.upnp.enable {
         enable = true;
-        openTcpPorts = [ 80 443 ];
+        openTcpPorts = [80 443];
       };
 
       services.nginx = mkIf (cfg.expose.enable || cfg.vpn.enable) {

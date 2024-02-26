@@ -30,6 +30,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d '${cfg.stateDir}/nixarr/sonarr' 0700 sonarr root - -"
+    ];
+
     services.sonarr = mkIf (!cfg.vpn.enable) {
       enable = cfg.enable;
       user = "sonarr";

@@ -161,17 +161,6 @@ in {
     };
 
     systemd.tmpfiles.rules = [
-      # State dirs
-      "d '${cfg.stateDir}'                       0755 root         root  - -"
-      "d '${cfg.stateDir}/nixarr'                0755 root         root  - -"
-      "d '${cfg.stateDir}/nixarr/jellyfin'       0700 jellyfin     root  - -"
-      "d '${cfg.stateDir}/nixarr/transmission'   0700 transmission root  - -"
-      "d '${cfg.stateDir}/nixarr/sonarr'         0700 sonarr       root  - -"
-      "d '${cfg.stateDir}/nixarr/radarr'         0700 radarr       root  - -"
-      "d '${cfg.stateDir}/nixarr/readarr'        0700 readarr      root  - -"
-      "d '${cfg.stateDir}/nixarr/lidarr'         0700 lidarr       root  - -"
-      "d '${cfg.stateDir}/nixarr/prowlarr'       0700 prowlarr     root  - -"
-
       # Media dirs
       "d '${cfg.mediaDir}'                        0775 root         media - -"
       "d '${cfg.mediaDir}/library'                0775 jellyfin     media - -"

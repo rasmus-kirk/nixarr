@@ -13,7 +13,7 @@ with lib; let
   cfg = config.util-nixarr.vpnnamespace;
 in {
   options.util-nixarr.vpnnamespace = {
-    enable = mkEnableOption  ''
+    enable = mkEnableOption ''
       Whether to enable the VPN namespace.
 
       To access the namespace a veth pair is used to

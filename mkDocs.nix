@@ -17,10 +17,11 @@
   optionsDocNixos = nixosOptionsDoc {
     inherit (evalNixos) options;
   };
-in pkgs.stdenv.mkDerivation {
+in
+  pkgs.stdenv.mkDerivation {
     name = "nixdocs2html";
     src = ./.;
-    buildInputs = with pkgs; [ pandoc ];
+    buildInputs = with pkgs; [pandoc];
     phases = ["unpackPhase" "buildPhase"];
     buildPhase = ''
       tmpdir=$(mktemp -d)

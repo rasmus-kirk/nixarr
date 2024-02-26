@@ -1,16 +1,17 @@
-{ config, pkgs, lib, ... }:
-
-with lib;
-
-let
-  cfg = config.util-nixarr.services.prowlarr;
-in
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
+  cfg = config.util-nixarr.services.prowlarr;
+in {
   options = {
     util-nixarr.services.prowlarr = {
       enable = mkEnableOption "Prowlarr";
 
-      package = mkPackageOption pkgs "prowlarr" { };
+      package = mkPackageOption pkgs "prowlarr" {};
 
       user = mkOption {
         type = types.str;
@@ -45,8 +46,8 @@ in
 
     systemd.services.prowlarr = {
       description = "Prowlarr";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
 
       serviceConfig = {
         Type = "simple";
@@ -58,7 +59,7 @@ in
     };
 
     networking.firewall = mkIf cfg.openFirewall {
-      allowedTCPPorts = [ 9696 ];
+      allowedTCPPorts = [9696];
     };
 
     users.users = mkIf (cfg.user == "prowlarr") {

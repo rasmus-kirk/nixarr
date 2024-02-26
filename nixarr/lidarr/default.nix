@@ -24,6 +24,10 @@ in {
   };
 
   config = mkIf cfg.enable {
+    systemd.tmpfiles.rules = [
+      "d '${cfg.stateDir}/nixarr/lidarr' 0700 lidarr root - -"
+    ];
+
     services.lidarr = {
       enable = cfg.enable;
       user = "lidarr";
