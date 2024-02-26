@@ -18,8 +18,9 @@ in {
     };
 
     vpn.enable = mkEnableOption ''
-      Route Lidarr traffic through the VPN. Requires that `nixarr.vpn`
-      is configured
+      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+
+      Route Lidarr traffic through the VPN.
     '';
   };
 

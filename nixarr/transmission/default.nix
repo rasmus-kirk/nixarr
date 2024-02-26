@@ -18,9 +18,6 @@ in {
       default = "${nixarr.stateDir}/nixarr/transmission";
       description = ''
         The state directory for Transmission.
-
-        **BUG**: Only works when the `nixarr.transmission.vpn.enable` option
-        is set.
       '';
     };
 
@@ -33,8 +30,9 @@ in {
     };
 
     vpn.enable = mkEnableOption ''
-      **Recommended!** Route Transmission traffic through the VPN. Requires that `nixarr.vpn`
-      is configured.
+      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+
+      **Recommended:** Route Transmission traffic through the VPN.
     '';
 
     flood.enable = mkEnableOption "Use the flood web-UI";

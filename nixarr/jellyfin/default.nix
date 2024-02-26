@@ -19,8 +19,9 @@ in {
     };
 
     vpn.enable = mkEnableOption ''
-      Route Jellyfin traffic through the VPN. Requires that `nixarr.vpn`
-      is configured
+      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+
+      Route Jellyfin traffic through the VPN.
     '';
 
     expose = {
@@ -28,8 +29,9 @@ in {
         enable = mkEnableOption ''
           **Required options:** 
         
-          - `nixarr.jellyfin.vpn.enable`
-          - `nixarr.jellyfin.expose.vpn.port`
+          - [`nixarr.jellyfin.vpn.enable`](/options.html#nixarr.jellyfin.vpn.enable)
+          - [`nixarr.jellyfin.expose.vpn.port`](/options.html#nixarr.jellyfin.expose.vpn.port)
+          - [`nixarr.jellyfin.expose.vpn.accessibleFrom`](/options.html#nixarr.jellyfin.expose.vpn.accessibleFrom)
 
           Expose the Jellyfin web service to the internet, allowing anyone to
           access it.
@@ -42,12 +44,17 @@ in {
           type = with types; nullOr port;
           default = null;
           description = ''
-            **Required options:** `nixarr.jellyfin.expose.vpn.enable`
+            The port to access jellyfin on. Get this port from your VPN
+            provider.
+          '';
+        };
 
-            The port to access jellyfin on. Get this port from your VPN provider.
-
-            **Important:** Do _not_ enable this without setting up Jellyfin
-            authentication through localhost first!
+        accessibleFrom = mkOption {
+          type = with types; nullOr str;
+          default = null;
+          example = "jellyfin.airvpn.org";
+          description = ''
+            The IP or domain that Jellyfin should be able to be accessed from.
           '';
         };
       };
@@ -56,10 +63,10 @@ in {
         enable = mkEnableOption ''
           **Required options:** 
         
-          - `nixarr.jellyfin.expose.https.acmeMail`
-          - `nixarr.jellyfin.expose.https.domainName`
+          - [`nixarr.jellyfin.expose.https.acmeMail`](/options.html#nixarr.jellyfin.expose.https.acmeMail)
+          - [`nixarr.jellyfin.expose.https.domainName`](/options.html#nixarr.jellyfin.expose.https.domainName)
 
-          **Conflicting options:** `nixarr.jellyfin.vpn.enable`
+          **Conflicting options:** [`nixarr.jellyfin.vpn.enable`](/options.html#nixarr.jellyfin.vpn.enable)
 
           Expose the Jellyfin web service to the internet with https support,
           allowing anyone to access it.
@@ -148,7 +155,7 @@ in {
           };
         };
 
-        virtualHosts."${config.util-nixarr.vpn.address}:${builtins.toString cfg.expose.vpn.port}" = mkIf cfg.expose.vpn.enable {
+        virtualHosts."${cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = mkIf cfg.expose.vpn.enable {
           enableACME = true;
           forceSSL = true;
           locations."/" = {

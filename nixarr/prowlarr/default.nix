@@ -24,8 +24,9 @@ in {
     };
 
     vpn.enable = mkEnableOption ''
-      Route Prowlarr traffic through the VPN. Requires that `nixarr.vpn`
-      is configured.
+      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+
+      Route Prowlarr traffic through the VPN.
     '';
   };
 

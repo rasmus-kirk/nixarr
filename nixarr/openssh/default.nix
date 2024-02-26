@@ -11,6 +11,8 @@ in {
     type = types.bool;
     default = false;
     description = ''
+      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+
       Run the openssh service through a vpn.
       
       **Note:** This option does _not_ enable the sshd service you still
