@@ -208,7 +208,7 @@ in {
           bindsTo = ["netns@wg.service"];
           requires = ["network-online.target"];
           after = ["netns@wg.service"];
-          wantedBy = ["netns@wg.service"];
+          wantedBy = ["multi-user.target"];
 
           serviceConfig = let
             lines = split "\n" (readFile cfg.wireguardConfigFile);

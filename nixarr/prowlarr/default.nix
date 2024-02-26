@@ -45,6 +45,10 @@ in {
       )
     ];
 
+    systemd.services."container@prowlarr" = mkIf cfg.vpn.enable {
+      requires = ["wg.service"];
+    };
+
     containers.prowlarr = mkIf cfg.vpn.enable {
       autoStart = true;
       ephemeral = true;
