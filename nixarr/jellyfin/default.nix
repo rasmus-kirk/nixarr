@@ -3,12 +3,12 @@
   lib,
   ...
 }:
-with lib; let
+let
   cfg = config.nixarr.jellyfin;
   defaultPort = 8096;
   nixarr = config.nixarr;
   dnsServers = config.lib.vpn.dnsServers;
-in {
+in with lib; {
   options.nixarr.jellyfin = {
     enable = mkEnableOption "the Jellyfin service.";
 
@@ -23,6 +23,7 @@ in {
       default = false;
       description = ''
         **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+        **Conflicting options:** [`nixarr.jellyfin.expose.https.enable`](/options.html#nixarr.jellyfin.expose.https.enable)
 
         Route Jellyfin traffic through the VPN.
       '';
@@ -105,11 +106,53 @@ in {
   };
 
   config =
-    # TODO: this doesn't work. I don't know why :(
-    #assert (!(cfg.vpn.enable && cfg.expose.enable)) || abort "vpn.enable not compatible with expose.enable.";
-    #assert (cfg.expose.enable -> (cfg.expose.domainName != null && cfg.expose.acmeMail != null)) || abort "Both expose.domain and expose.acmeMail needs to be set if expose.enable is set.";
     mkIf cfg.enable
     {
+      assertions = [
+        {
+          assertion = cfg.vpn.enable && !nixarr.vpn.enable;
+          message = ''
+            The nixarr.jellyfin.vpn.enable option requires the
+            nixarr.vpn.enable option to be set, but it was not.
+          '';
+        }
+        {
+          assertion = !(cfg.vpn.enable && cfg.expose.https.enable);
+          message = ''
+            The nixarr.jellyfin.vpn.enable option conflicts with the
+            nixarr.jellyfin.expose.https.enable option. You cannot set both.
+          '';
+        }
+        {
+          assertion = cfg.expose.https.enable -> (
+            cfg.expose.https.domainName != null && 
+            cfg.expose.https.acmeMail != null
+          );
+          message = ''
+            The nixarr.jellyfin.expose.https.enable option requires the
+            following options to be set, but one of them were not:
+
+            - nixarr.jellyfin.expose.domainName
+            - nixarr.jellyfin.expose.acmeMail
+          '';
+        }
+        {
+          assertion = cfg.expose.vpn.enable -> (
+            !cfg.vpn.enable && 
+            cfg.expose.vpn.port != null && 
+            cfg.expose.vpn.accessibleFrom != null
+          );
+          message = ''
+            The nixarr.jellyfin.expose.vpn.enable option requires the
+            following options to be set, but one of them were not:
+
+            - nixarr.jellyfin.vpn.enable
+            - nixarr.jellyfin.expose.vpn.port
+            - nixarr.jellyfin.expose.vpn.accessibleFrom
+          '';
+        }
+      ];
+    
       systemd.tmpfiles.rules = [
         "d '${cfg.stateDir}' 0700 streamer root - -"
       ];
