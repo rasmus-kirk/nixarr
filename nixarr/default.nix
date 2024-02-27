@@ -73,7 +73,7 @@ in {
         type = types.bool;
         default = false;
         description = ''
-          **Required options:** [`nixarr.vpn.wgConf`](/options.html#nixarr.vpn.wgConf)
+          **Required options:** [`nixarr.vpn.wgConf`](#nixarr.vpn.wgconf)
 
           Whether or not to enable VPN support for the services that nixarr
           supports.
@@ -137,6 +137,16 @@ in {
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.vpn.enable && !cfg.vpn.wgConf;
+        message = ''
+          The nixarr.vpn.enable option requires the nixarr.vpn.wgConf option
+          to be set, but it was not.
+        '';
+      }
+    ];
+
     users.groups = {
       media.gid = 992;
       prowlarr = {};
@@ -146,6 +156,7 @@ in {
     # TODO: This is BAD. But seems necessary when using containers.
     # The prefered solution is to just remove containerization.
     # Look at https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/misc/ids.nix
+    # See also issue: https://github.com/rasmus-kirk/nixarr/issues/1
     users.users = {
       streamer = {
         isSystemUser = true;

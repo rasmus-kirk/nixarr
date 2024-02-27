@@ -33,7 +33,7 @@ in {
       type = types.bool;
       default = false;
       description = ''
-        **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+        **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
         **Recommended:** Route Transmission traffic through the VPN.
       '';
@@ -95,9 +95,19 @@ in {
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.vpn.enable && !nixarr.vpn.enable;
+        message = ''
+          The nixarr.transmission.vpn.enable option requires the
+          nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
+    ];
+
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}'                             0700 torrenter root - -"
-      # This is fixes a bug in nixpks TODO: create nixpkgs issue
+      # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
       "d '${cfg.stateDir}/.config/transmission-daemon' 0700 torrenter root - -"
     ];
 

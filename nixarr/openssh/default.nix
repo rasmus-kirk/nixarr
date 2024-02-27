@@ -11,7 +11,7 @@ in {
     type = types.bool;
     default = false;
     description = ''
-      **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+      **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
       Run the openssh service through a vpn.
       
@@ -22,6 +22,8 @@ in {
         services.openssh = {
           enable = true;
           settings.PasswordAuthentication = false;
+          # Get this port from your VPN provider
+          ports [ 12345 ];
         };
 
         users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
@@ -32,6 +34,16 @@ in {
   };
 
   config = mkIf (cfg.vpn.enable && config.services.openssh.enable) {
+    assertions = [
+      {
+        assertion = cfg.vpn.enable && !nixarr.vpn.enable;
+        message = ''
+          The nixarr.openssh.vpn.enable option requires the
+          nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
+    ];
+
     util-nixarr.vpnnamespace = {
       portMappings = builtins.map (x: { From = x; To = x; }) config.services.openssh.ports;
       openUdpPorts = config.services.openssh.ports;

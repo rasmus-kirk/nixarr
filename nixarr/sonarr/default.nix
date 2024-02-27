@@ -27,7 +27,7 @@ in {
       type = types.bool;
       default = false;
       description = ''
-        **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
+        **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
         Route Sonarr traffic through the VPN.
       '';
@@ -35,6 +35,16 @@ in {
   };
 
   config = mkIf cfg.enable {
+    assertions = [
+      {
+        assertion = cfg.vpn.enable && !nixarr.vpn.enable;
+        message = ''
+          The nixarr.sonarr.vpn.enable option requires the
+          nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
+    ];
+
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0700 sonarr root - -"
     ];

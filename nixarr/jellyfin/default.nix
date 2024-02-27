@@ -22,8 +22,8 @@ in with lib; {
       type = types.bool;
       default = false;
       description = ''
-        **Required options:** [`nixarr.vpn.enable`](/options.html#nixarr.vpn.enable)
-        **Conflicting options:** [`nixarr.jellyfin.expose.https.enable`](/options.html#nixarr.jellyfin.expose.https.enable)
+        **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
+        **Conflicting options:** [`nixarr.jellyfin.expose.https.enable`](#nixarr.jellyfin.expose.https.enable)
 
         Route Jellyfin traffic through the VPN.
       '';
@@ -37,9 +37,9 @@ in with lib; {
           description = ''
             **Required options:** 
         
-            - [`nixarr.jellyfin.vpn.enable`](/options.html#nixarr.jellyfin.vpn.enable)
-            - [`nixarr.jellyfin.expose.vpn.port`](/options.html#nixarr.jellyfin.expose.vpn.port)
-            - [`nixarr.jellyfin.expose.vpn.accessibleFrom`](/options.html#nixarr.jellyfin.expose.vpn.accessibleFrom)
+            - [`nixarr.jellyfin.vpn.enable`](#nixarr.jellyfin.vpn.enable)
+            - [`nixarr.jellyfin.expose.vpn.port`](#nixarr.jellyfin.expose.vpn.port)
+            - [`nixarr.jellyfin.expose.vpn.accessibleFrom`](#nixarr.jellyfin.expose.vpn.accessiblefrom)
 
             Expose the Jellyfin web service to the internet, allowing anyone to
             access it.
@@ -75,10 +75,10 @@ in with lib; {
           description = ''
             **Required options:** 
         
-            - [`nixarr.jellyfin.expose.https.acmeMail`](/options.html#nixarr.jellyfin.expose.https.acmeMail)
-            - [`nixarr.jellyfin.expose.https.domainName`](/options.html#nixarr.jellyfin.expose.https.domainName)
+            - [`nixarr.jellyfin.expose.https.acmeMail`](#nixarr.jellyfin.expose.https.acmemail)
+            - [`nixarr.jellyfin.expose.https.domainName`](#nixarr.jellyfin.expose.https.domainname)
 
-            **Conflicting options:** [`nixarr.jellyfin.vpn.enable`](/options.html#nixarr.jellyfin.vpn.enable)
+            **Conflicting options:** [`nixarr.jellyfin.vpn.enable`](#nixarr.jellyfin.vpn.enable)
 
             Expose the Jellyfin web service to the internet with https support,
             allowing anyone to access it.
