@@ -40,13 +40,13 @@ in {
 
         The following services are supported:
 
-        - Jellyfin
-        - Lidarr
-        - Prowlarr
-        - Radarr
-        - Readarr
-        - Sonarr
-        - Transmission
+        - [Jellyfin](#nixarr.jellyfin.enable)
+        - [Lidarr](#nixarr.lidarr.enable)
+        - [Prowlarr](#nixarr.prowlarr.enable)
+        - [Radarr](#nixarr.radarr.enable)
+        - [Readarr](#nixarr.readarr.enable)
+        - [Sonarr](#nixarr.sonarr.enable)
+        - [Transmission](#nixarr.transmission.enable)
 
         Remember to read the options.
       '';
@@ -139,7 +139,7 @@ in {
   config = mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.vpn.enable && !cfg.vpn.wgConf;
+        assertion = cfg.vpn.enable && (cfg.vpn.wgConf == null);
         message = ''
           The nixarr.vpn.enable option requires the nixarr.vpn.wgConf option
           to be set, but it was not.

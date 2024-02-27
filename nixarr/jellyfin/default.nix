@@ -125,8 +125,8 @@ in with lib; {
         }
         {
           assertion = cfg.expose.https.enable -> (
-            cfg.expose.https.domainName != null && 
-            cfg.expose.https.acmeMail != null
+            (cfg.expose.https.domainName != null) && 
+            (cfg.expose.https.acmeMail != null)
           );
           message = ''
             The nixarr.jellyfin.expose.https.enable option requires the
@@ -139,8 +139,8 @@ in with lib; {
         {
           assertion = cfg.expose.vpn.enable -> (
             !cfg.vpn.enable && 
-            cfg.expose.vpn.port != null && 
-            cfg.expose.vpn.accessibleFrom != null
+            (cfg.expose.vpn.port != null) && 
+            (cfg.expose.vpn.accessibleFrom != null)
           );
           message = ''
             The nixarr.jellyfin.expose.vpn.enable option requires the
