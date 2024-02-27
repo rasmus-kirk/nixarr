@@ -53,7 +53,7 @@ The documentation for the options can be found
 
 ## Importing this module
 
-To use this module, add it to your flake inputs in your nix flake file:
+To use this module, add it to your flake inputs in your nix flake file, like shown in this example flake:
 
 ```nix {.numberLines}
 {
