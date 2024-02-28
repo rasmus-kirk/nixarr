@@ -1,13 +1,10 @@
+# Thank you Maroka-chan <3
 {
   lib,
   pkgs,
   config,
   ...
 }:
-# Thanks to Maroka-chan...
-# TODO: Make it so you can make multiple namespaces by giving a list of
-# objects with settings as attributes. Also add an option to enable whether
-# the namespace should use a vpn or not.
 with builtins;
 with lib; let
   cfg = config.util-nixarr.vpnnamespace;
@@ -86,7 +83,7 @@ in {
       description = lib.mdDoc ''
         Path to the wireguard config to use.
 
-        Note that this is not a wg-quick config.
+        Note that this _is_ a wg-quick config.
       '';
     };
 
