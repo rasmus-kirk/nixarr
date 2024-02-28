@@ -85,6 +85,9 @@ nav a.active {
   color: #faf8e4 !important;
 }
 
+a code {
+  text-decoration-line: underline;
+}
 
 footer {
   height: 2rem;

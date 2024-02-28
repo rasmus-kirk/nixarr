@@ -22,7 +22,7 @@ in with lib; {
       type = types.bool;
       default = false;
       description = ''
-        **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
+        **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)  
         **Conflicting options:** [`nixarr.jellyfin.expose.https.enable`](#nixarr.jellyfin.expose.https.enable)
 
         Route Jellyfin traffic through the VPN.
@@ -44,7 +44,7 @@ in with lib; {
             Expose the Jellyfin web service to the internet, allowing anyone to
             access it.
 
-            **Important:** Do _not_ enable this without setting up Jellyfin
+            **Warning:** Do _not_ enable this without setting up Jellyfin
             authentication through localhost first!
           '';
         };
@@ -83,7 +83,7 @@ in with lib; {
             Expose the Jellyfin web service to the internet with https support,
             allowing anyone to access it.
 
-            **Important:** Do _not_ enable this without setting up Jellyfin
+            **Warning:** Do _not_ enable this without setting up Jellyfin
             authentication through localhost first!
           '';
         };

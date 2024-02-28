@@ -15,7 +15,7 @@ in {
 
       Run the openssh service through a vpn, exposing it to the internet.
       
-      **Important:** This lets anyone on the internet connect through SSH,
+      **Warning:** This lets anyone on the internet connect through SSH,
       make sure the SSH configuration is secure! Disallowing password
       authentication and only allowing SSH-keys is considered secure.
 
