@@ -240,3 +240,6 @@ you. However, this also means that you don't have to give _any_ personal data.
 A big thanks to [Maroka-chan](https://github.com/Maroka-chan) for the heavy
 lifting on the VPN-submodule, that was integral to making this project
 possible.
+
+I would also like to thank [Lasse](https://github.com/lassebomh) for helping
+out with the website.

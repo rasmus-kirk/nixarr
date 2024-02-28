@@ -71,6 +71,10 @@ nav a {
   padding: 0.15em 1em;
 }
 
+nav a:visited {
+  color: #458587;
+}
+
 nav a:hover {
   background-color: var(--dkblue);
   color: var(--bg);
@@ -81,9 +85,6 @@ nav a.active {
   color: #faf8e4 !important;
 }
 
-nav a:visited {
-  color: #458587;
-}
 
 footer {
   height: 2rem;
