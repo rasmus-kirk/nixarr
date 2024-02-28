@@ -110,7 +110,7 @@ in with lib; {
     {
       assertions = [
         {
-          assertion = cfg.vpn.enable && !nixarr.vpn.enable;
+          assertion = cfg.vpn.enable -> nixarr.vpn.enable;
           message = ''
             The nixarr.jellyfin.vpn.enable option requires the
             nixarr.vpn.enable option to be set, but it was not.
@@ -138,7 +138,7 @@ in with lib; {
         }
         {
           assertion = cfg.expose.vpn.enable -> (
-            !cfg.vpn.enable && 
+            cfg.vpn.enable && 
             (cfg.expose.vpn.port != null) && 
             (cfg.expose.vpn.accessibleFrom != null)
           );
@@ -211,7 +211,7 @@ in with lib; {
           };
         })
         (mkIf cfg.expose.vpn.enable {
-          virtualHosts."${cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = {
+          virtualHosts."${builtins.toString cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = {
             enableACME = true;
             forceSSL = true;
             locations."/" = {

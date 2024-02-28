@@ -12,6 +12,7 @@ in {
     ./lidarr
     ./readarr
     ./sonarr
+    ./openssh
     ./prowlarr
     ./transmission
     ../util
@@ -139,7 +140,7 @@ in {
   config = mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.vpn.enable && (cfg.vpn.wgConf == null);
+        assertion = cfg.vpn.enable -> cfg.vpn.wgConf != null;
         message = ''
           The nixarr.vpn.enable option requires the nixarr.vpn.wgConf option
           to be set, but it was not.
@@ -221,7 +222,7 @@ in {
       ];
       dnsServers = cfg.vpn.dnsServers;
       wireguardAddressPath = cfg.vpn.wgAddress;
-      wireguardConfigFile = cfg.vpn.wgConf;
+      wireguardConfigFile = if cfg.vpn.wgConf != null then cfg.vpn.wgConf else "";
       vpnTestService = {
         enable = cfg.vpn.vpnTestService.enable;
         port = cfg.vpn.vpnTestService.port;

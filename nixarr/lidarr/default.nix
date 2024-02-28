@@ -31,7 +31,7 @@ in {
   config = mkIf cfg.enable {
     assertions = [
       {
-        assertion = cfg.vpn.enable && !nixarr.vpn.enable;
+        assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''
           The nixarr.lidarr.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
