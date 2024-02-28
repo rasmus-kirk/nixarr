@@ -71,6 +71,11 @@ nav a {
   padding: 0.15em 1em;
 }
 
+nav a:hover {
+  background-color: var(--dkblue);
+  color: var(--bg);
+}
+
 nav a.active {
   background-color: #458587;
   color: #faf8e4 !important;
