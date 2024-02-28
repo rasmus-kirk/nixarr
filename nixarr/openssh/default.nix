@@ -7,15 +7,19 @@ with lib; let
   cfg = config.nixarr.openssh;
   nixarr = config.nixarr;
 in {
-  options.nixarr.openssh.vpn.enable = mkOption {
+  options.nixarr.openssh.expose.vpn.enable = mkOption {
     type = types.bool;
     default = false;
     description = ''
       **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
-      Run the openssh service through a vpn.
+      Run the openssh service through a vpn, exposing it to the internet.
       
-      **Note:** This option does _not_ enable the sshd service you still
+      **Important:** This lets anyone on the internet connect through SSH,
+      make sure the SSH configuration is secure! Disallowing password
+      authentication and only allowing SSH-keys is considered secure.
+
+      **Note:** This option does _not_ enable the SSHD service you still
       need to setup sshd in your nixos configuration, fx:
 
       ```nix
@@ -29,11 +33,11 @@ in {
         users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
           ./path/to/public/key/machine.pub
         ];
-
-        Then replace username with your username and the keyFiles path
-        to a ssh public key file from the machine that you want to have
-        access. Don't use password authentication as it is insecure!
       ```
+
+      Then replace `username` with your username and the `keyFiles` path to a
+      ssh public key file from the machine that you want to have access. Don't
+      use password authentication as it is insecure!
     '';
   };
 

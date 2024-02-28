@@ -29,35 +29,11 @@ in
       mkdir -p $out
       mkdir -p $tmpdir
       cp -r docs $out
+      tail -n +2 README.md > "$tmpdir/index.md"
+      cd $out
 
       # Generate md docs
-      cat ${optionsDocNixos.optionsCommonMark} | tail -n +58 >> "$tmpdir"/nixos.md
-
-      # Remove "Declared by" lines
-      sed -i '/\*Declared by:\*/{N;d;}' "$tmpdir"/nixos.md
-
-      # Code blocks to nix code blocks
-      # shellcheck disable=SC2016
-      awk '
-      /^```$/ {
-          if (!block) {
-              print "```nix";  # Start of a code block
-              block = 1;
-          } else {
-              print "```";  # End of a code block
-              block = 0;
-          }
-          next;
-      }
-      { print }  # Print all lines, including those inside code blocks
-      ' block=0 "$tmpdir"/nixos.md > "$tmpdir"/1.md
-      # inline code "blocks" to nix code blocks
-      # shellcheck disable=SC2016
-      sed '/^`[^`]*`$/s/`\(.*\)`/```nix\n\1\n```/g' "$tmpdir"/1.md > "$tmpdir"/2.md
-      # Remove bottom util-nixarr options
-      sed '/util-nixarr/,$d' "$tmpdir"/2.md > "$tmpdir"/3.md
-      # Make h2 header to h3
-      sed 's/^##/###/g' "$tmpdir"/3.md > "$tmpdir"/done.md
+      cat ${optionsDocNixos.optionsCommonMark} > "$tmpdir"/nixos.md
 
       pandoc \
         --standalone \
@@ -66,14 +42,18 @@ in
         --template docs/pandoc/template.html \
         --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
         --css docs/pandoc/style.css \
-        --lua-filter docs/pandoc/anchor-links.lua \
+        --lua-filter docs/pandoc/lua/anchor-links.lua \
+        --lua-filter docs/pandoc/lua/code-default-to-nix.lua \
+        --lua-filter docs/pandoc/lua/remove-utils.lua \
+        --lua-filter docs/pandoc/lua/headers-lvl2-to-lvl3.lua \
+        --lua-filter docs/pandoc/lua/remove-declared-by.lua \
+        --lua-filter docs/pandoc/lua/inline-to-fenced-nix.lua \
+        --lua-filter docs/pandoc/lua/remove-module-args.lua \
         -V lang=en \
         -V --mathjax \
         -f markdown+smart \
         -o $out/options.html \
-        "$tmpdir"/done.md
-
-      tail -n +2 README.md > "$tmpdir/index.md"
+        "$tmpdir"/nixos.md
 
       pandoc \
         --standalone \
