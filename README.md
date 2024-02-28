@@ -27,6 +27,10 @@ is greatly appreciated.
   permissions.
 - **State Management:** All services support state management and all state
   that they manage is located by default in `/data/.state/nixarr/*`
+- **Optional Dynamic DNS support:** If you use [Njalla](https://njal.la/)
+  and don't have a static IP, you can use the `nixarr.ddns.njalla.enable`
+  option to dynamically update a DNS record that points to the dynamic public
+  IP of your server.
 - **Optional Automatic Port Forwarding:** This module has a UPNP support that
   lets services request ports from your router automatically, if you enable it.
 
