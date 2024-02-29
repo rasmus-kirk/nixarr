@@ -41,18 +41,29 @@ in {
 
     flood.enable = mkEnableOption "the flood web-UI for the transmission web-UI.";
 
-    privateTrackers = mkOption {
-      type = types.bool;
-      default = false;
-      description = ''
-        Disable pex and dht, which is required for some private trackers.
+    privateTrackers = {
+      disableDhtPex = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Disable pex and dht, which is required for some private trackers.
 
-        You don't want to enable this unless a private tracker requires you
-        to, and some don't. All torrents from private trackers are set as
-        "private", and this automatically disables dht and pex for that torrent,
-        so it shouldn't even be a necessary rule to have, but I don't make
-        their rules ¯\\_(ツ)_/¯.
-      '';
+          You don't want to enable this unless a private tracker requires you
+          to, and some don't. All torrents from private trackers are set as
+          "private", and this automatically disables dht and pex for that torrent,
+          so it shouldn't even be a necessary rule to have, but I don't make
+          their rules ¯\\_(ツ)_/¯.
+        '';
+      };
+      cross-seed = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            Enable the cross-seed service.
+          '';
+        };
+      };
     };
 
     messageLevel = mkOption {
@@ -94,6 +105,10 @@ in {
     };
   };
 
+  imports = [
+    ./cross-seed
+  ];
+
   config = mkIf cfg.enable {
     assertions = [
       {
@@ -101,6 +116,12 @@ in {
         message = ''
           The nixarr.transmission.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.privateTrackers.cross-seed.enable -> nixarr.prowlarr.enable;
+        message = ''
+          TODO: todo
         '';
       }
     ];
@@ -150,7 +171,6 @@ in {
           anti-brute-force-enabled = true;
           anti-brute-force-threshold = 10;
 
-          # 0 = None, 1 = Critical, 2 = Error, 3 = Warn, 4 = Info, 5 = Debug, 6 = Trace
           message-level =
             if cfg.messageLevel == "none"
             then 0
@@ -169,6 +189,13 @@ in {
             else null;
         }
         // cfg.extraConfig;
+    };
+
+    services.cross-seed = mkIf cfg.cross-seed.enable {
+      enable = true;
+      group = "media";
+      dataDir = cfg.privateTrackers.cross-seed.dataDir;
+      configFile = cfg.privateTrackers.cross-seed.configFile;
     };
 
     util-nixarr.vpnnamespace = mkIf cfg.vpn.enable {

@@ -37,10 +37,10 @@ in
 
       pandoc \
         --standalone \
-        --highlight-style docs/pandoc/gruvbox.theme \
         --metadata title="Nixarr - Option Documentation" \
-        --template docs/pandoc/template.html \
         --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
+        --highlight-style docs/pandoc/gruvbox.theme \
+        --template docs/pandoc/template.html \
         --css docs/pandoc/style.css \
         --lua-filter docs/pandoc/lua/anchor-links.lua \
         --lua-filter docs/pandoc/lua/code-default-to-nix.lua \
@@ -56,11 +56,11 @@ in
         "$tmpdir"/nixos.md
 
       pandoc \
+        --metadata title="Nixarr" \
+        --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
         --standalone \
         --highlight-style docs/pandoc/gruvbox.theme \
         --template docs/pandoc/template.html \
-        --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
-        --metadata title="Nixarr" \
         --css docs/pandoc/style.css \
         -V lang=en \
         -V --mathjax \
