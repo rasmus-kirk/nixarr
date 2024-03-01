@@ -1,75 +1,22 @@
-{
-  config,
-  pkgs,
-  lib,
-  ...
-}:
-with lib; let
-  cfg = config.util-nixarr.services.prowlarr;
-  settingsFormat = pkgs.formats.json {};
-  settingsFile = settingsFormat.generate "settings.json" cfg.settings;
-  cross-seedPkg = import ../../../pkgs/cross-seed { inherit (pkgs) stdenv lib fetchFromGitHub; };
-in {
-  options = {
-    util-nixarr.services.prowlarr = {
-      enable = mkEnableOption "cross-seed";
+{ lib, buildNpmPackage, fetchFromGitHub }:
 
-      configFile = mkOption {
-        type = with types; nullOr path;
-        default = null;
-        example = "/var/lib/secrets/cross-seed/settings.json";
-        description = "";
-      };
+buildNpmPackage rec {
+  pname = "cross-seed";
+  version = "5.9.2";
 
-      dataDir = mkOption {
-        type = types.path;
-        default = "/var/lib/cross-seed";
-      };
-
-      user = mkOption {
-        type = types.str;
-        default = "cross-seed";
-        description = "User account under which cross-seed runs.";
-      };
-
-      group = mkOption {
-        type = types.str;
-        default = "cross-seed";
-        description = "Group under which cross-seed runs.";
-      };
-    };
+  src = fetchFromGitHub {
+    owner = "cross-seed";
+    repo = pname;
+    rev = "v${version}";
+    hash = "sha256-E0AlsFV9RP01YVwjw6ZQ8Lf1IVyuudxrb5oJ61EfIyo=";
   };
 
-  config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
-    ];
+  npmDepsHash = "sha256-hZKLv+bzRFiMjNemydCUC1d7xul7Mm+vOPtCUD7p9XQ=";
 
-    systemd.services.prowlarr = {
-      description = "cross-seed";
-      after = ["network.target"];
-      wantedBy = ["multi-user.target"];
-
-      environment.CONFIG_DIR = cfg.dataDir;
-
-      serviceConfig = {
-        ExecStartPre = [("+" + pkgs.writeShellScript "transmission-prestart" ''
-          mv ${cfg.configFile} ${cfg.dataDir}
-        '')];
-        Type = "simple";
-        User = cfg.user;
-        Group = cfg.group;
-        ExecStart = "${getExe cross-seedPkg} daemon";
-        Restart = "on-failure";
-      };
-    };
-
-    users.users = mkIf (cfg.user == "cross-seed") {
-      cross-seed = {
-        group = cfg.group;
-      };
-    };
-
-    users.groups = mkIf (cfg.group == "cross-seed") {};
+  meta = with lib; {
+    description = "cross-seed is an app designed to help you download torrents that you can cross seed based on your existing torrents";
+    homepage = "https://www.cross-seed.org";
+    license = licenses.asl20;
+    maintainers = with maintainers; [ rasmus-kirk ];
   };
 }
