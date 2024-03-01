@@ -18,7 +18,7 @@ in {
 
     stateDir = mkOption {
       type = types.path;
-      default = "${nixarr.stateDir}/nixarr/prowlarr";
+      default = "${nixarr.stateDir}/prowlarr";
       description = "The state directory for Prowlarr.";
     };
 
@@ -47,8 +47,6 @@ in {
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0700 prowlarr root - -"
     ];
-
-    users.groups.prowlarr = {};
 
     util-nixarr.services.prowlarr = {
       enable = true;
