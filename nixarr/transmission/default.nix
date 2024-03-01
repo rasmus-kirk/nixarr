@@ -1,4 +1,3 @@
-# TODO: Dir creation and file permissions in nix
 {
   config,
   lib,
@@ -9,19 +8,41 @@ with lib; let
   cfg = config.nixarr.transmission;
   nixarr = config.nixarr;
   dnsServers = config.lib.vpn.dnsServers;
-  get-indexers = with builtins; pkgs.writeShellApplication {
-    name = "get-indexers";
+  cfg-cross-seed = config.nixarr.transmission.privateTrackers.cross-seed;
+  transmissionCrossSeedScript = with builtins; pkgs.writeShellApplication {
+    name = "mk-cross-seed-credentials";
+
+    runtimeInputs = with pkgs; [ curl ];
+
+    text = ''
+      curl -XPOST http://localhost:2468/api/webhook?apikey=YOUR_API_KEY --data-urlencode "infoHash=$TR_TORRENT_HASH"
+    '';
+  };
+  mkCrossSeedCredentials = with builtins; pkgs.writeShellApplication {
+    name = "mk-cross-seed-credentials";
 
     runtimeInputs = with pkgs; [ jq yq ];
 
-    text = ''
-      PROWLARR_API_KEY=$(xq '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
-    ''
-    + toJson (
-      map (x: 
-        ''http://localhost:9696/${toString x}/api?apikey="$PROWLARR_API_KEY"''
-      ) cfg.privateTrackers.cross-seed.indexIds
-    );
+    text =
+      "INDEX_LINKS=("
+      + strings.concatMapStringsSep " " toString cfg.privateTrackers.cross-seed.indexIds
+      + ")"
+      ''
+        TMP_JSON=$(mktemp)
+        CRED_FILE="/run/secrets/cross-seed/credentialsFile.json"
+        PROWLARR_API_KEY=$(xq '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
+        CRED_DIR=$(dirname "$filePath")
+
+        echo '{}' > "$CRED_FILE"
+        chmod 400 "$CRED_FILE"
+        chown "${config.util-nixarr.services.cross-seed.user}" "$CRED_FILE"
+
+        for i in "''${INDEX_LINKS[@]}"
+        do
+          LINK="http://localhost:9696/$i/api?apikey=$PROWLARR_API_KEY"
+          jq ".torznab += [\"$LINK\"]" "$CRED_FILE" > "$TMP_JSON" && mv "$TMP_JSON" "$CRED_FILE"
+        done
+      '';
   };
 in {
   options.nixarr.transmission = {
@@ -69,19 +90,47 @@ in {
           their rules ¯\\_(ツ)_/¯.
         '';
       };
+
       cross-seed = {
         enable = mkOption {
           type = types.bool;
           default = false;
           description = ''
-            Enable the cross-seed service.
+            **Required options:** [`nixarr.prowlarr.enable`](#nixarr.prowlarr.enable)
+
+            Whether or not to enable the [cross-seed](https://www.cross-seed.org/) service.
           '';
         };
+
+        stateDir = mkOption {
+          type = types.path;
+          default = "${nixarr.stateDir}/nixarr/cross-seed";
+          description = ''
+            The state directory for Transmission.
+          '';
+        };
+
         indexIds = mkOption {
           type = with types; listOf int;
           default = [];
           description = ''
-            list of indexers TODO: todo
+            List of indexer-ids, from prowlarr. These are from the RSS links
+            for the indexers, located by the "radio" or "RSS" logo on the
+            right of the indexer, you'll see the links have the form:
+
+            `http://localhost:9696/1/api?apikey=aaaaaaaaaaaaa`
+
+            Then the id needed here is the `1`.
+          '';
+        };
+
+        extraSettings = mkOption {
+          type = types.attrs;
+          default = {};
+          description = ''
+            Extra settings for the cross-seed
+            service, see [the cross-seed options
+            documentation](https://www.cross-seed.org/docs/basics/options)
           '';
         };
       };
@@ -113,7 +162,7 @@ in {
       description = "Transmission web-UI port.";
     };
 
-    extraConfig = mkOption {
+    extraSettings = mkOption {
       type = types.attrs;
       default = {};
       description = ''
@@ -140,9 +189,10 @@ in {
         '';
       }
       {
-        assertion = cfg.privateTrackers.cross-seed.enable -> nixarr.prowlarr.enable;
+        assertion = cfg-cross-seed.enable -> nixarr.prowlarr.enable;
         message = ''
-          TODO: todo
+          The nixarr.privateTrackers.cross-seed.enable option requires the
+          nixarr.prowlarr.enable option to be set, but it was not.
         '';
       }
     ];
@@ -151,7 +201,34 @@ in {
       "d '${cfg.stateDir}'                             0700 torrenter root - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
       "d '${cfg.stateDir}/.config/transmission-daemon' 0700 torrenter root - -"
-    ];
+    ] ++ (
+      if cfg-cross-seed.enable then
+        [ "d '${cfg-cross-seed.stateDir}' 0700 cross-seed root - -" ]
+      else []
+    );
+
+    util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
+      enable = true;
+      dataDir = cfg-cross-seed.stateDir;
+      #group = "media";
+      settings = {
+        torrentDir = "${nixarr.mediaDir}/torrents";
+        outputDir = "${nixarr.mediaDir}/torrents/cross-seed";
+        transmissionRpcUrl = "http://transmission:${builtins.toString cfg.uiPort}/transmission/rpc";
+        rssCadence = "20 minutes";
+
+        # Enable infrequent periodic searches
+        searchCadence = "1 week";
+        excludeRecentSearch = "1 year";
+        excludeOlder = "1 year";
+      } // cfg-cross-seed.extraSettings;
+    };
+    # Run as root in case that the cfg.credentialsFile is not readable by cross-seed
+    systemd.services.cross-seed.serviceConfig = mkIf cfg-cross-seed.enable {
+        ExecStartPre = [(mkBefore 
+          ("+" + (getExe mkCrossSeedCredentials))
+        )];
+    };
 
     services.transmission = mkIf (!cfg.vpn.enable) {
       enable = true;
@@ -183,14 +260,17 @@ in {
           blocklist-url = "https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz";
 
           peer-port = cfg.peerPort;
-          dht-enabled = !cfg.privateTrackers;
-          pex-enabled = !cfg.privateTrackers;
+          dht-enabled = !cfg.privateTrackers.disableDhtPex;
+          pex-enabled = !cfg.privateTrackers.disableDhtPex;
           utp-enabled = false;
           encryption = 1;
           port-forwarding-enabled = false;
 
           anti-brute-force-enabled = true;
           anti-brute-force-threshold = 10;
+
+          script-torrent-done-enabled = true;
+          script-torrent-done-filename = getExe transmissionCrossSeedScript;
 
           message-level =
             if cfg.messageLevel == "none"
@@ -209,14 +289,7 @@ in {
             then 6
             else null;
         }
-        // cfg.extraConfig;
-    };
-
-    services.cross-seed = mkIf cfg.cross-seed.enable {
-      enable = true;
-      group = "media";
-      dataDir = cfg.privateTrackers.cross-seed.dataDir;
-      configFile = cfg.privateTrackers.cross-seed.configFile;
+        // cfg.extraSettings;
     };
 
     util-nixarr.vpnnamespace = mkIf cfg.vpn.enable {
@@ -297,8 +370,8 @@ in {
               blocklist-url = "https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz";
 
               peer-port = cfg.peerPort;
-              dht-enabled = !cfg.privateTrackers;
-              pex-enabled = !cfg.privateTrackers;
+              dht-enabled = !cfg.privateTrackers.disableDhtPex;
+              pex-enabled = !cfg.privateTrackers.disableDhtPex;
               utp-enabled = false;
               encryption = 1;
               port-forwarding-enabled = false;
@@ -309,7 +382,7 @@ in {
               # 0 = None, 1 = Critical, 2 = Error, 3 = Warn, 4 = Info, 5 = Debug, 6 = Trace
               message-level = 3;
             }
-            // cfg.extraConfig;
+            // cfg.extraSettings;
         };
 
         environment.systemPackages = with pkgs; [

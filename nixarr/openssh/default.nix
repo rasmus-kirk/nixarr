@@ -41,12 +41,12 @@ in {
     '';
   };
 
-  config = mkIf cfg.vpn.enable {
+  config = mkIf cfg.expose.vpn.enable {
     assertions = [
       {
-        assertion = cfg.vpn.enable -> nixarr.vpn.enable;
+        assertion = cfg.expose.vpn.enable -> nixarr.vpn.enable;
         message = ''
-          The nixarr.openssh.vpn.enable option requires the
+          The nixarr.openssh.expose.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
@@ -54,9 +54,9 @@ in {
 
     warnings = if config.services.openssh.enable then [
       ''
-        nixarr.openssh.vpn.enable is set, but openssh is not enabled on your
-        system, so the openssh server is not running. This is probably not
-        what you wanted. You can add the following lines to enable it:
+        nixarr.openssh.expose.vpn.enable is set, but openssh is not enabled
+        on your system, so the openssh server is not running. This is probably
+        not what you wanted. You can add the following lines to enable it:
 
         services.openssh = {
           enable = true;

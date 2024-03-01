@@ -6,24 +6,34 @@
 }:
 with lib; let
   cfg = config.util-nixarr.services.cross-seed;
-  #settingsFormat = pkgs.formats.json {};
-  #settingsFile = settingsFormat.generate "settings.json" cfg.settings;
+  settingsFormat = pkgs.formats.json {};
+  settingsFile = settingsFormat.generate "settings.json" cfg.settings;
   cross-seedPkg = import ../../../pkgs/cross-seed { inherit (pkgs) stdenv lib fetchFromGitHub; };
 in {
   options = {
     util-nixarr.services.cross-seed = {
       enable = mkEnableOption "cross-seed";
 
-      configFile = mkOption {
-        type = with types; nullOr path;
-        default = null;
-        example = "/var/lib/secrets/cross-seed/settings.js";
-        description = "cross-seed config file"; # TODO: todo
+      settings = mkOption {
+        type = types.attrs;
+        default = {};
+        example = ''
+          {
+            delay = 10;
+          }
+        '';
+        description = "cross-seed config"; # TODO: todo
       };
 
       dataDir = mkOption {
         type = types.path;
         default = "/var/lib/cross-seed";
+        description = "cross-seed dataDir"; # TODO: todo
+      };
+
+      credentialsFile = mkOption {
+        type = types.path;
+        default = "/run/secrets/cross-seed/credentialsFile.json";
         description = "cross-seed dataDir"; # TODO: todo
       };
 
@@ -54,9 +64,12 @@ in {
       environment.CONFIG_DIR = cfg.dataDir;
 
       serviceConfig = {
+        # Run as root in case that the cfg.credentialsFile is not readable by cross-seed
         ExecStartPre = [("+" + pkgs.writeShellScript "transmission-prestart" ''
-          mv ${cfg.configFile} ${cfg.dataDir}
-        '')];
+          ${pkgs.jq}/bin/jq --slurp add ${settingsFile} '${cfg.credentialsFile}' |
+          install -D -m 600 -o '${cfg.user}' /dev/stdin '${cfg.dataDir}/config.json'
+        ''
+        )];
         Type = "simple";
         User = cfg.user;
         Group = cfg.group;
