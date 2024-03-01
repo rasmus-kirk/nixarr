@@ -7,7 +7,6 @@
 with lib; let
   cfg = config.nixarr.transmission;
   nixarr = config.nixarr;
-  dnsServers = config.lib.vpn.dnsServers;
   cfg-cross-seed = config.nixarr.transmission.privateTrackers.cross-seed;
   transmissionCrossSeedScript = with builtins; pkgs.writeShellApplication {
     name = "mk-cross-seed-credentials";
@@ -198,7 +197,7 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}'                             0700 torrenter root - -"
+      "d '${cfg.stateDir}' 0700 torrenter root - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
       "d '${cfg.stateDir}/.config/transmission-daemon' 0700 torrenter root - -"
     ] ++ (
@@ -230,7 +229,7 @@ in {
         )];
     };
 
-    services.transmission = mkIf (!cfg.vpn.enable) {
+    services.transmission = {
       enable = true;
       user = "torrenter";
       group = "torrenter";
@@ -250,10 +249,11 @@ in {
           watch-dir-enabled = true;
           watch-dir = "${nixarr.mediaDir}/torrents/.watch";
 
-          rpc-bind-address = "127.0.0.1";
+          rpc-bind-address = if cfg.vpn.enable then "192.168.15.1" else "127.0.0.1";
           rpc-port = cfg.uiPort;
-          rpc-whitelist-enabled = true;
-          rpc-whitelist = "192.168.15.1,127.0.0.1";
+          # TODO: fix this for ssh tunneling...
+          rpc-whitelist-enabled = false;
+          rpc-whitelist = "192.168.15.1,127.0.0.1,192.168.1.*,192.168.0.*";
           rpc-authentication-required = false;
 
           blocklist-enabled = true;
@@ -269,8 +269,8 @@ in {
           anti-brute-force-enabled = true;
           anti-brute-force-threshold = 10;
 
-          script-torrent-done-enabled = true;
-          script-torrent-done-filename = getExe transmissionCrossSeedScript;
+          script-torrent-done-enabled = cfg-cross-seed.enable;
+          script-torrent-done-filename = if cfg-cross-seed.enable then transmissionCrossSeedScript else null;
 
           message-level =
             if cfg.messageLevel == "none"
@@ -292,115 +292,18 @@ in {
         // cfg.extraSettings;
     };
 
-    util-nixarr.vpnnamespace = mkIf cfg.vpn.enable {
-      portMappings = [
-        {
-          From = cfg.uiPort;
-          To = cfg.uiPort;
-        }
-      ];
-      openUdpPorts = [cfg.peerPort];
-      openTcpPorts = [cfg.peerPort];
+    # Enable and specify VPN namespace to confine service in.
+    systemd.services.transmission.vpnconfinement = mkIf cfg.vpn.enable {
+      enable = true;
+      vpnnamespace = "wg";
     };
 
-    systemd.services."container@transmission" = mkIf cfg.vpn.enable {
-      requires = ["wg.service"];
-    };
-
-    containers.transmission = mkIf cfg.vpn.enable {
-      autoStart = true;
-      ephemeral = true;
-      extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
-
-      bindMounts = {
-        "${nixarr.mediaDir}/torrents".isReadOnly = false;
-        "/var/lib/transmission" = {
-          hostPath = cfg.stateDir;
-          isReadOnly = false;
-        };
-      };
-
-      config = {
-        users.groups.torrenter = {
-          gid = config.users.groups.torrenter.gid;
-        };
-        users.users.torrenter = {
-          uid = lib.mkForce config.users.users.torrenter.uid;
-          isSystemUser = true;
-          group = "torrenter";
-        };
-
-        # Use systemd-resolved inside the container
-        # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
-        networking.useHostResolvConf = lib.mkForce false;
-        services.resolved.enable = true;
-        networking.nameservers = dnsServers;
-
-        systemd.services.transmission.serviceConfig = {
-          RootDirectoryStartOnly = lib.mkForce false;
-          RootDirectory = lib.mkForce "";
-        };
-
-        services.transmission = {
-          enable = true;
-          user = "torrenter";
-          group = "torrenter";
-          webHome =
-            if cfg.flood.enable
-            then pkgs.flood-for-transmission
-            else null;
-          package = pkgs.transmission_4;
-          openRPCPort = true;
-          openPeerPorts = true;
-          settings =
-            {
-              download-dir = "${nixarr.mediaDir}/torrents";
-              incomplete-dir-enabled = true;
-              incomplete-dir = "${nixarr.mediaDir}/torrents/.incomplete";
-              watch-dir-enabled = true;
-              watch-dir = "${nixarr.mediaDir}/torrents/.watch";
-
-              rpc-bind-address = "192.168.15.1";
-              rpc-port = cfg.uiPort;
-              rpc-whitelist-enabled = false;
-              rpc-whitelist = "192.168.15.1,127.0.0.1";
-              rpc-authentication-required = false;
-
-              blocklist-enabled = true;
-              blocklist-url = "https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz";
-
-              peer-port = cfg.peerPort;
-              dht-enabled = !cfg.privateTrackers.disableDhtPex;
-              pex-enabled = !cfg.privateTrackers.disableDhtPex;
-              utp-enabled = false;
-              encryption = 1;
-              port-forwarding-enabled = false;
-
-              anti-brute-force-enabled = true;
-              anti-brute-force-threshold = 10;
-
-              # 0 = None, 1 = Critical, 2 = Error, 3 = Warn, 4 = Info, 5 = Debug, 6 = Trace
-              message-level = 3;
-            }
-            // cfg.extraSettings;
-        };
-
-        environment.systemPackages = with pkgs; [
-          curl
-          wget
-          util-linux
-          unixtools.ping
-          coreutils
-          curl
-          bash
-          libressl
-          netcat-gnu
-          openresolv
-          dig
-        ];
-
-        system.stateVersion = "23.11";
-      };
+    # Port mappings
+    # TODO: open peerPort
+    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+      portMappings = [{ From = cfg.uiPort; To = cfg.uiPort; }];
+      #openUdpPorts = [cfg.peerPort];
+      #openTcpPorts = [cfg.peerPort];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

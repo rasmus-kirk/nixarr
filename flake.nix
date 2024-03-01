@@ -8,6 +8,10 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    vpnconfinement = {
+      url = "github:Maroka-chan/VPN-Confinement";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
@@ -25,15 +29,15 @@
     };
   };
 
-  outputs = inputs @ {flake-parts, ...}:
+  outputs = inputs @ {flake-parts, vpnconfinement, nixpkgs, ...}:
     flake-parts.lib.mkFlake {
       inherit inputs;
-    }
-    rec {
+    } {
       imports = with inputs; [
         flake-root.flakeModule
         treefmt-nix.flakeModule
         devshell.flakeModule
+        #vpnconfinement.nixosModules.default
       ];
       systems = [
         "x86_64-linux"
@@ -41,7 +45,10 @@
 
       flake = {
         nixosModules = rec {
-          nixarr = import ./nixarr;
+          #vpnconfinement = vpnconfinement.nixosModules.default;
+          nixarr = (import ./nixarr vpnconfinement);
+          #imports = [ vpnconfinement.nixosModules.default ];
+          #nixarr.imports = [ vpnconfinement ];
           default = nixarr;
         };
       };

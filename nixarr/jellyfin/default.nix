@@ -7,7 +7,6 @@ let
   cfg = config.nixarr.jellyfin;
   defaultPort = 8096;
   nixarr = config.nixarr;
-  dnsServers = config.lib.vpn.dnsServers;
 in with lib; {
   options.nixarr.jellyfin = {
     enable = mkEnableOption "the Jellyfin service.";
@@ -228,57 +227,16 @@ in with lib; {
         defaults.email = cfg.expose.https.acmeMail;
       };
 
-      util-nixarr.vpnnamespace.portMappings = [
-        (
-          mkIf cfg.vpn.enable {
-            From = defaultPort;
-            To = defaultPort;
-          }
-        )
-      ];
-
-      systemd.services."container@jellyfin" = mkIf cfg.vpn.enable {
-        requires = ["wg.service"];
+      # Enable and specify VPN namespace to confine service in.
+      systemd.services.jellyfin.vpnconfinement = mkIf cfg.vpn.enable {
+        enable = true;
+        vpnnamespace = "wg";
       };
 
-      containers.jellyfin = mkIf cfg.vpn.enable {
-        autoStart = true;
-        ephemeral = true;
-        extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
-
-        bindMounts = {
-          "${nixarr.mediaDir}/library".isReadOnly = false;
-          "${cfg.stateDir}".isReadOnly = false;
-        };
-
-        config = {
-          users.groups.streamer = {
-            gid = config.users.groups.streamer.gid;
-          };
-          users.users.streamer = {
-            uid = lib.mkForce config.users.users.streamer.uid;
-            isSystemUser = true;
-            group = "streamer";
-          };
-
-          # Use systemd-resolved inside the container
-          # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
-          networking.useHostResolvConf = lib.mkForce false;
-          services.resolved.enable = true;
-          networking.nameservers = dnsServers;
-
-          services.jellyfin = {
-            enable = true;
-            user = "streamer";
-            group = "streamer";
-            logDir = "${cfg.stateDir}/log";
-            cacheDir = "${cfg.stateDir}/cache";
-            dataDir = "${cfg.stateDir}/data";
-            configDir = "${cfg.stateDir}/config";
-          };
-
-          system.stateVersion = "23.11";
-        };
+      # Port mappings
+      # TODO: openports if expose.vpn
+      vpnnamespaces.wg = mkIf cfg.vpn.enable {
+        portMappings = [{ From = defaultPort; To = defaultPort; }];
       };
     };
 }

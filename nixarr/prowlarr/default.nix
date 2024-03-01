@@ -6,7 +6,6 @@
 }:
 with lib; let
   defaultPort = 9696;
-  dnsServers = config.lib.vpn.dnsServers;
   nixarr = config.nixarr;
   cfg = config.nixarr.prowlarr;
 in {
@@ -49,51 +48,22 @@ in {
       "d '${cfg.stateDir}' 0700 prowlarr root - -"
     ];
 
-    util-nixarr.services.prowlarr = mkIf (!cfg.vpn.enable) {
+    users.groups.prowlarr = {};
+
+    util-nixarr.services.prowlarr = {
       enable = true;
       dataDir = cfg.stateDir;
     };
 
-    util-nixarr.vpnnamespace.portMappings = [
-      (
-        mkIf cfg.vpn.enable {
-          From = defaultPort;
-          To = defaultPort;
-        }
-      )
-    ];
-
-    systemd.services."container@prowlarr" = mkIf cfg.vpn.enable {
-      requires = ["wg.service"];
+    # Enable and specify VPN namespace to confine service in.
+    systemd.services.prowlarr.vpnconfinement = mkIf cfg.vpn.enable {
+      enable = true;
+      vpnnamespace = "wg";
     };
 
-    containers.prowlarr = mkIf cfg.vpn.enable {
-      autoStart = true;
-      ephemeral = true;
-      extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
-      bindMounts."${cfg.stateDir}".isReadOnly = false;
-
-      config = {
-        users.groups.prowlarr = {};
-        users.users.prowlarr = {
-          uid = lib.mkForce config.users.users.prowlarr.uid;
-          isSystemUser = true;
-          group = "prowlarr";
-        };
-
-        # Use systemd-resolved inside the container
-        # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
-        networking.useHostResolvConf = lib.mkForce false;
-        services.resolved.enable = true;
-        networking.nameservers = dnsServers;
-
-        util-nixarr.services.prowlarr = {
-          enable = true;
-          dataDir = cfg.stateDir;
-        };
-
-        system.stateVersion = "23.11";
-      };
+    # Port mappings
+    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+      portMappings = [{ From = defaultPort; To = defaultPort; }];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

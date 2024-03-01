@@ -5,7 +5,6 @@
 }:
 with lib; let
   cfg = config.nixarr.lidarr;
-  dnsServers = config.lib.vpn.dnsServers;
   nixarr = config.nixarr;
 in {
   options.nixarr.lidarr = {
@@ -50,53 +49,16 @@ in {
       dataDir = cfg.stateDir;
     };
 
-    util-nixarr.vpnnamespace.portMappings = [
-      (
-        mkIf cfg.vpn.enable {
-          From = defaultPort;
-          To = defaultPort;
-        }
-      )
-    ];
-
-    systemd.services."container@lidarr" = mkIf cfg.vpn.enable {
-      requires = ["wg.service"];
+    # Enable and specify VPN namespace to confine service in.
+    systemd.services.lidarr.vpnconfinement = mkIf cfg.vpn.enable {
+      enable = true;
+      vpnnamespace = "wg";
     };
 
-    containers.lidarr = mkIf cfg.vpn.enable {
-      autoStart = true;
-      ephemeral = true;
-      extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
-
-      bindMounts = {
-        "${nixarr.mediaDir}".isReadOnly = false;
-        "${cfg.stateDir}".isReadOnly = false;
-      };
-
-      config = {
-        users.groups.media = {
-          gid = config.users.groups.media.gid;
-        };
-        users.users.lidarr = {
-          uid = lib.mkForce config.users.users.lidarr.uid;
-          isSystemUser = true;
-          group = "media";
-        };
-
-        # Use systemd-resolved inside the container
-        # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
-        networking.useHostResolvConf = lib.mkForce false;
-        services.resolved.enable = true;
-        networking.nameservers = dnsServers;
-
-        services.lidarr = {
-          enable = true;
-          group = "media";
-          dataDir = "${cfg.stateDir}";
-        };
-
-        system.stateVersion = "23.11";
-      };
+    # Port mappings
+    # TODO: openports
+    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+      portMappings = [{ From = defaultPort; To = defaultPort; }];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

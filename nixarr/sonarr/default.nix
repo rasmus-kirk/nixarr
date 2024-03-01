@@ -8,7 +8,6 @@ with lib; let
   cfg = config.nixarr.sonarr;
   defaultPort = 8989;
   nixarr = config.nixarr;
-  dnsServers = config.lib.vpn.dnsServers;
 in {
   options.nixarr.sonarr = {
     enable = mkOption {
@@ -49,60 +48,22 @@ in {
       "d '${cfg.stateDir}' 0700 sonarr root - -"
     ];
 
-    services.sonarr = mkIf (!cfg.vpn.enable) {
+    services.sonarr = {
       enable = cfg.enable;
       user = "sonarr";
       group = "media";
       dataDir = cfg.stateDir;
     };
 
-    util-nixarr.vpnnamespace.portMappings = [
-      (mkIf cfg.vpn.enable {
-        From = defaultPort;
-        To = defaultPort;
-      })
-    ];
-
-    systemd.services."container@sonarr" = mkIf cfg.vpn.enable {
-      requires = ["wg.service"];
+    # Enable and specify VPN namespace to confine service in.
+    systemd.services.sonarr.vpnconfinement = mkIf cfg.vpn.enable {
+      enable = true;
+      vpnnamespace = "wg";
     };
 
-    containers.sonarr = mkIf cfg.vpn.enable {
-      autoStart = true;
-      ephemeral = true;
-      extraFlags = ["--network-namespace-path=/var/run/netns/wg"];
-
-      bindMounts = {
-        "${nixarr.mediaDir}".isReadOnly = false;
-        "${cfg.stateDir}".isReadOnly = false;
-      };
-
-      config = {
-        users.groups.media = {
-          gid = config.users.groups.media.gid;
-        };
-        users.users.sonarr = {
-          uid = lib.mkForce config.users.users.sonarr.uid;
-          isSystemUser = true;
-          group = "media";
-        };
-
-        # Use systemd-resolved inside the container
-        # Workaround for bug https://github.com/NixOS/nixpkgs/issues/162686
-        networking.useHostResolvConf = lib.mkForce false;
-        services.resolved.enable = true;
-        networking.nameservers = dnsServers;
-
-        users.groups.media = {};
-
-        services.sonarr = {
-          enable = cfg.enable;
-          group = "media";
-          dataDir = cfg.stateDir;
-        };
-
-        system.stateVersion = "23.11";
-      };
+    # Port mappings
+    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+      portMappings = [{ From = defaultPort; To = defaultPort; }];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

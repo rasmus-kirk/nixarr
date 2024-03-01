@@ -80,6 +80,7 @@ in {
 
     users.users = mkIf (cfg.user == "cross-seed") {
       cross-seed = {
+        isSystemUser = true;
         group = cfg.group;
       };
     };

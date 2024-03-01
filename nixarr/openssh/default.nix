@@ -75,19 +75,16 @@ in {
       ''
     ] else [];
 
-    util-nixarr.vpnnamespace = {
-      portMappings = builtins.map (x: { From = x; To = x; }) config.services.openssh.ports;
-      openUdpPorts = config.services.openssh.ports;
-      openTcpPorts = config.services.openssh.ports;
+    # Enable and specify VPN namespace to confine service in.
+    systemd.services.openssh.vpnconfinement = {
+      enable = true;
+      vpnnamespace = "wg";
     };
 
-    systemd.services.openssh = {
-      bindsTo = [ "netns@wg.service" ];
-      requires = [ "network-online.target" ];
-      after = [ "wg.service" ];
-      serviceConfig = {
-        NetworkNamespacePath = "/var/run/netns/wg";
-      };
+    # Port mappings
+    # TODO: openports
+    vpnnamespaces.wg = {
+      portMappings = [{ From = defaultPort; To = defaultPort; }];
     };
   };
 }

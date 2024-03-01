@@ -1,4 +1,4 @@
-{
+vpnconfinement: {
   config,
   lib,
   pkgs,
@@ -8,7 +8,9 @@ with lib; let
   cfg = config.nixarr;
 in {
   imports = [
+    vpnconfinement.nixosModules.default
     ./jellyfin
+    ./ddns
     ./radarr
     ./lidarr
     ./readarr
@@ -70,46 +72,6 @@ in {
       '';
     };
 
-    ddns.njalla = {
-      enable = mkOption {
-        type = types.bool;
-        default = false;
-        description = ''
-          **Required options:**
-
-          - [`nixarr.ddns.njalla.keysFile`](#nixarr.ddns.njalla.keysfile)
-
-          Whether or not to enable DDNS for a [Njalla](https://njal.la/)
-          domain.
-        '';
-      };
-
-      keysFile = mkOption {
-        type = with types; nullOr path;
-        default = null;
-        description = ''
-          A path to a JSON-file containing key value pairs of domains and keys.
-
-          To get the keys, create a dynamic njalla record. Upon creation
-          you should see something like the following command suggested:
-
-          ```sh
-            curl "https://njal.la/update/?h=jellyfin.example.com&k=zeubesojOLgC2eJC&auto"
-          ```
-
-          Then the JSON-file you pass here should contain:
-
-          ```json
-            {
-              "jellyfin.example.com": "zeubesojOLgC2eJC"
-            }
-          ```
-
-          You can, of course, add more key-value pairs than just one.
-        '';
-      };
-    };
-
     vpn = {
       enable = mkOption {
         type = types.bool;
@@ -128,16 +90,6 @@ in {
         description = "The path to the wireguard configuration file.";
       };
 
-      dnsServers = mkOption {
-        type = with types; nullOr (listOf str);
-        default = null;
-        description = ''
-          Extra DNS servers for the VPN. If your wg config has a DNS field,
-          then this should not be necessary.
-        '';
-        example = ["1.1.1.2"];
-      };
-
       vpnTestService = {
         enable = mkEnableOption ''
           the vpn test service. Useful for testing DNS leaks or if the VPN
@@ -145,10 +97,11 @@ in {
         '';
 
         port = mkOption {
-          type = types.port;
-          default = 12300;
+          type = with types; nullOr port;
+          default = null;
           description = ''
-            The port that the vpn test service listens to.
+            The port that netcat listens to on the vpn test service. If set to
+            `null`, then netcat will not be started.
           '';
           example = 58403;
         };
@@ -157,7 +110,7 @@ in {
       openTcpPorts = mkOption {
         type = with types; listOf port;
         default = [];
-        description = lib.mdDoc ''
+        description = ''
           What TCP ports to allow traffic from. You might need this if you're
           port forwarding on your VPN provider and you're setting up services
           not covered in by this module that uses the VPN.
@@ -168,7 +121,7 @@ in {
       openUdpPorts = mkOption {
         type = with types; listOf port;
         default = [];
-        description = lib.mdDoc ''
+        description = ''
           What UDP ports to allow traffic from. You might need this if you're
           port forwarding on your VPN provider and you're setting up services
           not covered in by this module that uses the VPN.
@@ -187,149 +140,101 @@ in {
           to be set, but it was not.
         '';
       }
-      {
-        assertion = cfg.ddns.njalla.enable -> cfg.ddns.njalla.keysFile != null;
-        message = ''
-          The nixarr.ddns.njalla.enable option requires the
-          nixarr.ddns.njalla.keysFile option to be set, but it was not.
-        '';
-      }
     ];
 
+    # TODO: move this to modules, at least the "*Arrs"...
     users.groups = {
-      media.gid = 992;
-      prowlarr = {};
+      media = {};
       streamer = {};
       torrenter = {};
     };
-    # TODO: This is BAD. But seems necessary when using containers.
-    # The prefered solution is to just remove containerization.
-    # Look at https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/misc/ids.nix
-    # See also issue: https://github.com/rasmus-kirk/nixarr/issues/1
     users.users = {
       streamer = {
         isSystemUser = true;
         group = "streamer";
-        uid = lib.mkForce 316;
-      };
-      sonarr = {
-        isSystemUser = true;
-        group = "media";
-        uid = lib.mkForce 274;
-      };
-      radarr = {
-        isSystemUser = true;
-        group = "media";
-        uid = lib.mkForce 275;
-      };
-      lidarr = {
-        isSystemUser = true;
-        group = "media";
-        uid = lib.mkForce 306;
-      };
-      readarr = {
-        isSystemUser = true;
-        group = "media";
-        uid = lib.mkForce 309;
       };
       torrenter = {
         isSystemUser = true;
         group = "torrenter";
-        uid = lib.mkForce 70;
-      };
-      prowlarr = {
-        isSystemUser = true;
-        group = "prowlarr";
-        uid = lib.mkForce 293;
       };
     };
 
     systemd.tmpfiles.rules = [
       # Media dirs
-      "d '${cfg.mediaDir}'                        0775 root         media - -"
-      "d '${cfg.mediaDir}/library'                0775 streamer     media - -"
-      "d '${cfg.mediaDir}/library/shows'          0775 streamer     media - -"
-      "d '${cfg.mediaDir}/library/movies'         0775 streamer     media - -"
-      "d '${cfg.mediaDir}/library/music'          0775 streamer     media - -"
-      "d '${cfg.mediaDir}/library/books'          0775 streamer     media - -"
-      "d '${cfg.mediaDir}/torrents'               0755 torrenter    media - -"
-      "d '${cfg.mediaDir}/torrents/.incomplete'   0755 torrenter    media - -"
-      "d '${cfg.mediaDir}/torrents/.watch'        0755 torrenter    media - -"
-      "d '${cfg.mediaDir}/torrents/manual'        0755 torrenter    media - -"
-      "d '${cfg.mediaDir}/torrents/liadarr'       0755 torrenter    media - -"
-      "d '${cfg.mediaDir}/torrents/radarr'        0755 torrenter    media - -"
-      "d '${cfg.mediaDir}/torrents/sonarr'        0755 torrenter    media - -"
-      "d '${cfg.mediaDir}/torrents/readarr'       0755 torrenter    media - -"
+      "d '${cfg.mediaDir}'                      0775 root      media - -"
+      "d '${cfg.mediaDir}/library'              0775 streamer  media - -"
+      "d '${cfg.mediaDir}/library/shows'        0775 streamer  media - -"
+      "d '${cfg.mediaDir}/library/movies'       0775 streamer  media - -"
+      "d '${cfg.mediaDir}/library/music'        0775 streamer  media - -"
+      "d '${cfg.mediaDir}/library/books'        0775 streamer  media - -"
+      "d '${cfg.mediaDir}/torrents'             0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/.incomplete' 0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/.watch'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/manual'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/liadarr'     0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/radarr'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/readarr'     0755 torrenter media - -"
     ];
 
-    util-nixarr.vpnnamespace = {
-      enable = cfg.vpn.enable;
+    # TODO: wtf to do about openports
+    vpnnamespaces.wg = {
+      enable = cfg.vpn.enable ;
       accessibleFrom = [
         "192.168.1.0/24"
         "127.0.0.1"
       ];
-      dnsServers = cfg.vpn.dnsServers;
-      wireguardAddressPath = cfg.vpn.wgAddress;
-      wireguardConfigFile = if cfg.vpn.wgConf != null then cfg.vpn.wgConf else "";
-      vpnTestService = {
-        enable = cfg.vpn.vpnTestService.enable;
-        port = cfg.vpn.vpnTestService.port;
-      };
-      openTcpPorts = cfg.vpn.openTcpPorts;
-      openUdpPorts = cfg.vpn.openUdpPorts;
+      wireguardConfigFile = cfg.vpn.wgConf;
     };
 
-    systemd.timers = mkIf cfg.ddns.njalla.enable {
-      ddnsNjalla = {
-        description = "Timer for setting the Njalla DDNS records";
-
-        timerConfig = {
-          OnBootSec = "30"; # Run 30 seconds after system boot
-          OnCalendar = "hourly";
-          Persistent = true; # Run service immediately if last window was missed
-          RandomizedDelaySec = "5min"; # Run service OnCalendar +- 5min
-        };
-
-        wantedBy = ["multi-user.target"];
+    # TODO: openports
+    systemd.services.vpn-test-service = {
+      enable = cfg.vpn.vpnTestService.enable;
+      vpnconfinement = {
+        enable = true;
+        vpnnamespace = "wg";
       };
-    };
 
-    systemd.services = let 
-      ddns-njalla = pkgs.writeShellApplication {
-        name = "ddns-njalla";
+      script = let
+        vpn-test = pkgs.writeShellApplication {
+          name = "vpn-test";
 
-        runtimeInputs = with pkgs; [ curl jq ];
+          runtimeInputs = with pkgs; [util-linux unixtools.ping coreutils curl bash libressl netcat-gnu openresolv dig];
 
-        # Thanks chatgpt...
-        text = ''
-          # Path to the JSON file
-          json_file="${cfg.ddns.njalla.keysFile}"
+          text = ''
+            cd "$(mktemp -d)"
 
-          # Convert the JSON object into a series of tab-separated key-value pairs using jq
-          # - `to_entries[]`: Convert the object into an array of key-value pairs.
-          # - `[.key, .value]`: For each pair, create an array containing the key and the value.
-          # - `@tsv`: Convert the array to a tab-separated string.
-          # The output will be a series of lines, each containing a key and a value separated by a tab.
-          jq_command='to_entries[] | [.key, .value] | @tsv'
+            # Print resolv.conf
+            echo "/etc/resolv.conf contains:"
+            cat /etc/resolv.conf
 
-          # Read the converted output line by line
-          # - `IFS=$'\t'`: Use the tab character as the field separator.
-          # - `read -r key val`: For each line, split it into `key` and `val` based on the tab separator.
-          while IFS=$'\t' read -r key val; do
-            # For each key-value pair, execute the curl command
-            # Replace `''${key}` and `''${val}` in the URL with the actual key and value.
-            curl -s "https://njal.la/update/?h=''${key}&k=''${val}&auto"
-          done < <(jq -r "$jq_command" "$json_file")
-        '';
-      };
-    in mkIf cfg.ddns.njalla.enable {
-      ddnsNjalla = {
-        description = "Sets the Njalla DDNS records";
+            # Query resolvconf
+            echo "resolvconf output:"
+            resolvconf -l
+            echo ""
 
-        serviceConfig = {
-          ExecStart = getExe ddns-njalla;
-          Type = "oneshot";
+            # Get ip
+            echo "Getting IP:"
+            curl -s ipinfo.io
+
+            echo -ne "DNS leak test:"
+            curl -s https://raw.githubusercontent.com/macvk/dnsleaktest/b03ab54d574adbe322ca48cbcb0523be720ad38d/dnsleaktest.sh -o dnsleaktest.sh
+            chmod +x dnsleaktest.sh
+            ./dnsleaktest.sh
+          '' + (if cfg.vpn.vpnTestService.port != null then ''
+            echo "starting netcat on port ${builtins.toString cfg.vpn.vpnTestService.port}:"
+            nc -vnlp ${builtins.toString cfg.vpn.vpnTestService.port}
+          '' else "");
         };
+      in "${vpn-test}/bin/vpn-test";
+
+      bindsTo = ["netns@wg.service"];
+      requires = ["network-online.target"];
+      after = ["wg.service"];
+      serviceConfig = {
+        #User = "torrenter";
+        NetworkNamespacePath = "/var/run/netns/wg";
+        BindReadOnlyPaths = ["/etc/netns/wg/resolv.conf:/etc/resolv.conf:norbind" "/data/test.file:/etc/test.file:norbind"];
       };
     };
   };
