@@ -28,7 +28,6 @@ in
       mkdir -p $out
       mkdir -p $tmpdir
       cp -r docs $out
-      tail -n +2 README.md > "$tmpdir/index.md"
       cd $out
 
       # Generate md docs
@@ -55,7 +54,6 @@ in
         "$tmpdir"/nixos.md
 
       pandoc \
-        --metadata title="Nixarr" \
         --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
         --standalone \
         --highlight-style docs/pandoc/gruvbox.theme \
