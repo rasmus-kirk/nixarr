@@ -23,15 +23,13 @@ in
     buildInputs = with pkgs; [pandoc];
     phases = ["unpackPhase" "buildPhase"];
     buildPhase = ''
-      #tmpdir=$(mktemp -d)
-      tmpdir="$out/debug"
+      tmpdir=$(mktemp -d)
+
       mkdir -p $out
-      mkdir -p $tmpdir
       cp -r docs $out
-      cd $out
 
       # Generate md docs
-      cat ${optionsDocNixos.optionsCommonMark} > "$tmpdir"/nixos.md
+      cat ${optionsDocNixos.optionsCommonMark} > "$tmpdir"/nixos-options.md
 
       pandoc \
         --standalone \
@@ -51,7 +49,7 @@ in
         -V --mathjax \
         -f markdown+smart \
         -o $out/options.html \
-        "$tmpdir"/nixos.md
+        "$tmpdir"/nixos-options.md
 
       pandoc \
         --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
@@ -63,6 +61,6 @@ in
         -V --mathjax \
         -f markdown+smart \
         -o $out/index.html \
-        "$tmpdir/index.md"
+        README.md
     '';
   }

@@ -1,4 +1,5 @@
--- This function is called for each CodeBlock element in the document.
+-- Change each untagged codeblock in the document to a "nix" code block.
+
 function CodeBlock(block)
   -- Check if the code block does not have a language specified.
   if block.classes[1] == nil then

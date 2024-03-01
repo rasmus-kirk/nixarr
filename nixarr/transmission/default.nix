@@ -9,6 +9,20 @@ with lib; let
   cfg = config.nixarr.transmission;
   nixarr = config.nixarr;
   dnsServers = config.lib.vpn.dnsServers;
+  get-indexers = with builtins; pkgs.writeShellApplication {
+    name = "get-indexers";
+
+    runtimeInputs = with pkgs; [ jq yq ];
+
+    text = ''
+      PROWLARR_API_KEY=$(xq '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
+    ''
+    + toJson (
+      map (x: 
+        ''http://localhost:9696/${toString x}/api?apikey="$PROWLARR_API_KEY"''
+      ) cfg.privateTrackers.cross-seed.indexIds
+    );
+  };
 in {
   options.nixarr.transmission = {
     enable = mkEnableOption "the Transmission service.";
@@ -61,6 +75,13 @@ in {
           default = false;
           description = ''
             Enable the cross-seed service.
+          '';
+        };
+        indexIds = mkOption {
+          type = with types; listOf int;
+          default = [];
+          description = ''
+            list of indexers TODO: todo
           '';
         };
       };

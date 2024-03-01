@@ -1,4 +1,5 @@
 -- Adds anchor links to headings with IDs.
+
 function Header (h)
   if h.identifier ~= '' then
     -- an empty link to this header

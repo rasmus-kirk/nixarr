@@ -1,4 +1,4 @@
--- file: remove-util-nixarr.lua
+-- Remove the "util-nixarr" sections from the docs
 
 -- This function checks if a string starts with a given start string
 function starts_with(str, start)

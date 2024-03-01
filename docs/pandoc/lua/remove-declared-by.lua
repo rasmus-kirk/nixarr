@@ -1,4 +1,4 @@
--- file: remove-declared-by.lua
+-- Removed "Declared by:" paragraphs. TODO: Make them link to the GH repo instead
 
 function Para(elem)
     -- Check if the first element of the paragraph is Emph (italic)

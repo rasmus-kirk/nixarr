@@ -1,4 +1,4 @@
--- file: remove-declared-by.lua
+-- Changes "Example" and "Default" section fenced code blocks into "nix" tagged code blocks
 
 function Para(elem)
     -- Check if the first element of the paragraph is Emph (italic)

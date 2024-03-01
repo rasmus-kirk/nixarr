@@ -38,10 +38,10 @@ jobs:
 
       - run: mkdir -p out && cp -r ./result/* out
 
-      - name: Store docs
+      - name: Store website
         uses: actions/upload-artifact@v4
         with:
-          name: docs
+          name: website
           path: ./out
 
   deploy-docs:
@@ -57,7 +57,8 @@ jobs:
       - name: Get nix build output
         uses: actions/download-artifact@v4
         with:
-          name: docs
+          name: website
+          path: './out'
 
       - name: Setup Pages
         uses: actions/configure-pages@v3

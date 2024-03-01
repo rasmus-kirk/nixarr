@@ -1,4 +1,4 @@
--- file: remove-util-nixarr.lua
+-- Remove junk module.args section of the nix documentation
 
 -- This function checks if a string starts with a given start string
 function starts_with(str, start)
