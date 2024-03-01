@@ -10,7 +10,7 @@
       {
         config._module.check = false;
       }
-      ./nixarr
+      ./nixarr/nixarr.nix
     ];
   };
   optionsDocNixos = nixosOptionsDoc {

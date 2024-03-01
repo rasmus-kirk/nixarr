@@ -37,7 +37,6 @@
         flake-root.flakeModule
         treefmt-nix.flakeModule
         devshell.flakeModule
-        #vpnconfinement.nixosModules.default
       ];
       systems = [
         "x86_64-linux"
@@ -45,10 +44,7 @@
 
       flake = {
         nixosModules = rec {
-          #vpnconfinement = vpnconfinement.nixosModules.default;
           nixarr = (import ./nixarr vpnconfinement);
-          #imports = [ vpnconfinement.nixosModules.default ];
-          #nixarr.imports = [ vpnconfinement ];
           default = nixarr;
         };
       };
@@ -56,6 +52,7 @@
       perSystem = {
         config,
         pkgs,
+        lib,
         ...
       }: {
         treefmt.config = {

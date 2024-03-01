@@ -70,6 +70,8 @@ in {
       };
     };
 
-    users.groups = mkIf (cfg.group == "prowlarr") {};
+    users.groups = mkIf (cfg.group == "prowlarr") {
+      prowlarr = { };
+    };
   };
 }

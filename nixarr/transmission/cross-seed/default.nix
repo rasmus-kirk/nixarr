@@ -8,7 +8,37 @@ with lib; let
   cfg = config.util-nixarr.services.cross-seed;
   settingsFormat = pkgs.formats.json {};
   settingsFile = settingsFormat.generate "settings.json" cfg.settings;
-  cross-seedPkg = import ../../../pkgs/cross-seed { inherit (pkgs) stdenv lib fetchFromGitHub; };
+  cross-seedPkg = pkgs.callPackage ../../../pkgs/cross-seed {};
+  configJs = pkgs.writeText "config.js" ''
+    // Loads a json.config
+    "use strict";
+    const fs = require('fs');
+
+    const jsonPath = '${cfg.dataDir}/config.json'
+
+    // Synchronously read the JSON-configuration file
+    const configFileContent = fs.readFileSync(jsonPath, { encoding: 'utf8' });
+
+    // Parse the JSON content into a JavaScript object
+    let config = JSON.parse(configFileContent);
+
+    // Function to recursively replace null values with undefined
+    /*
+    function replaceNullWithUndefined(obj) {
+      Object.keys(obj).forEach(key => {
+        if (obj[key] === null) {
+          obj[key] = undefined;
+        } else if (typeof obj[key] === 'object') {
+          replaceNullWithUndefined(obj[key]);
+        }
+      });
+    }
+    replaceNullWithUndefined(config);
+    */
+
+    // Export the configuration object
+    module.exports = config;
+  '';
 in {
   options = {
     util-nixarr.services.cross-seed = {
@@ -52,9 +82,23 @@ in {
   };
 
   config = mkIf cfg.enable {
-    systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+  assertions = [
+      {
+        assertion = cfg.enable -> cfg.settings.outputDir != null;
+        message = ''
+          The settings.outputDir must be set if cross-seed is enabled.
+        '';
+      }
     ];
+
+    systemd.tmpfiles.rules = [
+      "L+ '${cfg.dataDir}'/config.js - - - - ${configJs}"
+      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+    ] ++ (
+      if cfg.settings.outputDir != null then
+        [ "d '${cfg.settings.outputDir}' 0755 ${cfg.user} ${cfg.group} - -" ]
+      else []
+    );
 
     systemd.services.cross-seed = {
       description = "cross-seed";
@@ -73,7 +117,7 @@ in {
         Type = "simple";
         User = cfg.user;
         Group = cfg.group;
-        ExecStart = "${getExe cross-seedPkg} daemon";
+        ExecStart = "${cross-seedPkg}/bin/cross-seed daemon";
         Restart = "on-failure";
       };
     };
@@ -85,6 +129,8 @@ in {
       };
     };
 
-    users.groups = mkIf (cfg.group == "cross-seed") {};
+    users.groups = mkIf (cfg.group == "cross-seed") {
+      cross-seed = { };
+    };
   };
 }

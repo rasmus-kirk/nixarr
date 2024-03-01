@@ -9,12 +9,25 @@ with lib; let
   nixarr = config.nixarr;
   cfg-cross-seed = config.nixarr.transmission.privateTrackers.cross-seed;
   transmissionCrossSeedScript = with builtins; pkgs.writeShellApplication {
-    name = "mk-cross-seed-credentials";
+    name = "transmission-cross-seed-script";
 
     runtimeInputs = with pkgs; [ curl ];
 
     text = ''
-      curl -XPOST http://localhost:2468/api/webhook?apikey=YOUR_API_KEY --data-urlencode "infoHash=$TR_TORRENT_HASH"
+      PROWLARR_API_KEY=$(cat prowlarr-api-key)
+      curl -XPOST http://localhost:2468/api/webhook?apikey="$PROWLARR_API_KEY" --data-urlencode "infoHash=$TR_TORRENT_HASH"
+    '';
+  };
+  importProwlarrApi = with builtins; pkgs.writeShellApplication {
+    name = "import-prowlarr-api";
+
+    runtimeInputs = with pkgs; [ yq ];
+
+    text = ''
+      touch ${cfg.stateDir}/prowlarr-api-key
+      chmod 400 ${cfg.stateDir}/prowlarr-api-key
+      chown torrenter ${cfg.stateDir}/prowlarr-api-key
+      xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml" > "${cfg.stateDir}/prowlarr-api-key"
     '';
   };
   mkCrossSeedCredentials = with builtins; pkgs.writeShellApplication {
@@ -24,14 +37,17 @@ with lib; let
 
     text =
       "INDEX_LINKS=("
-      + strings.concatMapStringsSep " " toString cfg.privateTrackers.cross-seed.indexIds
+      + (strings.concatMapStringsSep " " toString cfg.privateTrackers.cross-seed.indexIds)
       + ")"
-      ''
+      + "\n"
+      + ''
         TMP_JSON=$(mktemp)
         CRED_FILE="/run/secrets/cross-seed/credentialsFile.json"
-        PROWLARR_API_KEY=$(xq '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
-        CRED_DIR=$(dirname "$filePath")
+        PROWLARR_API_KEY=$(xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
+        # shellcheck disable=SC2034
+        CRED_DIR=$(dirname "$CRED_FILE")
 
+        mkdir -p "$CRED_DIR"
         echo '{}' > "$CRED_FILE"
         chmod 400 "$CRED_FILE"
         chown "${config.util-nixarr.services.cross-seed.user}" "$CRED_FILE"
@@ -49,7 +65,7 @@ in {
 
     stateDir = mkOption {
       type = types.path;
-      default = "${nixarr.stateDir}/nixarr/transmission";
+      default = "${nixarr.stateDir}/transmission";
       description = ''
         The state directory for Transmission.
       '';
@@ -103,7 +119,7 @@ in {
 
         stateDir = mkOption {
           type = types.path;
-          default = "${nixarr.stateDir}/nixarr/cross-seed";
+          default = "${nixarr.stateDir}/cross-seed";
           description = ''
             The state directory for Transmission.
           '';
@@ -212,8 +228,8 @@ in {
       #group = "media";
       settings = {
         torrentDir = "${nixarr.mediaDir}/torrents";
-        outputDir = "${nixarr.mediaDir}/torrents/cross-seed";
-        transmissionRpcUrl = "http://transmission:${builtins.toString cfg.uiPort}/transmission/rpc";
+        outputDir = "${nixarr.mediaDir}/torrents/.cross-seed";
+        transmissionRpcUrl = "http://localhost:${builtins.toString cfg.uiPort}/transmission/rpc";
         rssCadence = "20 minutes";
 
         # Enable infrequent periodic searches
@@ -224,11 +240,16 @@ in {
     };
     # Run as root in case that the cfg.credentialsFile is not readable by cross-seed
     systemd.services.cross-seed.serviceConfig = mkIf cfg-cross-seed.enable {
-        ExecStartPre = [(mkBefore 
-          ("+" + (getExe mkCrossSeedCredentials))
+        ExecStartPre = mkBefore [( 
+          "+" + "${mkCrossSeedCredentials}/bin/mk-cross-seed-credentials"
         )];
     };
 
+    systemd.services.transmission.serviceConfig = mkIf cfg-cross-seed.enable {
+        ExecStartPre = mkBefore [( 
+          "+" + "${importProwlarrApi}/bin/import-prowlarr-api"
+        )];
+    };
     services.transmission = {
       enable = true;
       user = "torrenter";
@@ -270,7 +291,9 @@ in {
           anti-brute-force-threshold = 10;
 
           script-torrent-done-enabled = cfg-cross-seed.enable;
-          script-torrent-done-filename = if cfg-cross-seed.enable then transmissionCrossSeedScript else null;
+          script-torrent-done-filename = if cfg-cross-seed.enable then 
+            "${transmissionCrossSeedScript}/bin/transmission-cross-seed-script"
+          else null;
 
           message-level =
             if cfg.messageLevel == "none"
