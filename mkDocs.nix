@@ -10,7 +10,6 @@
       {
         config._module.check = false;
       }
-      #inputs.home-manager.nixosModules.default
       ./nixarr
     ];
   };
