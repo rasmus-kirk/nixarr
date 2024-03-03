@@ -85,10 +85,6 @@ nav a.active {
   color: #faf8e4 !important;
 }
 
-a code {
-  text-decoration-line: underline;
-}
-
 footer {
   height: 2rem;
   position: absolute;
@@ -138,6 +134,25 @@ a:active {
 
 a:focus {
   outline: thin dotted;
+}
+
+a code {
+  text-decoration-line: underline;
+}
+
+strong a {
+  text-decoration-line: underline;
+  color: var(--fg0);
+}
+
+strong a:hover {
+  text-decoration-line: underline;
+  color: var(--fg0);
+}
+
+strong a:visited {
+  text-decoration-line: underline;
+  color: var(--fg0);
 }
 
 *::-moz-selection {

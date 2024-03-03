@@ -31,6 +31,32 @@ in
       # Generate md docs
       cat ${optionsDocNixos.optionsCommonMark} > "$tmpdir"/nixos-options.md
 
+      buildwiki () {
+        file_path="$1"
+        filename=$(basename -- "$file_path")
+        dir_path=$(dirname "$file_path" | sed 's|^docs/||')
+        filename_no_ext="''${filename%.*}"
+
+        mkdir -p "$out"/"$dir_path"
+
+        pandoc \
+          --standalone \
+          --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
+          --highlight-style docs/pandoc/gruvbox.theme \
+          --lua-filter docs/pandoc/lua/anchor-links.lua \
+          --css /docs/pandoc/style.css \
+          --template docs/pandoc/template.html \
+          -V lang=en \
+          -V --mathjax \
+          -f markdown+smart \
+          -o $out/"$dir_path"/"$filename_no_ext".html \
+          "$file_path"
+      }
+
+      find docs/wiki -type f -name "*.md" | while IFS= read -r file; do
+        buildwiki "$file"
+      done
+
       pandoc \
         --standalone \
         --metadata title="Nixarr - Option Documentation" \

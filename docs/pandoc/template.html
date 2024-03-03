@@ -36,18 +36,7 @@
     <!--[if lt IE 9]>
         <script src="//cdnjs.cloudflare.com/ajax/libs/html5shiv/3.7.3/html5shiv-printshiv.min.js"></script>
     <![endif]-->
-    <script>
-        addEventListener('DOMContentLoaded', () => {
-            const fullpath = location.origin + location.pathname
-
-            document.querySelectorAll('nav a').forEach((el) => {
-                const url = new URL(el.href)
-                if (url.origin + url.pathname === fullpath) {
-                    el.classList.add('active')
-                }
-            })
-        })
-    </script>
+    <script src="/docs/pandoc/script.js"></script>
 </head>
 
 <body>
@@ -61,6 +50,7 @@
             <div class="content">
                 <a href="/">Home</a>
                 <a href="/options.html">Options</a>
+                <a href="/wiki">Wiki</a>
                 <a href="https://github.com/rasmus-kirk/nixarr">Github</a>
             </div>
         </nav>
@@ -100,9 +90,6 @@
         </div>
         <footer>
             <div class="content">
-                <div>
-                    Rasmus Kirk Jakobsen
-                </div>
                 $if(date)$
                     <div>$date$</div>
                 $endif$
