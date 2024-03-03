@@ -24,6 +24,7 @@ in {
     enable = mkOption {
       type = types.bool;
       default = false;
+      example = true;
       description = ''
         Whether or not to enable the nixarr module. Has the following features:
 
@@ -58,6 +59,7 @@ in {
     mediaDir = mkOption {
       type = types.path;
       default = "/data/media";
+      example = "/home/user/nixarr";
       description = ''
         The location of the media directory for the services.
       '';
@@ -66,6 +68,7 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "/data/.state/nixarr";
+      example = "/home/user/.local/share/nixarr";
       description = ''
         The location of the state directory for the services.
       '';
@@ -75,6 +78,7 @@ in {
       enable = mkOption {
         type = types.bool;
         default = false;
+        example = true;
         description = ''
           **Required options:** [`nixarr.vpn.wgConf`](#nixarr.vpn.wgconf)
 
@@ -86,6 +90,7 @@ in {
       wgConf = mkOption {
         type = types.nullOr types.path;
         default = null;
+        example = "/data/.secret/vpn/wg.conf";
         description = "The path to the wireguard configuration file.";
       };
 
@@ -98,11 +103,11 @@ in {
         port = mkOption {
           type = with types; nullOr port;
           default = null;
+          example = 58403;
           description = ''
             The port that netcat listens to on the vpn test service. If set to
             `null`, then netcat will not be started.
           '';
-          example = 58403;
         };
       };
 

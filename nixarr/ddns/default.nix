@@ -12,6 +12,7 @@ in {
       enable = mkOption {
         type = types.bool;
         default = false;
+        example = true;
         description = ''
           **Required options:**
 
@@ -25,6 +26,7 @@ in {
       keysFile = mkOption {
         type = with types; nullOr path;
         default = null;
+        example = "/data/.secret/njalla/keys-file.json";
         description = ''
           A path to a JSON-file containing key value pairs of domains and keys.
 

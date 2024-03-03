@@ -15,12 +15,14 @@ in with lib; {
       type = types.path;
       default = "${nixarr.stateDir}/jellyfin";
       defaultText = literalExpression ''"''${nixarr.stateDir}/jellyfin"'';
+      example = "/home/user/.local/share/nixarr/jellyfin";
       description = "The state directory for Jellyfin.";
     };
 
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
+      example = true;
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)  
         **Conflicting options:** [`nixarr.jellyfin.expose.https.enable`](#nixarr.jellyfin.expose.https.enable)
@@ -34,6 +36,7 @@ in with lib; {
         enable = mkOption {
           type = types.bool;
           default = false;
+          example = true;
           description = ''
             **Required options:** 
         
@@ -52,6 +55,7 @@ in with lib; {
         port = mkOption {
           type = with types; nullOr port;
           default = null;
+          example = 12345;
           description = ''
             The port to access jellyfin on. Get this port from your VPN
             provider.
@@ -72,6 +76,7 @@ in with lib; {
         enable = mkOption {
           type = types.bool;
           default = false;
+          example = true;
           description = ''
             **Required options:** 
         
@@ -93,12 +98,14 @@ in with lib; {
         domainName = mkOption {
           type = types.nullOr types.str;
           default = null;
+          example = "jellyfin.example.com";
           description = "The domain name to host Jellyfin on.";
         };
 
         acmeMail = mkOption {
           type = types.nullOr types.str;
           default = null;
+          example = "mail@example.com";
           description = "The ACME mail required for the letsencrypt bot.";
         };
       };

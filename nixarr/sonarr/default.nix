@@ -20,12 +20,14 @@ in {
       type = types.path;
       default = "${nixarr.stateDir}/sonarr";
       defaultText = literalExpression ''"''${nixarr.stateDir}/sonarr"'';
+      example = "/home/user/.local/share/nixarr/sonarr";
       description = "The state directory for Sonarr.";
     };
 
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
+      example = true;
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 

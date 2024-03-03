@@ -10,6 +10,7 @@ in {
   options.nixarr.openssh.expose.vpn.enable = mkOption {
     type = types.bool;
     default = false;
+    example = true;
     description = ''
       **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 

@@ -14,12 +14,14 @@ in {
       type = types.path;
       default = "${nixarr.stateDir}/readarr";
       defaultText = literalExpression ''"''${nixarr.stateDir}/readarr"'';
+      example = "/home/user/.local/share/nixarr/readarr";
       description = "The state directory for Readarr";
     };
 
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
+      example = true;
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 

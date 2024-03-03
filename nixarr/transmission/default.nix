@@ -8,6 +8,7 @@ with lib; let
   cfg = config.nixarr.transmission;
   nixarr = config.nixarr;
   cfg-cross-seed = config.nixarr.transmission.privateTrackers.cross-seed;
+  downloadDir = "${nixarr.mediaDir}/torrents";
   transmissionCrossSeedScript = with builtins; pkgs.writeShellApplication {
     name = "transmission-cross-seed-script";
 
@@ -67,23 +68,16 @@ in {
       type = types.path;
       default = "${nixarr.stateDir}/transmission";
       defaultText = literalExpression ''"''${nixarr.stateDir}/transmission"'';
+      example = "/home/user/.local/share/nixarr/transmission";
       description = ''
         The state directory for Transmission.
-      '';
-    };
-
-    downloadDir = mkOption {
-      type = types.path;
-      default = "${nixarr.mediaDir}/torrents";
-      defaultText = literalExpression ''"''${nixarr.mediaDir}/torrents"'';
-      description = ''
-        The directory for Transmission to download to.
       '';
     };
 
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
+      example = true;
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
@@ -97,6 +91,7 @@ in {
       disableDhtPex = mkOption {
         type = types.bool;
         default = false;
+        example = true;
         description = ''
           Disable pex and dht, which is required for some private trackers.
 
@@ -112,6 +107,7 @@ in {
         enable = mkOption {
           type = types.bool;
           default = false;
+          example = true;
           description = ''
             **Required options:** [`nixarr.prowlarr.enable`](#nixarr.prowlarr.enable)
 
@@ -123,6 +119,7 @@ in {
           type = types.path;
           default = "${nixarr.stateDir}/cross-seed";
           defaultText = literalExpression ''"''${nixarr.stateDir}/cross-seed"'';
+          example = "/home/user/.local/share/nixarr/cross-seed";
           description = ''
             The state directory for Transmission.
           '';
@@ -170,18 +167,21 @@ in {
         "trace"
       ];
       default = "warn";
+      example = "debug";
       description = "Sets the message level of transmission.";
     };
 
     peerPort = mkOption {
       type = types.port;
       default = 50000;
+      example = 12345;
       description = "Transmission peer traffic port.";
     };
 
     uiPort = mkOption {
       type = types.port;
       default = 9091;
+      example = 12345;
       description = "Transmission web-UI port.";
     };
 
@@ -277,11 +277,11 @@ in {
       openPeerPorts = true;
       settings =
         {
-          download-dir = "${nixarr.mediaDir}/torrents";
+          download-dir = downloadDir;
           incomplete-dir-enabled = true;
-          incomplete-dir = "${nixarr.mediaDir}/torrents/.incomplete";
+          incomplete-dir = "${downloadDir}/.incomplete";
           watch-dir-enabled = true;
-          watch-dir = "${nixarr.mediaDir}/torrents/.watch";
+          watch-dir = "${downloadDir}/.watch";
 
           rpc-bind-address = if cfg.vpn.enable then "192.168.15.1" else "127.0.0.1";
           rpc-port = cfg.uiPort;

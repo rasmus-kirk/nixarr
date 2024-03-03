@@ -16,12 +16,14 @@ in {
       type = types.path;
       default = "${nixarr.stateDir}/radarr";
       defaultText = literalExpression ''"''${nixarr.stateDir}/radarr"'';
+      example = "/home/user/.local/share/nixarr/radarr";
       description = "The state directory for radarr.";
     };
 
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
+      example = true;
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
