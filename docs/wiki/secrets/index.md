@@ -37,16 +37,18 @@ And set the accompanying Nixarr option:
   };
 ```
 
-**Note:** This is impure, meaning that since the file is not part of the
-nix store, a nixos rollback will not restore a previous secret. This also
-means you have to rebuild Nixos using the `--impure` flag set.
+**Note:** This is "impure", meaning that since the file is not part of the nix
+store, a nixos rollback will not restore a previous secret (not a big problem
+if the secrets are not changed often). This also means you have to rebuild Nixos
+using the `--impure` flag set.
 
 ## Agenix - A Path to Purity
 
-The "right way" to do secret management is to have your secrets
-encrypted in your configuration directory. This can be accomplished using
+The "right way" to do secret management is to have your secrets encrypted in
+your configuration directory. Doing it this way is "pure", and rollbacks
+will once again function correctly. This can be accomplished using
 [agenix](https://github.com/ryantm/agenix). I won't go into the details of how
 to set it up since it's a more complex solution than the one above. However,
-including the right way doing it should help you if you're a more advanced
-user and want to do things the "right way".
+if you're a more advanced user and want to do things the "right way", then
+check out their documentation.
 

@@ -6,13 +6,13 @@ Go to your domain on njalla:
 
 ![Njalla Domain](/docs/wiki/ddns/njalla/domain.png)
 
-Then press "Add record" and select "Dynamic" and write your subdomain in
-the input box. It should now be added to your records. Click on the record,
+Then press "Add record", select "Dynamic" and write your subdomain in the
+input box. It should now be added to your records. Click on the record,
 you should now see something like the following:
 
 ![Njalla Record](/docs/wiki/ddns/njalla/record.png)
 
-With this, then your JSON file should contain:
+Given this, your JSON file should contain the following:
 
 ```json
   {
@@ -20,16 +20,16 @@ With this, then your JSON file should contain:
   }
 ```
 
-Add this as a secret file to your secrets (See [this page](/wiki/secrets)
-for secrets management). This could be done, for example, in the following way:
+Add the above as a secret file to your secrets (See [this page](/wiki/secrets)
+for secrets management). As an example, here is one way of accomplishing it:
 
-- Writing the specified JSON to `/data/.secret/njalla/keys-file.json`
-- Setting the owner as root: 
+- Write the specified JSON to `/data/.secret/njalla/keys-file.json`
+- Set the owner as root: 
   - `sudo chown root:root /data/.secret/njalla/keys-file.json`
-- Setting the permissions to 700 (read, write, execute for file owner, root): 
+- Set the permissions to 700 (read, write, execute for file owner, root): 
   - `sudo chmod 700 /data/.secret/njalla/keys-file.json`
 
-And finally adding it to your nix configuration:
+And finally add the secret file to your nix configuration:
 
 ```nix
   nixarr.ddns.njalla = {
@@ -61,8 +61,6 @@ Then run the following to get your public IP address:
   curl https://ipv4.icanhazip.com/ 
 ```
 
-And if you check your njalla domain page, you should see your public IP on
-your Dynamic DNS record! 
-
-And after waiting a little you should be able to connect to your ip, using
-the set domain.
+And if you check your njalla domain page, you should see your public IP
+on your Dynamic DNS record! After waiting a little you should be able to
+connect to your ip, using the set domain.
