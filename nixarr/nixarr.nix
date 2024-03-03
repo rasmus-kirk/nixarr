@@ -141,7 +141,6 @@ in {
       }
     ];
 
-    # TODO: move this to modules, at least the "*Arrs"...
     users.groups = {
       media = {};
       streamer = {};

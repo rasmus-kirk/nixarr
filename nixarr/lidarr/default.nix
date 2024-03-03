@@ -13,6 +13,7 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/lidarr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/lidarr"'';
       description = "The state directory for Lidarr";
     };
 

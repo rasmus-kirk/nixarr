@@ -66,6 +66,7 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/transmission";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/transmission"'';
       description = ''
         The state directory for Transmission.
       '';
@@ -74,6 +75,7 @@ in {
     downloadDir = mkOption {
       type = types.path;
       default = "${nixarr.mediaDir}/torrents";
+      defaultText = literalExpression ''"''${nixarr.mediaDir}/torrents"'';
       description = ''
         The directory for Transmission to download to.
       '';
@@ -120,6 +122,7 @@ in {
         stateDir = mkOption {
           type = types.path;
           default = "${nixarr.stateDir}/cross-seed";
+          defaultText = literalExpression ''"''${nixarr.stateDir}/cross-seed"'';
           description = ''
             The state directory for Transmission.
           '';
@@ -128,6 +131,7 @@ in {
         indexIds = mkOption {
           type = with types; listOf int;
           default = [];
+          example = [ 1 3 7 ];
           description = ''
             List of indexer-ids, from prowlarr. These are from the RSS links
             for the indexers, located by the "radio" or "RSS" logo on the
@@ -142,6 +146,10 @@ in {
         extraSettings = mkOption {
           type = types.attrs;
           default = {};
+          example = {
+            port = 3000;
+            delay = 20;
+          };
           description = ''
             Extra settings for the cross-seed
             service, see [the cross-seed options
@@ -231,6 +239,8 @@ in {
         outputDir = "${nixarr.mediaDir}/torrents/.cross-seed";
         transmissionRpcUrl = "http://localhost:${builtins.toString cfg.uiPort}/transmission/rpc";
         rssCadence = "20 minutes";
+
+        action = "inject";
 
         # Enable infrequent periodic searches
         searchCadence = "1 week";
