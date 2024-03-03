@@ -14,6 +14,7 @@ in with lib; {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/jellyfin";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/jellyfin"'';
       description = "The state directory for Jellyfin.";
     };
 

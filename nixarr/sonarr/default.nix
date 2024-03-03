@@ -19,6 +19,7 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/sonarr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/sonarr"'';
       description = "The state directory for Sonarr.";
     };
 
