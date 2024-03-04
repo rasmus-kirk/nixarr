@@ -152,7 +152,7 @@ example does the following:
   outside your home network
 - Runs all the supported "*Arrs"
 
-**Note:** This is largely untested ATM!
+**Warning:** This is largely untested ATM!
 
 ```nix {.numberLines}
   nixarr = {
