@@ -274,7 +274,7 @@ in {
         else null;
       package = pkgs.transmission_4;
       openRPCPort = false;
-      openPeerPorts = if cfg.vpn.enable then false else true;
+      openPeerPorts = !cfg.vpn.enable;
       settings =
         {
           download-dir = downloadDir;
