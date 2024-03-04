@@ -230,7 +230,7 @@ your own VPN [manually with wireguard](https://nixos.wiki/wiki/WireGuard).
 
 ## VPN Providers
 
-It's recommended that the VPN you're using has support for port forwarding. I
+Your VPN-provider must support wg-quick configuration files, this should be most of them. I know that Mullvad and AirVPN has support. It's also _recommended_ that the VPN you're using has support for port forwarding. I
 suggest [AirVpn](https://airvpn.org/), since they accept Monero, but you can
 use whatever you want.
 
