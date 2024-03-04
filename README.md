@@ -2,7 +2,7 @@
 
 ![Logo](./docs/img/logo-2.png)
 
-This is a nixos module that aims to make the installation and management
+This is a Nixos module that aims to make the installation and management
 of running the ["*Arrs"](https://wiki.servarr.com/) as easy, and pain free,
 as possible.
 
@@ -47,8 +47,7 @@ that is provided by most VPN providers:
 ```
 
 It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
-because it can cause rate limiting issues. Generally, you should use VPN on
-transmission and maybe jellyfin, depending on your setup.
+because it can cause rate limiting issues.
 
 ## Options
 
