@@ -286,8 +286,8 @@ in {
           rpc-bind-address = if cfg.vpn.enable then "192.168.15.1" else "127.0.0.1";
           rpc-port = cfg.uiPort;
           # TODO: fix this for ssh tunneling...
-          rpc-whitelist-enabled = false;
-          rpc-whitelist = "192.168.15.1,127.0.0.1,192.168.1.*,192.168.0.*";
+          rpc-whitelist-enabled = true;
+          rpc-whitelist = "127.0.0.1,192.168.*";
           rpc-authentication-required = false;
 
           blocklist-enabled = true;
