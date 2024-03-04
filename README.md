@@ -38,12 +38,12 @@ To run services through a VPN, you must provide a wg-quick config file,
 that is provided by most VPN providers:
 
 ```nix {.numberLines}
-nixarr.vpn = {
-  enable = true;
-  # IMPORTANT: This file must _not_ be in the config git directory
-  # You can usually get this wireguard file from your VPN provider
-  wgConf = "/data/.secret/wg.conf";
-}
+  nixarr.vpn = {
+    enable = true;
+    # IMPORTANT: This file must _not_ be in the config git directory
+    # You can usually get this wireguard file from your VPN provider
+    wgConf = "/data/.secret/wg.conf";
+  }
 ```
 
 It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
@@ -64,33 +64,33 @@ If you want to know how to setup DDNS with Njalla, or how to manage secrets in n
 To use this module, add it to your flake inputs in your nix flake file, like shown in this example flake:
 
 ```nix {.numberLines}
-{
-  description = "Your nix flake";
+  {
+    description = "Your nix flake";
 
-  inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-    nixarr.url = "github:rasmus-kirk/nixarr";
-  };
+    inputs = {
+      nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+      nixarr.url = "github:rasmus-kirk/nixarr";
+    };
 
-  outputs = { 
-    nixpkgs,
-    nixarr,
-    ...
-  }@inputs: {
-    nixosConfigurations = {
-      servarr = nixpkgs.lib.nixosSystem {
-        system = "x86_64-linux";
+    outputs = { 
+      nixpkgs,
+      nixarr,
+      ...
+    }@inputs: {
+      nixosConfigurations = {
+        servarr = nixpkgs.lib.nixosSystem {
+          system = "x86_64-linux";
 
-        modules = [
-          ./nixos/servarr/configuration.nix
-          nixarr.nixosModules.default
-        ];
+          modules = [
+            ./nixos/servarr/configuration.nix
+            nixarr.nixosModules.default
+          ];
 
-        specialArgs = { inherit inputs; };
+          specialArgs = { inherit inputs; };
+        };
       };
     };
-  };
-}
+  }
 ```
 
 ## Examples
@@ -102,45 +102,45 @@ This example does the following:
 - Runs all "*Arrs" supported by this module
 
 ```nix {.numberLines}
-nixarr = {
-  enable = true;
-  # These two values are also the default, but you can set them to whatever
-  # else you want
-  mediaDir = "/data/media";
-  stateDir = "/data/media/.state";
-
-  vpn = {
+  nixarr = {
     enable = true;
-    # IMPORTANT: This file must _not_ be in the config git directory
-    # You can usually get this wireguard file from your VPN provider
-    wgConf = "/data/.secret/wg.conf";
-  };
+    # These two values are also the default, but you can set them to whatever
+    # else you want
+    mediaDir = "/data/media";
+    stateDir = "/data/media/.state";
 
-  jellyfin = {
-    enable = true;
-    # These options set up a nginx HTTPS reverse proxy, so you can access
-    # Jellyfin on your domain with HTTPS
-    expose.https = {
+    vpn = {
       enable = true;
-      domainName = "your.domain.com";
-      acmeMail = "your@email.com"; # Required for ACME-bot
+      # IMPORTANT: This file must _not_ be in the config git directory
+      # You can usually get this wireguard file from your VPN provider
+      wgConf = "/data/.secret/wg.conf";
     };
-  };
 
-  transmission = {
-    enable = true;
-    vpn.enable = true;
-    peerPort = 50000; # Set this to the port forwarded by your VPN
-  };
+    jellyfin = {
+      enable = true;
+      # These options set up a nginx HTTPS reverse proxy, so you can access
+      # Jellyfin on your domain with HTTPS
+      expose.https = {
+        enable = true;
+        domainName = "your.domain.com";
+        acmeMail = "your@email.com"; # Required for ACME-bot
+      };
+    };
 
-  # It is possible for this module to run the *Arrs through a VPN, but it
-  # is generally not recommended, as it can cause rate-limiting issues.
-  sonarr.enable = true;
-  radarr.enable = true;
-  prowlarr.enable = true;
-  readarr.enable = true;
-  lidarr.enable = true;
-};
+    transmission = {
+      enable = true;
+      vpn.enable = true;
+      peerPort = 50000; # Set this to the port forwarded by your VPN
+    };
+
+    # It is possible for this module to run the *Arrs through a VPN, but it
+    # is generally not recommended, as it can cause rate-limiting issues.
+    sonarr.enable = true;
+    radarr.enable = true;
+    prowlarr.enable = true;
+    readarr.enable = true;
+    lidarr.enable = true;
+  };
 ```
 
 Another example where port forwarding is not an option. This is useful if,
@@ -153,56 +153,56 @@ example does the following:
 - Runs all the supported "*Arrs"
 
 ```nix {.numberLines}
-nixarr = {
-  enable = true;
-
-  vpn = {
+  nixarr = {
     enable = true;
-    wgConf = "/data/.secret/wg.conf";
-  };
 
-  jellyfin = {
-    enable = true;
-    vpn.enable = true;
-
-    # Access the Jellyfin web-ui from the internet.
-    # Get this port from your VPN provider
-    expose.vpn = {
+    vpn = {
       enable = true;
-      port = 12345;
+      wgConf = "/data/.secret/wg.conf";
     };
+
+    jellyfin = {
+      enable = true;
+      vpn.enable = true;
+
+      # Access the Jellyfin web-ui from the internet.
+      # Get this port from your VPN provider
+      expose.vpn = {
+        enable = true;
+        port = 12345;
+      };
+    };
+
+    # Setup SSH service that runs through VPN.
+    # Lets you connect through ssh from the internet without having access to
+    # port forwarding
+    openssh.expose.vpn.enable = true;
+
+    transmission = {
+      enable = true;
+      vpn.enable = true;
+      peerPort = 50000; # Set this to the port forwarded by your VPN
+    };
+
+    sonarr.enable = true;
+    radarr.enable = true;
+    prowlarr.enable = true;
+    readarr.enable = true;
+    lidarr.enable = true;
   };
 
-  # Setup SSH service that runs through VPN.
-  # Lets you connect through ssh from the internet without having access to
-  # port forwarding
-  openssh.vpn.enable = true;
-
-  transmission = {
+  # The `openssh.vpn.enable` option does not enable openssh, so we do that here:
+  # We disable password authentication as it's generally insecure.
+  services.openssh = {
     enable = true;
-    vpn.enable = true;
-    peerPort = 50000; # Set this to the port forwarded by your VPN
+    settings.PasswordAuthentication = false;
+    # Get this port from your VPN provider
+    ports = [ 54321 ]
   };
-
-  sonarr.enable = true;
-  radarr.enable = true;
-  prowlarr.enable = true;
-  readarr.enable = true;
-  lidarr.enable = true;
-};
-
-# The `openssh.vpn.enable` option does not enable openssh, so we do that here:
-# We disable password authentication as it's generally insecure.
-services.openssh = {
-  enable = true;
-  settings.PasswordAuthentication = false;
-  # Get this port from your VPN provider
-  ports = [ 54321 ]
-};
-# Adds your public keys as trusted devices
-users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
-  ./path/to/public/key/machine.pub}
-];
+  # Adds your public keys as trusted devices
+  users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
+    ./path/to/public/key/machine.pub}
+  ];
 ```
 
 In both examples, you don't have access to the "*Arrs" or torrent client
@@ -210,13 +210,13 @@ without being on your home network or accessing them through localhost. If
 you have SSH setup you can use SSH tunneling. Simply run:
 
 ```sh
-ssh -N user@ip \
-  -L 6001:localhost:9091 \
-  -L 6002:localhost:9696 \
-  -L 6003:localhost:8989 \
-  -L 6004:localhost:7878 \
-  -L 6005:localhost:8686 \
-  -L 6006:localhost:8787
+  ssh -N user@ip \
+    -L 6001:localhost:9091 \
+    -L 6002:localhost:9696 \
+    -L 6003:localhost:8989 \
+    -L 6004:localhost:7878 \
+    -L 6005:localhost:8686 \
+    -L 6006:localhost:8787
 ```
 
 Replace `user` with your user and `ip` with the public ip, or domain if set

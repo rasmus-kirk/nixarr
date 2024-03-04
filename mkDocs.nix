@@ -53,10 +53,26 @@ in
           "$file_path"
       }
 
+      # Make home page
+      pandoc \
+        --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
+        --standalone \
+        --highlight-style docs/pandoc/gruvbox.theme \
+        --template docs/pandoc/template.html \
+        --css docs/pandoc/style.css \
+        -V lang=en \
+        -V --mathjax \
+        -f markdown+smart \
+        -o $out/index.html \
+        README.md
+
+      # Make wiki pages
       find docs/wiki -type f -name "*.md" | while IFS= read -r file; do
         buildwiki "$file"
       done
 
+      # Make options
+      cd $out
       pandoc \
         --standalone \
         --metadata title="Nixarr - Option Documentation" \
@@ -64,6 +80,7 @@ in
         --highlight-style docs/pandoc/gruvbox.theme \
         --template docs/pandoc/template.html \
         --css docs/pandoc/style.css \
+        --lua-filter docs/pandoc/lua/indent-code-blocks.lua \
         --lua-filter docs/pandoc/lua/anchor-links.lua \
         --lua-filter docs/pandoc/lua/code-default-to-nix.lua \
         --lua-filter docs/pandoc/lua/remove-utils.lua \
@@ -76,17 +93,5 @@ in
         -f markdown+smart \
         -o $out/options.html \
         "$tmpdir"/nixos-options.md
-
-      pandoc \
-        --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
-        --standalone \
-        --highlight-style docs/pandoc/gruvbox.theme \
-        --template docs/pandoc/template.html \
-        --css docs/pandoc/style.css \
-        -V lang=en \
-        -V --mathjax \
-        -f markdown+smart \
-        -o $out/index.html \
-        README.md
     '';
   }
