@@ -57,11 +57,13 @@ The documentation for the options can be found
 
 ## The Wiki
 
-If you want to know how to setup DDNS with Njalla, or how to manage secrets in nix, check out the [wiki](https://nixarr.rasmuskirk.com/wiki/)
+If you want to know how to setup DDNS with Njalla, or how to manage secrets
+in nix, check out the [wiki](https://nixarr.rasmuskirk.com/wiki/)
 
 ## Importing this module
 
-To use this module, add it to your flake inputs in your nix flake file, like shown in this example flake:
+To use this module, add it to your flake inputs in your nix flake file,
+like shown in this example flake:
 
 ```nix {.numberLines}
   {
@@ -228,11 +230,18 @@ through `localhost:6006`.
 Another solution is to use [tailscale](https://tailscale.com/) or to setup
 your own VPN [manually with wireguard](https://nixos.wiki/wiki/WireGuard).
 
+
 ## VPN Providers
 
-Your VPN-provider must support wg-quick configuration files, this should be most of them. I know that Mullvad and AirVPN has support. It's also _recommended_ that the VPN you're using has support for port forwarding. I
-suggest [AirVpn](https://airvpn.org/), since they accept Monero, but you can
-use whatever you want.
+Your VPN-provider should at the very least support wg-quick configurations,
+this module does not, and will not, support any other setup. Most VPN-providers
+should support this ATM.
+
+Secondly, it's recommended that the VPN you're using has support for _static_
+port forwarding as this module has no builtin support for dynamic port
+forwarding. I suggest [AirVpn](https://airvpn.org/), since they support
+static port forwarding, support wg-quick configurations and accept Monero,
+but you can use whatever you want.
 
 ## Domain Registrars
 

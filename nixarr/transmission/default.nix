@@ -273,8 +273,8 @@ in {
         then pkgs.flood-for-transmission
         else null;
       package = pkgs.transmission_4;
-      openRPCPort = true;
-      openPeerPorts = true;
+      openRPCPort = false;
+      openPeerPorts = if cfg.vpn.enable then false else true;
       settings =
         {
           download-dir = downloadDir;
