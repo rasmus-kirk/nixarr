@@ -55,6 +55,10 @@ transmission and maybe jellyfin, depending on your setup.
 The documentation for the options can be found
 [here](https://nixarr.rasmuskirk.com/options)
 
+## The Wiki
+
+If you want to know how to setup DDNS with Njalla, or how to manage secrets in nix, check out the [wiki](https://nixarr.rasmuskirk.com/wiki/)
+
 ## Importing this module
 
 To use this module, add it to your flake inputs in your nix flake file, like shown in this example flake:
