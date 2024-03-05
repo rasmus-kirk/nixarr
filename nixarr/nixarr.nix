@@ -226,7 +226,7 @@ in {
             ./dnsleaktest.sh
           '' + (if cfg.vpn.vpnTestService.port != null then ''
             echo "starting netcat on port ${builtins.toString cfg.vpn.vpnTestService.port}:"
-            nc -vnlpu ${builtins.toString cfg.vpn.vpnTestService.port}
+            nc -vnlp ${builtins.toString cfg.vpn.vpnTestService.port}
           '' else "");
         };
       in "${vpn-test}/bin/vpn-test";

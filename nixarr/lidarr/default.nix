@@ -61,7 +61,7 @@ in {
     # Port mappings
     # TODO: openports
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ From = defaultPort; To = defaultPort; }];
+      portMappings = [{ from = defaultPort; to = defaultPort; }];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

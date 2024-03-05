@@ -337,8 +337,8 @@ in {
     # Port mappings
     # TODO: open peerPort
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ From = cfg.uiPort; To = cfg.uiPort; }];
-      #openUdpPorts = [cfg.peerPort];
+      portMappings = [{ from = cfg.uiPort; to = cfg.uiPort; }];
+      openVPNPorts = [{ port = 24745; protocol = "both"; }];
       #openTcpPorts = [cfg.peerPort];
     };
 

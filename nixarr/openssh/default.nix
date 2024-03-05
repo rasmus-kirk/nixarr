@@ -85,7 +85,7 @@ in {
     # Port mappings
     # TODO: openports
     vpnnamespaces.wg = {
-      portMappings = [{ From = defaultPort; To = defaultPort; }];
+      portMappings = [{ from = defaultPort; to = defaultPort; }];
     };
   };
 }
