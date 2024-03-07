@@ -6,6 +6,14 @@
 }:
 with lib; let
   cfg = config.nixarr;
+  list-unlinked = pkgs.writeShellApplication {
+    name = "list-unlinked";
+    runtimeInputs = with pkgs; [util-linux];
+    text = ''
+      find "$1" -type f -links 1 -exec du -h {} + | sort -h
+    '';
+  };
+
 in {
   imports = [
     ./jellyfin
@@ -53,6 +61,15 @@ in {
         - [Transmission](#nixarr.transmission.enable)
 
         Remember to read the options.
+      '';
+    };
+
+    mediaUsers = mkOption {
+      type = with types; listOf str;
+      default = [];
+      example = [ "user" ];
+      description = ''
+        Extra users to add to the media group.
       '';
     };
 
@@ -147,7 +164,7 @@ in {
     ];
 
     users.groups = {
-      media = {};
+      media.members = cfg.mediaUsers;
       streamer = {};
       torrenter = {};
     };
@@ -178,6 +195,11 @@ in {
       "d '${cfg.mediaDir}/torrents/radarr'      0755 torrenter media - -"
       "d '${cfg.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
       "d '${cfg.mediaDir}/torrents/readarr'     0755 torrenter media - -"
+    ];
+
+    environment.systemPackages = with pkgs; [
+      jdupes
+      list-unlinked
     ];
 
     # TODO: wtf to do about openports
