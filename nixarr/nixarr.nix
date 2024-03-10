@@ -256,11 +256,6 @@ in {
       bindsTo = ["netns@wg.service"];
       requires = ["network-online.target"];
       after = ["wg.service"];
-      serviceConfig = {
-        #User = "torrenter";
-        NetworkNamespacePath = "/var/run/netns/wg";
-        BindReadOnlyPaths = ["/etc/netns/wg/resolv.conf:/etc/resolv.conf:norbind" "/data/test.file:/etc/test.file:norbind"];
-      };
     };
   };
 }
