@@ -15,9 +15,20 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/radarr";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/radarr";
-      description = "The state directory for radarr.";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/radarr"'';
+      example = "/nixarr/.state/radarr";
+      description = ''
+        The location of the state directory for the Radarr service.
+
+        **Warning:** Setting this to any path, where the subpath is not
+        owned by root, will fail! For example:
+        
+        ```nix
+          stateDir = /home/user/nixarr/.state/radarr
+        ```
+
+        Is not supported, because `/home/user` is owned by `user`.
+      '';
     };
 
     openFirewall = mkOption {
@@ -49,10 +60,6 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
-    ];
-
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 radarr root - -"
     ];
 
     services.radarr = {

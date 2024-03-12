@@ -13,9 +13,20 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/readarr";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/readarr";
-      description = "The state directory for Readarr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/readarr"'';
+      example = "/nixarr/.state/readarr";
+      description = ''
+        The location of the state directory for the Readarr service.
+
+        **Warning:** Setting this to any path, where the subpath is not
+        owned by root, will fail! For example:
+        
+        ```nix
+          stateDir = /home/user/nixarr/.state/readarr
+        ```
+
+        Is not supported, because `/home/user` is owned by `user`.
+      '';
     };
 
     openFirewall = mkOption {
@@ -47,10 +58,6 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
-    ];
-
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 readarr root - -"
     ];
 
     services.readarr = {

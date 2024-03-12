@@ -18,8 +18,19 @@ in {
       type = types.path;
       default = "${nixarr.stateDir}/bazarr";
       defaultText = literalExpression ''"''${nixarr.stateDir}/bazarr"'';
-      example = "/home/user/.local/share/nixarr/bazarr";
-      description = "The state directory for bazarr";
+      example = "/nixarr/.state/bazarr";
+      description = ''
+        The location of the state directory for the Bazarr service.
+
+        **Warning:** Setting this to any path, where the subpath is not
+        owned by root, will fail! For example:
+        
+        ```nix
+          stateDir = /home/user/nixarr/.state/bazarr
+        ```
+
+        Is not supported, because `/home/user` is owned by `user`.
+      '';
     };
 
     openFirewall = mkOption {

@@ -14,9 +14,20 @@ in with lib; {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/jellyfin";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/jellyfin";
-      description = "The state directory for Jellyfin.";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/jellyfin"'';
+      example = "/nixarr/.state/jellyfin";
+      description = ''
+        The location of the state directory for the Jellyfin service.
+
+        **Warning:** Setting this to any path, where the subpath is not
+        owned by root, will fail! For example:
+        
+        ```nix
+          stateDir = /home/user/nixarr/.state/jellyfin
+        ```
+
+        Is not supported, because `/home/user` is owned by `user`.
+      '';
     };
 
     openFirewall = mkOption {
@@ -170,10 +181,6 @@ in with lib; {
     
       systemd.tmpfiles.rules = [
         "d '${cfg.stateDir}'        0700 streamer root - -"
-        "d '${cfg.stateDir}/log'    0700 streamer root - -"
-        "d '${cfg.stateDir}/cache'  0700 streamer root - -"
-        "d '${cfg.stateDir}/data'   0700 streamer root - -"
-        "d '${cfg.stateDir}/config' 0700 streamer root - -"
       ];
 
       services.jellyfin = {

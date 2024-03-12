@@ -19,9 +19,20 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/prowlarr";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/prowlarr";
-      description = "The state directory for Prowlarr.";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/prowlarr"'';
+      example = "/nixarr/.state/prowlarr";
+      description = ''
+        The location of the state directory for the Prowlarr service.
+
+        **Warning:** Setting this to any path, where the subpath is not
+        owned by root, will fail! For example:
+        
+        ```nix
+          stateDir = /home/user/nixarr/.state/prowlarr
+        ```
+
+        Is not supported, because `/home/user` is owned by `user`.
+      '';
     };
 
     openFirewall = mkOption {
@@ -45,18 +56,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-      assertions = [
-        {
-          assertion = cfg.vpn.enable -> nixarr.vpn.enable;
-          message = ''
-            The nixarr.prowlarr.vpn.enable option requires the
-            nixarr.vpn.enable option to be set, but it was not.
-          '';
-        }
-      ];
-
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 prowlarr root - -"
+    assertions = [
+      {
+        assertion = cfg.vpn.enable -> nixarr.vpn.enable;
+        message = ''
+          The nixarr.prowlarr.vpn.enable option requires the
+          nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
     ];
 
     util-nixarr.services.prowlarr = {

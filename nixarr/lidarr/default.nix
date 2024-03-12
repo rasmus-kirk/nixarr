@@ -14,9 +14,20 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/lidarr";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/lidarr";
-      description = "The state directory for Lidarr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/lidarr"'';
+      example = "/nixarr/.state/lidarr";
+      description = ''
+        The location of the state directory for the Lidarr service.
+
+        **Warning:** Setting this to any path, where the subpath is not
+        owned by root, will fail! For example:
+        
+        ```nix
+          stateDir = /home/user/nixarr/.state/lidarr
+        ```
+
+        Is not supported, because `/home/user` is owned by `user`.
+      '';
     };
 
     openFirewall = mkOption {
@@ -48,10 +59,6 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
-    ];
-
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 lidarr root - -"
     ];
 
     services.lidarr = {
