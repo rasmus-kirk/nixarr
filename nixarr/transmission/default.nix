@@ -67,8 +67,8 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/transmission";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/transmission";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/transmission"'';
+      example = "/nixarr/.state/transmission";
       description = ''
         The state directory for Transmission.
       '';
@@ -127,9 +127,9 @@ in {
           type = types.path;
           default = "${nixarr.stateDir}/cross-seed";
           defaultText = literalExpression ''"''${nixarr.stateDir}/cross-seed"'';
-          example = "/home/user/.local/share/nixarr/cross-seed";
+          example = "/nixarr/.state/cross-seed";
           description = ''
-            The state directory for Transmission.
+            The state directory for cross-seed.
           '';
         };
 
@@ -235,8 +235,7 @@ in {
       "d '${cfg.stateDir}' 0750 torrenter torrenter - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
       "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter torrenter - -"
-    ] ++ optional cfg-cross-seed.enable
-      "d '${cfg-cross-seed.stateDir}' 0700 cross-seed root - -";
+    ];
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;

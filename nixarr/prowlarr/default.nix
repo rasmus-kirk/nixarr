@@ -19,8 +19,8 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/prowlarr";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/prowlarr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/prowlarr"'';
+      example = "/nixarr/.state/prowlarr";
       description = "The state directory for Prowlarr.";
     };
 
@@ -45,18 +45,14 @@ in {
   };
 
   config = mkIf cfg.enable {
-      assertions = [
-        {
-          assertion = cfg.vpn.enable -> nixarr.vpn.enable;
-          message = ''
-            The nixarr.prowlarr.vpn.enable option requires the
-            nixarr.vpn.enable option to be set, but it was not.
-          '';
-        }
-      ];
-
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 prowlarr root - -"
+    assertions = [
+      {
+        assertion = cfg.vpn.enable -> nixarr.vpn.enable;
+        message = ''
+          The nixarr.prowlarr.vpn.enable option requires the
+          nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
     ];
 
     util-nixarr.services.prowlarr = {

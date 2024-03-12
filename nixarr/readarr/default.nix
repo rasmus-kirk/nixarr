@@ -13,8 +13,8 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/readarr";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/readarr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/readarr"'';
+      example = "/nixarr/.state/readarr";
       description = "The state directory for Readarr";
     };
 
@@ -47,10 +47,6 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
-    ];
-
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 readarr root - -"
     ];
 
     services.readarr = {

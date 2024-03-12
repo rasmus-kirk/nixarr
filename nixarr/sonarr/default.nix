@@ -19,8 +19,8 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/sonarr";
-      defaultText = literalExpression ''!cfg.vpn.enable'';
-      example = "/home/user/.local/share/nixarr/sonarr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/sonarr"'';
+      example = "/nixarr/.state/sonarr";
       description = "The state directory for Sonarr.";
     };
 
@@ -53,10 +53,6 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
-    ];
-
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 sonarr root - -"
     ];
 
     services.sonarr = {

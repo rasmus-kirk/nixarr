@@ -18,7 +18,7 @@ in {
       type = types.path;
       default = "${nixarr.stateDir}/bazarr";
       defaultText = literalExpression ''"''${nixarr.stateDir}/bazarr"'';
-      example = "/home/user/.local/share/nixarr/bazarr";
+      example = "/nixarr/.state/bazarr";
       description = "The state directory for bazarr";
     };
 

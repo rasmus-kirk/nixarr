@@ -78,18 +78,36 @@ in {
     mediaDir = mkOption {
       type = types.path;
       default = "/data/media";
-      example = "/home/user/nixarr";
+      example = "/nixarr";
       description = ''
         The location of the media directory for the services.
+
+        **Warning:** Setting this to any path, where the subpath is not
+        owned by root, will fail! For example:
+        
+        ```nix
+          mediaDir = /home/user/nixarr
+        ```
+
+        Is not supported!
       '';
     };
 
     stateDir = mkOption {
       type = types.path;
       default = "/data/.state/nixarr";
-      example = "/home/user/.local/share/nixarr";
+      example = "/nixarr/.state";
       description = ''
         The location of the state directory for the services.
+
+        **Warning:** Setting this to any path, where the subpath is not
+        owned by root, will fail! For example:
+        
+        ```nix
+          stateDir = /home/user/nixarr/.state
+        ```
+
+        Is not supported!
       '';
     };
 
