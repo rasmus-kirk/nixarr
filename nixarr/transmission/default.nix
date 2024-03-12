@@ -9,57 +9,60 @@ with lib; let
   nixarr = config.nixarr;
   cfg-cross-seed = config.nixarr.transmission.privateTrackers.cross-seed;
   downloadDir = "${nixarr.mediaDir}/torrents";
-  transmissionCrossSeedScript = with builtins; pkgs.writeShellApplication {
-    name = "transmission-cross-seed-script";
+  transmissionCrossSeedScript = with builtins;
+    pkgs.writeShellApplication {
+      name = "transmission-cross-seed-script";
 
-    runtimeInputs = with pkgs; [ curl ];
+      runtimeInputs = with pkgs; [curl];
 
-    text = ''
-      PROWLARR_API_KEY=$(cat prowlarr-api-key)
-      curl -XPOST http://localhost:2468/api/webhook?apikey="$PROWLARR_API_KEY" --data-urlencode "infoHash=$TR_TORRENT_HASH"
-    '';
-  };
-  importProwlarrApi = with builtins; pkgs.writeShellApplication {
-    name = "import-prowlarr-api";
-
-    runtimeInputs = with pkgs; [ yq ];
-
-    text = ''
-      touch ${cfg.stateDir}/prowlarr-api-key
-      chmod 400 ${cfg.stateDir}/prowlarr-api-key
-      chown torrenter ${cfg.stateDir}/prowlarr-api-key
-      xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml" > "${cfg.stateDir}/prowlarr-api-key"
-    '';
-  };
-  mkCrossSeedCredentials = with builtins; pkgs.writeShellApplication {
-    name = "mk-cross-seed-credentials";
-
-    runtimeInputs = with pkgs; [ jq yq ];
-
-    text =
-      "INDEX_LINKS=("
-      + (strings.concatMapStringsSep " " toString cfg.privateTrackers.cross-seed.indexIds)
-      + ")"
-      + "\n"
-      + ''
-        TMP_JSON=$(mktemp)
-        CRED_FILE="/run/secrets/cross-seed/credentialsFile.json"
-        PROWLARR_API_KEY=$(xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
-        # shellcheck disable=SC2034
-        CRED_DIR=$(dirname "$CRED_FILE")
-
-        mkdir -p "$CRED_DIR"
-        echo '{}' > "$CRED_FILE"
-        chmod 400 "$CRED_FILE"
-        chown "${config.util-nixarr.services.cross-seed.user}" "$CRED_FILE"
-
-        for i in "''${INDEX_LINKS[@]}"
-        do
-          LINK="http://localhost:9696/$i/api?apikey=$PROWLARR_API_KEY"
-          jq ".torznab += [\"$LINK\"]" "$CRED_FILE" > "$TMP_JSON" && mv "$TMP_JSON" "$CRED_FILE"
-        done
+      text = ''
+        PROWLARR_API_KEY=$(cat prowlarr-api-key)
+        curl -XPOST http://localhost:2468/api/webhook?apikey="$PROWLARR_API_KEY" --data-urlencode "infoHash=$TR_TORRENT_HASH"
       '';
-  };
+    };
+  importProwlarrApi = with builtins;
+    pkgs.writeShellApplication {
+      name = "import-prowlarr-api";
+
+      runtimeInputs = with pkgs; [yq];
+
+      text = ''
+        touch ${cfg.stateDir}/prowlarr-api-key
+        chmod 400 ${cfg.stateDir}/prowlarr-api-key
+        chown torrenter ${cfg.stateDir}/prowlarr-api-key
+        xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml" > "${cfg.stateDir}/prowlarr-api-key"
+      '';
+    };
+  mkCrossSeedCredentials = with builtins;
+    pkgs.writeShellApplication {
+      name = "mk-cross-seed-credentials";
+
+      runtimeInputs = with pkgs; [jq yq];
+
+      text =
+        "INDEX_LINKS=("
+        + (strings.concatMapStringsSep " " toString cfg.privateTrackers.cross-seed.indexIds)
+        + ")"
+        + "\n"
+        + ''
+          TMP_JSON=$(mktemp)
+          CRED_FILE="/run/secrets/cross-seed/credentialsFile.json"
+          PROWLARR_API_KEY=$(xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
+          # shellcheck disable=SC2034
+          CRED_DIR=$(dirname "$CRED_FILE")
+
+          mkdir -p "$CRED_DIR"
+          echo '{}' > "$CRED_FILE"
+          chmod 400 "$CRED_FILE"
+          chown "${config.util-nixarr.services.cross-seed.user}" "$CRED_FILE"
+
+          for i in "''${INDEX_LINKS[@]}"
+          do
+            LINK="http://localhost:9696/$i/api?apikey=$PROWLARR_API_KEY"
+            jq ".torznab += [\"$LINK\"]" "$CRED_FILE" > "$TMP_JSON" && mv "$TMP_JSON" "$CRED_FILE"
+          done
+        '';
+    };
 in {
   options.nixarr.transmission = {
     enable = mkEnableOption "the Transmission service.";
@@ -74,7 +77,7 @@ in {
 
         **Warning:** Setting this to any path, where the subpath is not
         owned by root, will fail! For example:
-        
+
         ```nix
           stateDir = /home/user/nixarr/.state/transmission
         ```
@@ -142,7 +145,7 @@ in {
 
             **Warning:** Setting this to any path, where the subpath is not
             owned by root, will fail! For example:
-        
+
             ```nix
               stateDir = /home/user/nixarr/.state/cross-seed
             ```
@@ -154,7 +157,7 @@ in {
         indexIds = mkOption {
           type = with types; listOf int;
           default = [];
-          example = [ 1 3 7 ];
+          example = [1 3 7];
           description = ''
             List of indexer-ids, from prowlarr. These are from the RSS links
             for the indexers, located by the "radio" or "RSS" logo on the
@@ -259,31 +262,37 @@ in {
       enable = true;
       dataDir = cfg-cross-seed.stateDir;
       group = "torrenter";
-      settings = {
-        torrentDir = "${nixarr.mediaDir}/torrents";
-        outputDir = "${nixarr.mediaDir}/torrents/.cross-seed";
-        transmissionRpcUrl = "http://localhost:${builtins.toString cfg.uiPort}/transmission/rpc";
-        rssCadence = "20 minutes";
+      settings =
+        {
+          torrentDir = "${nixarr.mediaDir}/torrents";
+          outputDir = "${nixarr.mediaDir}/torrents/.cross-seed";
+          transmissionRpcUrl = "http://localhost:${builtins.toString cfg.uiPort}/transmission/rpc";
+          rssCadence = "20 minutes";
 
-        action = "inject";
+          action = "inject";
 
-        # Enable infrequent periodic searches
-        searchCadence = "1 week";
-        excludeRecentSearch = "1 year";
-        excludeOlder = "1 year";
-      } // cfg-cross-seed.extraSettings;
+          # Enable infrequent periodic searches
+          searchCadence = "1 week";
+          excludeRecentSearch = "1 year";
+          excludeOlder = "1 year";
+        }
+        // cfg-cross-seed.extraSettings;
     };
     # Run as root in case that the cfg.credentialsFile is not readable by cross-seed
     systemd.services.cross-seed.serviceConfig = mkIf cfg-cross-seed.enable {
-        ExecStartPre = mkBefore [( 
+      ExecStartPre = mkBefore [
+        (
           "+" + "${mkCrossSeedCredentials}/bin/mk-cross-seed-credentials"
-        )];
+        )
+      ];
     };
 
     systemd.services.transmission.serviceConfig = mkIf cfg-cross-seed.enable {
-        ExecStartPre = mkBefore [( 
+      ExecStartPre = mkBefore [
+        (
           "+" + "${importProwlarrApi}/bin/import-prowlarr-api"
-        )];
+        )
+      ];
     };
     services.transmission = {
       enable = true;
@@ -305,7 +314,10 @@ in {
           watch-dir-enabled = true;
           watch-dir = "${downloadDir}/.watch";
 
-          rpc-bind-address = if cfg.vpn.enable then "192.168.15.1" else "127.0.0.1";
+          rpc-bind-address =
+            if cfg.vpn.enable
+            then "192.168.15.1"
+            else "127.0.0.1";
           rpc-port = cfg.uiPort;
           # TODO: fix this for ssh tunneling...
           rpc-whitelist-enabled = true;
@@ -326,9 +338,10 @@ in {
           anti-brute-force-threshold = 10;
 
           script-torrent-done-enabled = cfg-cross-seed.enable;
-          script-torrent-done-filename = if cfg-cross-seed.enable then 
-            "${transmissionCrossSeedScript}/bin/transmission-cross-seed-script"
-          else null;
+          script-torrent-done-filename =
+            if cfg-cross-seed.enable
+            then "${transmissionCrossSeedScript}/bin/transmission-cross-seed-script"
+            else null;
 
           message-level =
             if cfg.messageLevel == "none"
@@ -358,9 +371,17 @@ in {
 
     # Port mappings
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ from = cfg.uiPort; to = cfg.uiPort; }];
+      portMappings = [
+        {
+          from = cfg.uiPort;
+          to = cfg.uiPort;
+        }
+      ];
       openVPNPorts = [
-        { port = cfg.peerPort; protocol = "both"; }
+        {
+          port = cfg.peerPort;
+          protocol = "both";
+        }
       ];
     };
 

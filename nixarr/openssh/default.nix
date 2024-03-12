@@ -15,7 +15,7 @@ in {
       **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
       Run the openssh service through a vpn, exposing it to the internet.
-      
+
       **Warning:** This lets anyone on the internet connect through SSH,
       make sure the SSH configuration is secure! Disallowing password
       authentication and only allowing SSH-keys is considered secure.
@@ -53,28 +53,31 @@ in {
       }
     ];
 
-    warnings = if config.services.openssh.enable then [
-      ''
-        nixarr.openssh.expose.vpn.enable is set, but openssh is not enabled
-        on your system, so the openssh server is not running. This is probably
-        not what you wanted. You can add the following lines to enable it:
+    warnings =
+      if config.services.openssh.enable
+      then [
+        ''
+          nixarr.openssh.expose.vpn.enable is set, but openssh is not enabled
+          on your system, so the openssh server is not running. This is probably
+          not what you wanted. You can add the following lines to enable it:
 
-        services.openssh = {
-          enable = true;
-          settings.PasswordAuthentication = false;
-          # Get this port from your VPN provider
-          ports [ 12345 ];
-        };
+          services.openssh = {
+            enable = true;
+            settings.PasswordAuthentication = false;
+            # Get this port from your VPN provider
+            ports [ 12345 ];
+          };
 
-        users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
-          ./path/to/public/key/machine.pub
-        ];
+          users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
+            ./path/to/public/key/machine.pub
+          ];
 
-        Then replace username with your username and the keyFiles path
-        to a ssh public key file from the machine that you want to have
-        access. Don't use password authentication as it is insecure!
-      ''
-    ] else [];
+          Then replace username with your username and the keyFiles path
+          to a ssh public key file from the machine that you want to have
+          access. Don't use password authentication as it is insecure!
+        ''
+      ]
+      else [];
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.openssh.vpnconfinement = {
@@ -84,8 +87,18 @@ in {
 
     # Port mappings
     vpnnamespaces.wg = {
-      portMappings = [{ From = defaultPort; To = defaultPort; }];
-      openVPNPorts = map (x: { port = x; protocol = "both"; }) services.openssh.ports;
+      portMappings = [
+        {
+          From = defaultPort;
+          To = defaultPort;
+        }
+      ];
+      openVPNPorts =
+        map (x: {
+          port = x;
+          protocol = "both";
+        })
+        services.openssh.ports;
     };
   };
 }

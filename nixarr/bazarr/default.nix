@@ -10,7 +10,7 @@ in {
   imports = [
     ./bazarr-module
   ];
-  
+
   options.nixarr.bazarr = {
     enable = mkEnableOption "the bazarr service.";
 
@@ -24,7 +24,7 @@ in {
 
         **Warning:** Setting this to any path, where the subpath is not
         owned by root, will fail! For example:
-        
+
         ```nix
           stateDir = /home/user/nixarr/.state/bazarr
         ```
@@ -81,7 +81,12 @@ in {
     # Port mappings
     # TODO: openports
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ from = config.bazarr.listenPort; to = config.bazarr.listenPort; }];
+      portMappings = [
+        {
+          from = config.bazarr.listenPort;
+          to = config.bazarr.listenPort;
+        }
+      ];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

@@ -82,7 +82,7 @@ in {
   };
 
   config = mkIf cfg.enable {
-  assertions = [
+    assertions = [
       {
         assertion = cfg.enable -> cfg.settings.outputDir != null;
         message = ''
@@ -91,14 +91,16 @@ in {
       }
     ];
 
-    systemd.tmpfiles.rules = [
-      "L+ '${cfg.dataDir}'/config.js - - - - ${configJs}"
-      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
-    ] ++ (
-      if cfg.settings.outputDir != null then
-        [ "d '${cfg.settings.outputDir}' 0755 ${cfg.user} ${cfg.group} - -" ]
-      else []
-    );
+    systemd.tmpfiles.rules =
+      [
+        "L+ '${cfg.dataDir}'/config.js - - - - ${configJs}"
+        "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+      ]
+      ++ (
+        if cfg.settings.outputDir != null
+        then ["d '${cfg.settings.outputDir}' 0755 ${cfg.user} ${cfg.group} - -"]
+        else []
+      );
 
     systemd.services.cross-seed = {
       description = "cross-seed";
@@ -109,11 +111,15 @@ in {
 
       serviceConfig = {
         # Run as root in case that the cfg.credentialsFile is not readable by cross-seed
-        ExecStartPre = [("+" + pkgs.writeShellScript "transmission-prestart" ''
-          ${pkgs.jq}/bin/jq --slurp add ${settingsFile} '${cfg.credentialsFile}' |
-          install -D -m 600 -o '${cfg.user}' /dev/stdin '${cfg.dataDir}/config.json'
-        ''
-        )];
+        ExecStartPre = [
+          (
+            "+"
+            + pkgs.writeShellScript "transmission-prestart" ''
+              ${pkgs.jq}/bin/jq --slurp add ${settingsFile} '${cfg.credentialsFile}' |
+              install -D -m 600 -o '${cfg.user}' /dev/stdin '${cfg.dataDir}/config.json'
+            ''
+          )
+        ];
         Type = "simple";
         User = cfg.user;
         Group = cfg.group;
@@ -130,7 +136,7 @@ in {
     };
 
     users.groups = mkIf (cfg.group == "cross-seed") {
-      cross-seed = { };
+      cross-seed = {};
     };
   };
 }

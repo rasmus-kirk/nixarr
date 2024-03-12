@@ -26,7 +26,7 @@ in {
 
         **Warning:** Setting this to any path, where the subpath is not
         owned by root, will fail! For example:
-        
+
         ```nix
           stateDir = /home/user/nixarr/.state/sonarr
         ```
@@ -82,7 +82,12 @@ in {
 
     # Port mappings
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ from = defaultPort; to = defaultPort; }];
+      portMappings = [
+        {
+          from = defaultPort;
+          to = defaultPort;
+        }
+      ];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

@@ -1,14 +1,15 @@
-{ config, pkgs, lib, ... }:
-
-with lib;
-
-let
-  cfg = config.util-nixarr.services.bazarr;
-in
 {
+  config,
+  pkgs,
+  lib,
+  ...
+}:
+with lib; let
+  cfg = config.util-nixarr.services.bazarr;
+in {
   options = {
     util-nixarr.services.bazarr = {
-      enable = mkEnableOption ("bazarr, a subtitle manager for Sonarr and Radarr");
+      enable = mkEnableOption "bazarr, a subtitle manager for Sonarr and Radarr";
 
       openFirewall = mkOption {
         type = types.bool;
@@ -49,8 +50,8 @@ in
 
     systemd.services.bazarr = {
       description = "bazarr";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
 
       serviceConfig = {
         Type = "simple";
@@ -68,7 +69,7 @@ in
     };
 
     networking.firewall = mkIf cfg.openFirewall {
-      allowedTCPPorts = [ cfg.listenPort ];
+      allowedTCPPorts = [cfg.listenPort];
     };
 
     users.users = mkIf (cfg.user == "bazarr") {

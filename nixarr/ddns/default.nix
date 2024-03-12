@@ -9,7 +9,7 @@ with lib; let
   ddns-njalla = pkgs.writeShellApplication {
     name = "ddns-njalla";
 
-    runtimeInputs = with pkgs; [ curl jq ];
+    runtimeInputs = with pkgs; [curl jq];
 
     # Thanks chatgpt...
     text = ''
@@ -118,10 +118,13 @@ in {
         '';
       }
       {
-        assertion = cfg.njalla.vpn.enable -> (
-          cfg.njalla.vpn.keysFile != null &&
-          config.nixarr.vpn.enable
-        );
+        assertion =
+          cfg.njalla.vpn.enable
+          -> (
+            cfg.njalla.vpn.keysFile
+            != null
+            && config.nixarr.vpn.enable
+          );
         message = ''
           The nixarr.ddns.njalla.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.

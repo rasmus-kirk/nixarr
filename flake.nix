@@ -29,7 +29,11 @@
     };
   };
 
-  outputs = inputs @ {flake-parts, vpnconfinement, nixpkgs, ...}:
+  outputs = inputs @ {
+    flake-parts,
+    vpnconfinement,
+    ...
+  }:
     flake-parts.lib.mkFlake {
       inherit inputs;
     } {
@@ -44,7 +48,7 @@
 
       flake = {
         nixosModules = rec {
-          nixarr = (import ./nixarr vpnconfinement);
+          nixarr = import ./nixarr vpnconfinement;
           default = nixarr;
         };
       };
@@ -52,7 +56,6 @@
       perSystem = {
         config,
         pkgs,
-        lib,
         ...
       }: {
         treefmt.config = {

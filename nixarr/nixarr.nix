@@ -13,7 +13,6 @@ with lib; let
       find "$1" -type f -links 1 -exec du -h {} + | sort -h
     '';
   };
-
 in {
   imports = [
     ./jellyfin
@@ -46,7 +45,7 @@ in {
           that they manage is located by default in `/data/.state/nixarr/*`
         - **Optional Automatic Port Forwarding:** This module has a UPNP support that
           lets services request ports from your router automatically, if you enable it.
-      
+
         It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
         because it can cause rate limiting issues. Generally, you should use
         VPN on transmission and maybe jellyfin, depending on your setup.
@@ -69,7 +68,7 @@ in {
     mediaUsers = mkOption {
       type = with types; listOf str;
       default = [];
-      example = [ "user" ];
+      example = ["user"];
       description = ''
         Extra users to add to the media group.
       '';
@@ -84,7 +83,7 @@ in {
 
         **Warning:** Setting this to any path, where the subpath is not
         owned by root, will fail! For example:
-        
+
         ```nix
           mediaDir = /home/user/nixarr
         ```
@@ -102,7 +101,7 @@ in {
 
         **Warning:** Setting this to any path, where the subpath is not
         owned by root, will fail! For example:
-        
+
         ```nix
           stateDir = /home/user/nixarr/.state
         ```
@@ -225,9 +224,9 @@ in {
     # TODO: wtf to do about openports
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;
-      openVPNPorts = optional cfg.vpn.vpnTestService.enable { 
-        port = cfg.vpn.vpnTestService.port; 
-        protocol = "tcp"; 
+      openVPNPorts = optional cfg.vpn.vpnTestService.enable {
+        port = cfg.vpn.vpnTestService.port;
+        protocol = "tcp";
       };
       accessibleFrom = [
         "192.168.1.0/24"
@@ -251,30 +250,36 @@ in {
 
           runtimeInputs = with pkgs; [util-linux unixtools.ping coreutils curl bash libressl netcat-gnu openresolv dig];
 
-          text = ''
-            cd "$(mktemp -d)"
+          text =
+            ''
+              cd "$(mktemp -d)"
 
-            # Print resolv.conf
-            echo "/etc/resolv.conf contains:"
-            cat /etc/resolv.conf
+              # Print resolv.conf
+              echo "/etc/resolv.conf contains:"
+              cat /etc/resolv.conf
 
-            # Query resolvconf
-            echo "resolvconf output:"
-            resolvconf -l
-            echo ""
+              # Query resolvconf
+              echo "resolvconf output:"
+              resolvconf -l
+              echo ""
 
-            # Get ip
-            echo "Getting IP:"
-            curl -s ipinfo.io
+              # Get ip
+              echo "Getting IP:"
+              curl -s ipinfo.io
 
-            echo -ne "DNS leak test:"
-            curl -s https://raw.githubusercontent.com/macvk/dnsleaktest/b03ab54d574adbe322ca48cbcb0523be720ad38d/dnsleaktest.sh -o dnsleaktest.sh
-            chmod +x dnsleaktest.sh
-            ./dnsleaktest.sh
-          '' + (if cfg.vpn.vpnTestService.port != null then ''
-            echo "starting netcat on port ${builtins.toString cfg.vpn.vpnTestService.port}:"
-            nc -vnlp ${builtins.toString cfg.vpn.vpnTestService.port}
-          '' else "");
+              echo -ne "DNS leak test:"
+              curl -s https://raw.githubusercontent.com/macvk/dnsleaktest/b03ab54d574adbe322ca48cbcb0523be720ad38d/dnsleaktest.sh -o dnsleaktest.sh
+              chmod +x dnsleaktest.sh
+              ./dnsleaktest.sh
+            ''
+            + (
+              if cfg.vpn.vpnTestService.port != null
+              then ''
+                echo "starting netcat on port ${builtins.toString cfg.vpn.vpnTestService.port}:"
+                nc -vnlp ${builtins.toString cfg.vpn.vpnTestService.port}
+              ''
+              else ""
+            );
         };
       in "${vpn-test}/bin/vpn-test";
 
