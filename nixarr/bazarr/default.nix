@@ -7,6 +7,10 @@ with lib; let
   cfg = config.nixarr.bazarr;
   nixarr = config.nixarr;
 in {
+  imports = [
+    ./bazarr-module
+  ];
+  
   options.nixarr.bazarr = {
     enable = mkEnableOption "the bazarr service.";
 
@@ -41,11 +45,7 @@ in {
       }
     ];
 
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 bazarr root - -"
-    ];
-
-    services.bazarr = {
+    util-nixarr.services.bazarr = {
       enable = cfg.enable;
       user = "bazarr";
       group = "media";

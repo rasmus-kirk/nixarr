@@ -207,9 +207,10 @@ in {
     # TODO: wtf to do about openports
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;
-      openVPNPorts = optionalList cfg.vpn.vpnTestService.enable [
-        { port = cfg.vpn.vpnTestService.port; protocol = "tcp"; }
-      ];
+      openVPNPorts = optional cfg.vpn.vpnTestService.enable { 
+        port = cfg.vpn.vpnTestService.port; 
+        protocol = "tcp"; 
+      };
       accessibleFrom = [
         "192.168.1.0/24"
         "127.0.0.1"

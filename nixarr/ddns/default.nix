@@ -14,7 +14,7 @@ with lib; let
     # Thanks chatgpt...
     text = ''
       # Path to the JSON file
-      json_file="${cfg.njalla.keysFile}"
+      json_file="$1"
 
       # Convert the JSON object into a series of tab-separated key-value pairs using jq
       # - `to_entries[]`: Convert the object into an array of key-value pairs.
@@ -120,7 +120,7 @@ in {
       {
         assertion = cfg.njalla.vpn.enable -> (
           cfg.njalla.vpn.keysFile != null &&
-          nixarr.vpn.enable
+          config.nixarr.vpn.enable
         );
         message = ''
           The nixarr.ddns.njalla.enable option requires the
@@ -166,17 +166,22 @@ in {
           description = "Sets the Njalla DDNS records";
 
           serviceConfig = {
-            ExecStart = getExe ddns-njalla;
+            ExecStart = ''${getExe ddns-njalla} "${cfg.njalla.keysFile}"'';
             Type = "oneshot";
           };
         };
       })
-      (mkIf cfg.njalla.vpn.enable {
+      (mkIf (cfg.njalla.vpn.enable && config.nixarr.vpn.enable) {
         ddnsNjallaVpn = {
           description = "Sets the Njalla DDNS records over VPN";
 
+          vpnconfinement = {
+            enable = true;
+            vpnnamespace = "wg";
+          };
+
           serviceConfig = {
-            ExecStart = getExe ddns-njalla;
+            ExecStart = ''${getExe ddns-njalla} "${cfg.njalla.vpn.keysFile}"'';
             Type = "oneshot";
           };
         };
