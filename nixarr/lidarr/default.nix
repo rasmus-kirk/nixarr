@@ -32,7 +32,7 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!cfg.vpn.enable'';
+      defaultText = literalExpression ''!nixarr.lidarr.vpn.enable'';
       default = !cfg.vpn.enable;
       example = true;
       description = "Open firewall for Lidarr";

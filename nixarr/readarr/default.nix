@@ -31,7 +31,7 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!cfg.vpn.enable'';
+      defaultText = literalExpression ''!nixarr.readarr.vpn.enable'';
       default = !cfg.vpn.enable;
       example = true;
       description = "Open firewall for Readarr";

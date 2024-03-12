@@ -35,7 +35,7 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!cfg.vpn.enable'';
+      defaultText = literalExpression ''!nixarr.bazarr.vpn.enable'';
       default = !cfg.vpn.enable;
       example = true;
       description = "Open firewall for Bazarr";
