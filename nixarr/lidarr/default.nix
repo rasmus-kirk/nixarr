@@ -6,6 +6,7 @@
 with lib; let
   cfg = config.nixarr.lidarr;
   nixarr = config.nixarr;
+  defaultPort = 8686;
 in {
   options.nixarr.lidarr = {
     enable = mkEnableOption "the Lidarr service.";
@@ -61,7 +62,7 @@ in {
     # Port mappings
     # TODO: openports
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ From = defaultPort; To = defaultPort; }];
+      portMappings = [{ from = defaultPort; to = defaultPort; }];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

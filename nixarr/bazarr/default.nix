@@ -1,23 +1,25 @@
-# TODO: Dir creation and file permissions in nix
 {
   config,
   lib,
   ...
 }:
 with lib; let
-  cfg = config.nixarr.radarr;
-  defaultPort = 7878;
+  cfg = config.nixarr.bazarr;
   nixarr = config.nixarr;
 in {
-  options.nixarr.radarr = {
-    enable = mkEnableOption "Enable the Radarr service.";
+  imports = [
+    ./bazarr-module
+  ];
+  
+  options.nixarr.bazarr = {
+    enable = mkEnableOption "the bazarr service.";
 
     stateDir = mkOption {
       type = types.path;
-      default = "${nixarr.stateDir}/radarr";
-      defaultText = literalExpression ''"''${nixarr.stateDir}/radarr"'';
-      example = "/home/user/.local/share/nixarr/radarr";
-      description = "The state directory for radarr.";
+      default = "${nixarr.stateDir}/bazarr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/bazarr"'';
+      example = "/home/user/.local/share/nixarr/bazarr";
+      description = "The state directory for bazarr";
     };
 
     vpn.enable = mkOption {
@@ -27,7 +29,7 @@ in {
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
-        Route Radarr traffic through the VPN.
+        Route Bazarr traffic through the VPN.
       '';
     };
   };
@@ -37,32 +39,29 @@ in {
       {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''
-          The nixarr.radarr.vpn.enable option requires the
+          The nixarr.bazarr.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
     ];
 
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 radarr root - -"
-    ];
-
-    services.radarr = {
+    util-nixarr.services.bazarr = {
       enable = cfg.enable;
-      user = "radarr";
+      user = "bazarr";
       group = "media";
       dataDir = cfg.stateDir;
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.radarr.vpnconfinement = mkIf cfg.vpn.enable {
+    systemd.services.bazarr.vpnconfinement = mkIf cfg.vpn.enable {
       enable = true;
       vpnnamespace = "wg";
     };
 
     # Port mappings
+    # TODO: openports
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ from = defaultPort; to = defaultPort; }];
+      portMappings = [{ from = config.bazarr.listenPort; to = config.bazarr.listenPort; }];
     };
 
     services.nginx = mkIf cfg.vpn.enable {
@@ -72,17 +71,17 @@ in {
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
 
-      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+      virtualHosts."127.0.0.1:${builtins.toString config.bazarr.listenPort}" = {
         listen = [
           {
             addr = "0.0.0.0";
-            port = defaultPort;
+            port = config.bazarr.listenPort;
           }
         ];
         locations."/" = {
           recommendedProxySettings = true;
           proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+          proxyPass = "http://192.168.15.1:${builtins.toString config.bazarr.listenPort}";
         };
       };
     };

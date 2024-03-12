@@ -224,19 +224,16 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 torrenter root - -"
+      "d '${cfg.stateDir}' 0750 torrenter torrenter - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
-      "d '${cfg.stateDir}/.config/transmission-daemon' 0700 torrenter root - -"
-    ] ++ (
-      if cfg-cross-seed.enable then
-        [ "d '${cfg-cross-seed.stateDir}' 0700 cross-seed root - -" ]
-      else []
-    );
+      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter torrenter - -"
+    ] ++ optional cfg-cross-seed.enable
+      "d '${cfg-cross-seed.stateDir}' 0700 cross-seed root - -";
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
       dataDir = cfg-cross-seed.stateDir;
-      #group = "media";
+      group = "torrenter";
       settings = {
         torrentDir = "${nixarr.mediaDir}/torrents";
         outputDir = "${nixarr.mediaDir}/torrents/.cross-seed";
@@ -335,11 +332,11 @@ in {
     };
 
     # Port mappings
-    # TODO: open peerPort
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ From = cfg.uiPort; To = cfg.uiPort; }];
-      #openUdpPorts = [cfg.peerPort];
-      #openTcpPorts = [cfg.peerPort];
+      portMappings = [{ from = cfg.uiPort; to = cfg.uiPort; }];
+      openVPNPorts = [
+        { port = cfg.peerPort; protocol = "both"; }
+      ];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

@@ -6,9 +6,18 @@
 }:
 with lib; let
   cfg = config.nixarr;
+  list-unlinked = pkgs.writeShellApplication {
+    name = "list-unlinked";
+    runtimeInputs = with pkgs; [util-linux];
+    text = ''
+      find "$1" -type f -links 1 -exec du -h {} + | sort -h
+    '';
+  };
+
 in {
   imports = [
     ./jellyfin
+    ./bazarr
     ./ddns
     ./radarr
     ./lidarr
@@ -45,6 +54,7 @@ in {
         The following services are supported:
 
         - [Jellyfin](#nixarr.jellyfin.enable)
+        - [Bazarr](#nixarr.bazarr.enable)
         - [Lidarr](#nixarr.lidarr.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)
         - [Radarr](#nixarr.radarr.enable)
@@ -53,6 +63,15 @@ in {
         - [Transmission](#nixarr.transmission.enable)
 
         Remember to read the options.
+      '';
+    };
+
+    mediaUsers = mkOption {
+      type = with types; listOf str;
+      default = [];
+      example = [ "user" ];
+      description = ''
+        Extra users to add to the media group.
       '';
     };
 
@@ -147,7 +166,7 @@ in {
     ];
 
     users.groups = {
-      media = {};
+      media.members = cfg.mediaUsers;
       streamer = {};
       torrenter = {};
     };
@@ -180,9 +199,18 @@ in {
       "d '${cfg.mediaDir}/torrents/readarr'     0755 torrenter media - -"
     ];
 
+    environment.systemPackages = with pkgs; [
+      jdupes
+      list-unlinked
+    ];
+
     # TODO: wtf to do about openports
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;
+      openVPNPorts = optional cfg.vpn.vpnTestService.enable { 
+        port = cfg.vpn.vpnTestService.port; 
+        protocol = "tcp"; 
+      };
       accessibleFrom = [
         "192.168.1.0/24"
         "127.0.0.1"
@@ -191,8 +219,9 @@ in {
     };
 
     # TODO: openports
-    systemd.services.vpn-test-service = {
-      enable = cfg.vpn.vpnTestService.enable;
+    systemd.services.vpn-test-service = mkIf cfg.vpn.vpnTestService.enable {
+      enable = true;
+
       vpnconfinement = {
         enable = true;
         vpnnamespace = "wg";
@@ -226,7 +255,7 @@ in {
             ./dnsleaktest.sh
           '' + (if cfg.vpn.vpnTestService.port != null then ''
             echo "starting netcat on port ${builtins.toString cfg.vpn.vpnTestService.port}:"
-            nc -vnlpu ${builtins.toString cfg.vpn.vpnTestService.port}
+            nc -vnlp ${builtins.toString cfg.vpn.vpnTestService.port}
           '' else "");
         };
       in "${vpn-test}/bin/vpn-test";
@@ -234,11 +263,6 @@ in {
       bindsTo = ["netns@wg.service"];
       requires = ["network-online.target"];
       after = ["wg.service"];
-      serviceConfig = {
-        #User = "torrenter";
-        NetworkNamespacePath = "/var/run/netns/wg";
-        BindReadOnlyPaths = ["/etc/netns/wg/resolv.conf:/etc/resolv.conf:norbind" "/data/test.file:/etc/test.file:norbind"];
-      };
     };
   };
 }

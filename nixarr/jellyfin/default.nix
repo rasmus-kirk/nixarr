@@ -244,7 +244,11 @@ in with lib; {
       # Port mappings
       # TODO: openports if expose.vpn
       vpnnamespaces.wg = mkIf cfg.vpn.enable {
-        portMappings = [{ From = defaultPort; To = defaultPort; }];
+        portMappings = [{ from = defaultPort; to = defaultPort; }];
+        openVPNPorts = optional cfg.expose.vpn.enable {
+          port = cfg.expose.vpn.port;
+          protocol = "tcp";
+        };
       };
     };
 }
