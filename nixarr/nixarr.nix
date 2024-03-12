@@ -17,6 +17,7 @@ with lib; let
 in {
   imports = [
     ./jellyfin
+    ./bazarr
     ./ddns
     ./radarr
     ./lidarr
@@ -53,6 +54,7 @@ in {
         The following services are supported:
 
         - [Jellyfin](#nixarr.jellyfin.enable)
+        - [Bazarr](#nixarr.bazarr.enable)
         - [Lidarr](#nixarr.lidarr.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)
         - [Radarr](#nixarr.radarr.enable)
