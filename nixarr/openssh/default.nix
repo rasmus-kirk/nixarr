@@ -83,9 +83,9 @@ in {
     };
 
     # Port mappings
-    # TODO: openports
     vpnnamespaces.wg = {
-      portMappings = [{ from = defaultPort; to = defaultPort; }];
+      portMappings = [{ From = defaultPort; To = defaultPort; }];
+      openVPNPorts = map (x: { port = x; protocol = "both"; }) services.openssh.ports;
     };
   };
 }

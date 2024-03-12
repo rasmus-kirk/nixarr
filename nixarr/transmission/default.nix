@@ -335,11 +335,11 @@ in {
     };
 
     # Port mappings
-    # TODO: open peerPort
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [{ from = cfg.uiPort; to = cfg.uiPort; }];
-      openVPNPorts = [{ port = 24745; protocol = "both"; }];
-      #openTcpPorts = [cfg.peerPort];
+      portMappings = [{ From = cfg.uiPort; To = cfg.uiPort; }];
+      openVPNPorts = [
+        { port = cfg.peerPort; protocol = "both"; }
+      ];
     };
 
     services.nginx = mkIf cfg.vpn.enable {

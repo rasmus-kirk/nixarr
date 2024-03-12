@@ -203,8 +203,11 @@ in {
     ];
 
     # TODO: wtf to do about openports
-    vpnnamespaces.wg = {
-      enable = cfg.vpn.enable ;
+    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+      enable = true;
+      openVPNPorts = optionalList cfg.vpn.vpnTestService.enable [
+        { port = cfg.vpn.vpnTestService.port; protocol = "tcp"; }
+      ];
       accessibleFrom = [
         "192.168.1.0/24"
         "127.0.0.1"
@@ -213,8 +216,9 @@ in {
     };
 
     # TODO: openports
-    systemd.services.vpn-test-service = {
-      enable = cfg.vpn.vpnTestService.enable;
+    systemd.services.vpn-test-service = mkIf cfg.vpn.vpnTestService.enable {
+      enable = true;
+
       vpnconfinement = {
         enable = true;
         vpnnamespace = "wg";
