@@ -24,6 +24,14 @@ in {
       description = "The state directory for Sonarr.";
     };
 
+    openFirewall = mkOption {
+      type = types.bool;
+      defaultText = literalExpression ''"''${nixarr.vpn.enable}"'';
+      default = !cfg.vpn.enable;
+      example = true;
+      description = "Open firewall for Sonarr";
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -55,6 +63,7 @@ in {
       enable = cfg.enable;
       user = "sonarr";
       group = "media";
+      openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
 

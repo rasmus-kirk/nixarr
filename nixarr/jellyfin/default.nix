@@ -19,6 +19,14 @@ in with lib; {
       description = "The state directory for Jellyfin.";
     };
 
+    openFirewall = mkOption {
+      type = types.bool;
+      defaultText = literalExpression ''"''${nixarr.vpn.enable}"'';
+      default = !cfg.vpn.enable;
+      example = true;
+      description = "Open firewall for Jellyfin";
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -168,6 +176,7 @@ in with lib; {
         enable = cfg.enable;
         user = "streamer";
         group = "streamer";
+        openFirewall = cfg.openFirewall;
         logDir = "${cfg.stateDir}/log";
         cacheDir = "${cfg.stateDir}/cache";
         dataDir = "${cfg.stateDir}/data";

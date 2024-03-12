@@ -74,6 +74,14 @@ in {
       '';
     };
 
+    openFirewall = mkOption {
+      type = types.bool;
+      defaultText = literalExpression ''"''${nixarr.vpn.enable}"'';
+      default = !cfg.vpn.enable;
+      example = true;
+      description = "Open firewall for `peer-port` and `rpc-port`.";
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -270,8 +278,8 @@ in {
         then pkgs.flood-for-transmission
         else null;
       package = pkgs.transmission_4;
-      openRPCPort = false;
-      openPeerPorts = !cfg.vpn.enable;
+      openRPCPort = cfg.openFirewall;
+      openPeerPorts = cfg.openFirewall;
       settings =
         {
           download-dir = downloadDir;
