@@ -67,11 +67,19 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/transmission";
-      defaultText = literalExpression ''"''${nixarr.stateDir}/transmission"'';
+      defaultText = literalExpression ''!cfg.vpn.enable'';
       example = "/home/user/.local/share/nixarr/transmission";
       description = ''
         The state directory for Transmission.
       '';
+    };
+
+    openFirewall = mkOption {
+      type = types.bool;
+      defaultText = literalExpression ''!cfg.vpn.enable'';
+      default = !cfg.vpn.enable;
+      example = true;
+      description = "Open firewall for `peer-port` and `rpc-port`.";
     };
 
     vpn.enable = mkOption {
@@ -270,8 +278,8 @@ in {
         then pkgs.flood-for-transmission
         else null;
       package = pkgs.transmission_4;
-      openRPCPort = false;
-      openPeerPorts = !cfg.vpn.enable;
+      openRPCPort = cfg.openFirewall;
+      openPeerPorts = cfg.openFirewall;
       settings =
         {
           download-dir = downloadDir;

@@ -19,9 +19,17 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/prowlarr";
-      defaultText = literalExpression ''"''${nixarr.stateDir}/prowlarr"'';
+      defaultText = literalExpression ''!cfg.vpn.enable'';
       example = "/home/user/.local/share/nixarr/prowlarr";
       description = "The state directory for Prowlarr.";
+    };
+
+    openFirewall = mkOption {
+      type = types.bool;
+      defaultText = literalExpression ''!cfg.vpn.enable'';
+      default = !cfg.vpn.enable;
+      example = true;
+      description = "Open firewall for Prowlarr";
     };
 
     vpn.enable = mkOption {
@@ -53,6 +61,7 @@ in {
 
     util-nixarr.services.prowlarr = {
       enable = true;
+      openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
 

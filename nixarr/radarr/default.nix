@@ -15,9 +15,17 @@ in {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/radarr";
-      defaultText = literalExpression ''"''${nixarr.stateDir}/radarr"'';
+      defaultText = literalExpression ''!cfg.vpn.enable'';
       example = "/home/user/.local/share/nixarr/radarr";
       description = "The state directory for radarr.";
+    };
+
+    openFirewall = mkOption {
+      type = types.bool;
+      defaultText = literalExpression ''!cfg.vpn.enable'';
+      default = !cfg.vpn.enable;
+      example = true;
+      description = "Open firewall for Radarr";
     };
 
     vpn.enable = mkOption {
@@ -51,6 +59,7 @@ in {
       enable = cfg.enable;
       user = "radarr";
       group = "media";
+      openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
 

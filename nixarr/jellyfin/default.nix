@@ -14,9 +14,17 @@ in with lib; {
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/jellyfin";
-      defaultText = literalExpression ''"''${nixarr.stateDir}/jellyfin"'';
+      defaultText = literalExpression ''!cfg.vpn.enable'';
       example = "/home/user/.local/share/nixarr/jellyfin";
       description = "The state directory for Jellyfin.";
+    };
+
+    openFirewall = mkOption {
+      type = types.bool;
+      defaultText = literalExpression ''!cfg.vpn.enable'';
+      default = !cfg.vpn.enable;
+      example = true;
+      description = "Open firewall for Jellyfin";
     };
 
     vpn.enable = mkOption {
@@ -161,13 +169,18 @@ in with lib; {
       ];
     
       systemd.tmpfiles.rules = [
-        "d '${cfg.stateDir}' 0700 streamer root - -"
+        "d '${cfg.stateDir}'        0700 streamer root - -"
+        "d '${cfg.stateDir}/log'    0700 streamer root - -"
+        "d '${cfg.stateDir}/cache'  0700 streamer root - -"
+        "d '${cfg.stateDir}/data'   0700 streamer root - -"
+        "d '${cfg.stateDir}/config' 0700 streamer root - -"
       ];
 
       services.jellyfin = {
         enable = cfg.enable;
         user = "streamer";
         group = "streamer";
+        openFirewall = cfg.openFirewall;
         logDir = "${cfg.stateDir}/log";
         cacheDir = "${cfg.stateDir}/cache";
         dataDir = "${cfg.stateDir}/data";
