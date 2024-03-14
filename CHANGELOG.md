@@ -13,3 +13,8 @@ Fixed:
 Updated:
 - Docs (stateDirs and mediaDir cannot be home!)
 - vpn submodule (adds firewall and DNS-leak killswitch)
+
+## 2024-03-14
+
+Added:
+- Reexported VPN-submodule, allowing users to run services, not supported by this module, through the VPN

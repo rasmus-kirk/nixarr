@@ -69,8 +69,9 @@
           };
         };
 
-        packages = {
+        packages = rec {
           docs = pkgs.callPackage ./mkDocs.nix {inherit inputs;};
+          default = docs;
         };
 
         devshells.default = {

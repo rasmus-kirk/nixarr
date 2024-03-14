@@ -54,7 +54,9 @@ in
       }
 
       # Make home page
+      sed '1d' README.md > "$tmpdir/readme.md"
       pandoc \
+        --metadata title="Nixarr - Media Server Nixos Module" \
         --metadata date="$(date -u '+%Y-%m-%d - %H:%M:%S %Z')" \
         --standalone \
         --highlight-style docs/pandoc/gruvbox.theme \
@@ -64,7 +66,7 @@ in
         -V --mathjax \
         -f markdown+smart \
         -o $out/index.html \
-        README.md
+        "$tmpdir/readme.md"
 
       # Make wiki pages
       find docs/wiki -type f -name "*.md" | while IFS= read -r file; do
