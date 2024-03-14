@@ -6,7 +6,7 @@ Nixarr reexports its VPN-submodule, meaning you can run your own services
 using it. As an example, let's say you want to run a Monero node
 through a VPN, then you could use the following configuration:
 
-```nix
+```nix {.numberLines}
   # Open vpnports, must also be opened by VPN-provider
   vpnnamespaces.wg = {
     openVPNPorts = [ 
@@ -49,5 +49,6 @@ through a VPN, then you could use the following configuration:
 **Note:** that the submodule supports more namespaces than just one, but Nixarr
 uses the name `wg`, so you should use that too.
 
-For more options and information on the VPN-submodule, check out [the
-repo](https://github.com/Maroka-chan/VPN-Confinement)
+Services running over the VPN will have address `192.168.15.1` instead of
+`127.0.0.1`. For more options and information on the VPN-submodule, check out
+[the repo](https://github.com/Maroka-chan/VPN-Confinement)
