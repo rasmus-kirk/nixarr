@@ -49,6 +49,7 @@
       flake = {
         nixosModules = rec {
           nixarr = import ./nixarr vpnconfinement;
+          imports = [ vpnconfinement.nixosModules.default ];
           default = nixarr;
         };
       };
