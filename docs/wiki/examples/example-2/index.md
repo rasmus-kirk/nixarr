@@ -1,5 +1,5 @@
 ---
-title: Example Configuration where Port Forwarding is not an Option
+title: Example Configuration Where Port Forwarding Is Not an Option
 ---
 
 An example where port forwarding is not an option. This is useful if,
