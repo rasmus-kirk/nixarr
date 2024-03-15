@@ -94,6 +94,17 @@ in {
       description = "Open firewall for `peer-port` and `rpc-port`.";
     };
 
+    extraAllowedIps = mkOption {
+      type = with types; listOf str;
+      default = [];
+      example = [ "10.19.5.10" ];
+      description = ''
+        Extra IP addresses allowed to access the Transmission RPC. By default
+        `192.168.*` and `127.0.0.1` (localhost) are allowed, but if your
+        local network has a weird ip for some reason, you can add it here.
+      '';
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -320,9 +331,10 @@ in {
             then "192.168.15.1"
             else "127.0.0.1";
           rpc-port = cfg.uiPort;
-          # TODO: fix this for ssh tunneling...
           rpc-whitelist-enabled = true;
-          rpc-whitelist = "127.0.0.1,192.168.*";
+          rpc-whitelist = strings.concatStringsSep "," ([
+            "127.0.0.1,192.168.*" # Defaults
+          ] ++ cfg.extraAllowedIps);
           rpc-authentication-required = false;
 
           blocklist-enabled = true;
