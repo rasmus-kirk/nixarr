@@ -255,8 +255,9 @@ in {
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0750 torrenter torrenter - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
+      "d '${cfg.stateDir}/.config' 0750 torrenter torrenter - -"
       "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter torrenter - -"
-    ];
+     ];
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
