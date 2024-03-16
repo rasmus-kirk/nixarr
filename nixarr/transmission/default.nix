@@ -329,7 +329,7 @@ in {
           rpc-bind-address =
             if cfg.vpn.enable
             then "192.168.15.1"
-            else "127.0.0.1";
+            else "0.0.0.0";
           rpc-port = cfg.uiPort;
           rpc-whitelist-enabled = true;
           rpc-whitelist = strings.concatStringsSep "," ([
