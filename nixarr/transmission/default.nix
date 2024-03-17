@@ -264,16 +264,16 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0750 torrenter torrenter - -"
+      "d '${cfg.stateDir}' 0750 torrenter media - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
-      "d '${cfg.stateDir}/.config' 0750 torrenter torrenter - -"
-      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter torrenter - -"
+      "d '${cfg.stateDir}/.config' 0750 torrenter media - -"
+      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter media - -"
      ];
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
       dataDir = cfg-cross-seed.stateDir;
-      group = "torrenter";
+      group = "media";
       settings =
         {
           torrentDir = "${nixarr.mediaDir}/torrents";
@@ -309,7 +309,7 @@ in {
     services.transmission = {
       enable = true;
       user = "torrenter";
-      group = "torrenter";
+      group = "media";
       home = cfg.stateDir;
       webHome =
         if cfg.flood.enable
