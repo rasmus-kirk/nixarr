@@ -185,13 +185,13 @@ in
         ];
 
         systemd.tmpfiles.rules = [
-          "d '${cfg.stateDir}'        0700 streamer root - -"
+          "d '${cfg.stateDir}' 0700 streamer root - -"
         ];
 
         services.jellyfin = {
           enable = cfg.enable;
           user = "streamer";
-          group = "streamer";
+          group = "media";
           openFirewall = cfg.openFirewall;
           logDir = "${cfg.stateDir}/log";
           cacheDir = "${cfg.stateDir}/cache";
