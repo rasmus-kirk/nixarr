@@ -264,19 +264,21 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0750 torrenter media - -"
+      "d '${cfg.stateDir}' 0750 torrenter cross-seed - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
-      "d '${cfg.stateDir}/.config' 0750 torrenter media - -"
-      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter media - -"
+      "d '${cfg.stateDir}/.config' 0750 torrenter cross-seed - -"
+      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter cross-seed - -"
      ];
+
+    users.groups.cross-seed = {};
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
       dataDir = cfg-cross-seed.stateDir;
-      group = "media";
+      group = "cross-seed";
       settings =
         {
-          torrentDir = "${nixarr.mediaDir}/torrents";
+          torrentDir = "${cfg.stateDir}/.config/transmission-daemon/torrents";
           outputDir = "${nixarr.mediaDir}/torrents/.cross-seed";
           transmissionRpcUrl = "http://localhost:${builtins.toString cfg.uiPort}/transmission/rpc";
           rssCadence = "20 minutes";

@@ -10,7 +10,52 @@ with lib; let
     name = "list-unlinked";
     runtimeInputs = with pkgs; [util-linux];
     text = ''
+      if [ "$#" -ne 1 ]; then
+          echo "Illegal number of parameters. Must be one file path"
+      fi
+
       find "$1" -type f -links 1 -exec du -h {} + | sort -h
+    '';
+  };
+  fix-permissions = pkgs.writeShellApplication {
+    name = "fix-permissions";
+    runtimeInputs = with pkgs; [util-linux];
+    text = ''
+      if [ "$EUID" -ne 0 ]; then
+        echo "Please run as root"
+        exit
+      fi
+
+      chown -R torrenter:media "${cfg.mediaDir}/torrents"
+      chown -R streamer:media "${cfg.mediaDir}/library"
+      find "${cfg.mediaDir}" \( -type d -exec chmod 0775 {} + -true \) -o \( -exec chmod 0664 {} + \)
+    '' + strings.optionalString cfg.jellyfin.enable ''
+      chown -R streamer:root "${cfg.jellyfin.stateDir}"
+      find "${cfg.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+    '' + strings.optionalString cfg.transmission.enable ''
+      chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
+      find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
+    '' + strings.optionalString cfg.transmission.privateTrackers.cross-seed.enable ''
+      chown -R cross-seed:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
+      find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+    '' + strings.optionalString cfg.prowlarr.enable ''
+      chown -R prowlarr:root "${cfg.prowlarr.stateDir}"
+      find "${cfg.prowlarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+    '' + strings.optionalString cfg.sonarr.enable ''
+      chown -R sonarr:root "${cfg.sonarr.stateDir}"
+      find "${cfg.sonarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+    '' + strings.optionalString cfg.radarr.enable ''
+      chown -R radarr:root "${cfg.radarr.stateDir}"
+      find "${cfg.radarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+    '' + strings.optionalString cfg.lidarr.enable ''
+      chown -R lidarr:root "${cfg.lidarr.stateDir}"
+      find "${cfg.lidarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+    '' + strings.optionalString cfg.bazarr.enable ''
+      chown -R bazarr:root "${cfg.bazarr.stateDir}"
+      find "${cfg.bazarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+    '' + strings.optionalString cfg.readarr.enable ''
+      chown -R readarr:root "${cfg.readarr.stateDir}"
+      find "${cfg.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
     '';
   };
 in {
@@ -219,6 +264,7 @@ in {
     environment.systemPackages = with pkgs; [
       jdupes
       list-unlinked
+      fix-permissions
     ];
 
     # TODO: wtf to do about openports

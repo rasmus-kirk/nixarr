@@ -86,7 +86,13 @@ in {
       {
         assertion = cfg.enable -> cfg.settings.outputDir != null;
         message = ''
-          The settings.outputDir must be set if cross-seed is enabled.
+          The settings.outputDir option must be set if cross-seed is enabled.
+        '';
+      }
+      {
+        assertion = cfg.enable -> cfg.settings.torrentDir != null;
+        message = ''
+          The settings.torrentDir option must be set if cross-seed is enabled.
         '';
       }
     ];
