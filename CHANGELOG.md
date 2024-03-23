@@ -3,6 +3,15 @@
 ## 2024-03-12
 
 Added:
+- `fix-permissions` script, that sets correct permissions for all directories
+  and files in the state and media library
+
+Fixed:
+- Some permission issues here and there
+
+## 2024-03-12
+
+Added:
 - bazarr
 - njalla-vpn-ddns (ddns to public vpn ip)
 
