@@ -335,7 +335,7 @@ in {
           rpc-port = cfg.uiPort;
           rpc-whitelist-enabled = true;
           rpc-whitelist = strings.concatStringsSep "," ([
-            "127.0.0.1,192.168.*" # Defaults
+            "127.0.0.1,192.168.*,10.*" # Defaults
           ] ++ cfg.extraAllowedIps);
           rpc-authentication-required = false;
 
