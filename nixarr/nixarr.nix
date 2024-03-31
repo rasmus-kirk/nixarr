@@ -27,6 +27,7 @@ with lib; let
       fi
 
       chown -R torrenter:media "${cfg.mediaDir}/torrents"
+      chown -R usenet:media "${cfg.mediaDir}/usenet"
       chown -R streamer:media "${cfg.mediaDir}/library"
       find "${cfg.mediaDir}" \( -type d -exec chmod 0775 {} + -true \) -o \( -exec chmod 0664 {} + \)
     '' + strings.optionalString cfg.jellyfin.enable ''
@@ -35,6 +36,9 @@ with lib; let
     '' + strings.optionalString cfg.transmission.enable ''
       chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
       find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
+    '' + strings.optionalString cfg.sabnzbd.enable ''
+      chown -R usenet:root "${cfg.sabnzbd.stateDir}"
+      find "${cfg.sabnzbd.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
     '' + strings.optionalString cfg.transmission.privateTrackers.cross-seed.enable ''
       chown -R cross-seed:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
       find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
@@ -264,6 +268,15 @@ in {
       "d '${cfg.mediaDir}/torrents/radarr'      0755 torrenter media - -"
       "d '${cfg.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
       "d '${cfg.mediaDir}/torrents/readarr'     0755 torrenter media - -"
+      # TODO: consider conditional dir creation for torrents and usenet
+      "d '${cfg.mediaDir}/usenet'             0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/.incomplete' 0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/.watch'      0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/manual'      0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/liadarr'     0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/radarr'      0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/sonarr'      0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/readarr'     0755 usenet media - -"
     ];
 
     environment.systemPackages = with pkgs; [
