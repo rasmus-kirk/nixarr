@@ -231,6 +231,7 @@ in {
       media.members = cfg.mediaUsers;
       streamer = {};
       torrenter = {};
+      usenet = {};
     };
     users.users = {
       streamer = {
@@ -240,6 +241,10 @@ in {
       torrenter = {
         isSystemUser = true;
         group = "torrenter";
+      };
+      usenet = {
+        isSystemUser = true;
+        group = "usenet";
       };
     };
 
