@@ -302,12 +302,14 @@ in {
     };
 
     systemd.services.transmission.serviceConfig = mkIf cfg-cross-seed.enable {
-      ExecStartPre = mkBefore [
-        (
-          "+" + "${importProwlarrApi}/bin/import-prowlarr-api"
-        )
-      ];
+      IOSchedulingPriority = 7;
+      ExecStartPre = mkIf cfg-cross-seed.enable (
+        mkBefore [
+          ("+" + "${importProwlarrApi}/bin/import-prowlarr-api")
+        ]
+      );
     };
+
     services.transmission = {
       enable = true;
       user = "torrenter";

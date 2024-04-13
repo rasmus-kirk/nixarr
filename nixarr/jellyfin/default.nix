@@ -188,6 +188,8 @@ in
           "d '${cfg.stateDir}' 0700 streamer root - -"
         ];
 
+        systemd.services.jellyfin.serviceConfig.IOSchedulingPriority = 7;
+
         services.jellyfin = {
           enable = cfg.enable;
           user = "streamer";
