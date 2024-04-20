@@ -301,6 +301,8 @@ in {
             ''
               cd "$(mktemp -d)"
 
+              ping google.com
+
               # Print resolv.conf
               echo "/etc/resolv.conf contains:"
               cat /etc/resolv.conf
