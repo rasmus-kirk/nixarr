@@ -270,7 +270,8 @@ in {
       "d '${cfg.mediaDir}/torrents/radarr'      0755 torrenter media - -"
       "d '${cfg.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
       "d '${cfg.mediaDir}/torrents/readarr'     0755 torrenter media - -"
-      # TODO: consider conditional dir creation for torrents and usenet
+    ] ++ lists.optionals cfg.sabnzbd.enable [
+      # only create usenet dirs if sabnzbd is enabled
       "d '${cfg.mediaDir}/usenet'             0755 usenet media - -"
       "d '${cfg.mediaDir}/usenet/.incomplete' 0755 usenet media - -"
       "d '${cfg.mediaDir}/usenet/.watch'      0755 usenet media - -"
