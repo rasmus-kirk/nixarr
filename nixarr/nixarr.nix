@@ -74,6 +74,7 @@ in {
     ./openssh
     ./prowlarr
     ./transmission
+    ./sabnzbd
     ../util
   ];
 
@@ -109,6 +110,7 @@ in {
         - [Readarr](#nixarr.readarr.enable)
         - [Sonarr](#nixarr.sonarr.enable)
         - [Transmission](#nixarr.transmission.enable)
+        - [SABnzbd](#nixarr.sabnzbd.enable)
 
         Remember to read the options.
       '';
