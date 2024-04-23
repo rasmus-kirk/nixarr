@@ -67,5 +67,43 @@ in {
     };
 
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ defaultPort ];
+
+    # Enable and specify VPN namespace to confine service in.
+    systemd.services.sabnzbd.vpnconfinement = mkIf cfg.vpn.enable {
+      enable = true;
+      vpnnamespace = "wg";
+    };
+
+    # Port mappings
+    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+      portMappings = [
+        {
+          from = defaultPort;
+          to = defaultPort;
+        }
+      ];
+    };
+
+    services.nginx = mkIf cfg.vpn.enable {
+      enable = true;
+
+      recommendedTlsSettings = true;
+      recommendedOptimisation = true;
+      recommendedGzipSettings = true;
+
+      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = defaultPort;
+          }
+        ];
+        locations."/" = {
+          recommendedProxySettings = true;
+          proxyWebsockets = true;
+          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+        };
+      };
+    };
   };
 }
