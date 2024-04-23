@@ -63,7 +63,7 @@ in {
       enable = true;
       user = "usenet";
       group = "media";
-      configFile = /. + "${cfg.stateDir}/sabnzbd.ini";
+      configFile = "${cfg.stateDir}/sabnzbd.ini";
     };
 
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ defaultPort ];
