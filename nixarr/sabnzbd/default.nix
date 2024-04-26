@@ -8,7 +8,62 @@ with lib; let
   cfg = config.nixarr.sabnzbd;
   defaultPort = 8080;
   nixarr = config.nixarr;
-  # downloadDir = "${nixarr.mediaDir}/usenet";
+
+  setDirsCmds = ''
+    | initool set - misc download_dir ${nixarr.mediaDir}/usenet/.incomplete \
+    | initool set - misc complete_dir ${nixarr.mediaDir}/usenet/manual \
+    | initool set - misc dirscan_dir ${nixarr.mediaDir}/usenet/.watch \
+  '';
+
+  mkSetHostWhitelistCmd = with lib.strings; (hosts: ''
+    | initool set - misc host_whitelist ${concatStringsSep "," hosts} \
+  '');
+
+  mkSetRangeWhitelistCmd = with lib.strings; (ranges: ''
+    | initool set - misc local_ranges ${concatStringsSep "," ranges} \
+  '');
+
+  # todo: need to figure out what to do on first sabnzbd boot when no config file exists
+
+  mkINIInitScript = (
+    {
+      sabnzbd-state-dir,
+      access-externally ? true,
+      whitelist-hosts ? [],
+      whitelist-ranges ? []
+    }:
+    pkgs.writeShellApplication {
+      name = "set-sabnzbd-ini-values";
+      runtimeInputs = with pkgs; [initool];
+      text = with lib.strings; (
+        ''
+        cat ${sabnzbd-state-dir}/sabnzbd.ini \
+        '' +
+        
+        # set download dirs
+        setDirsCmds +
+        
+        # set host to 0.0.0.0 if remote access needed
+        optionalString access-externally ''
+          | initool set - misc host 0.0.0.0 \
+        '' +
+        
+        # set hostname whitelist
+        optionalString (builtins.length whitelist-hosts > 0) (
+          mkSetHostWhitelistCmd whitelist-hosts
+        ) +
+
+        # set ip range whitelist
+        optionalString (builtins.length whitelist-ranges > 0) (
+          mkSetRangeWhitelistCmd whitelist-ranges
+        ) +
+
+        ''
+        > ${sabnzbd-state-dir}/sabnzbd.ini
+        ''
+      );
+    }
+  );  
 in {
   options.nixarr.sabnzbd = {
     enable = mkEnableOption "Enable the SABnzbd service.";
@@ -40,6 +95,40 @@ in {
       description = "Open firewall for SABnzbd";
     };
 
+    whitelistHostnames = mkOption {
+      type = types.listOf types.str;
+      default = [ config.networking.hostName ];
+      defaultText = "[ config.networking.hostName ]";
+      example = ''[ "mediaserv" "media.example.com" ]'';
+      description = ''
+        A list that specifies what URLs that are allowed to represent your
+        SABnzbd instance. If you see an error message like this when
+        trying to connect to SABnzbd from another device...
+
+        ```
+        Refused connection with hostname "your.hostname.com"
+        ```
+
+        ...then you should add your hostname(s) to this list.
+
+        SABnzbd only allows connections matching these URLs in order to prevent
+        DNS hijacking. See <https://sabnzbd.org/wiki/extra/hostname-check.html>
+        for more info.
+      '';
+    };
+
+    whitelistRanges = mkOption {
+      type = types.listOf types.str;
+      default = [ ];
+      defaultText = "[ ]";
+      example = ''[ "192.168.1.0/24" "10.0.0.0/23" ]'';
+      description = ''
+        A list of IP ranges that will be allowed to connect to SABnzbd's
+        web GUI. This only needs to be set if SABnzbd needs to be accessed
+        from another machine besides its host.
+      '';
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -67,6 +156,19 @@ in {
     };
 
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ defaultPort ];
+
+    systemd.services.sabnzbd.serviceConfig = {
+      ExecStartPre = mkBefore [
+        (
+          "+" + mkINIInitScript {
+            sabnzbd-state-dir = cfg.stateDir;
+            access-externally = cfg.openFirewall;
+            whitelist-hosts = cfg.whitelistHostnames;
+            whitelist-ranges = cfg.whitelistRanges;
+          } + "/bin/set-sabnzbd-ini-values"
+        )
+      ];
+    };
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.sabnzbd.vpnconfinement = mkIf cfg.vpn.enable {
