@@ -9,11 +9,7 @@ with lib; let
   defaultPort = 8080;
   nixarr = config.nixarr;
 
-  setDirsCmds = ''
-    | initool set - misc download_dir ${nixarr.mediaDir}/usenet/.incomplete \
-    | initool set - misc complete_dir ${nixarr.mediaDir}/usenet/manual \
-    | initool set - misc dirscan_dir ${nixarr.mediaDir}/usenet/.watch \
-  '';
+  edited-flag = "edited by nixarr";
 
   mkSetHostWhitelistCmd = with lib.strings; (hosts: ''
     | initool set - misc host_whitelist ${concatStringsSep "," hosts} \
@@ -22,8 +18,6 @@ with lib; let
   mkSetRangeWhitelistCmd = with lib.strings; (ranges: ''
     | initool set - misc local_ranges ${concatStringsSep "," ranges} \
   '');
-
-  # todo: need to figure out what to do on first sabnzbd boot when no config file exists
 
   mkINIInitScript = (
     {
@@ -36,12 +30,17 @@ with lib; let
       name = "set-sabnzbd-ini-values";
       runtimeInputs = with pkgs; [initool];
       text = with lib.strings; (
-        ''
-        cat ${sabnzbd-state-dir}/sabnzbd.ini \
-        '' +
-        
         # set download dirs
-        setDirsCmds +
+        ''
+        if [ ! -f ${sabnzbd-state-dir}/sabnzbd.ini ]; then
+          exit 0
+        fi
+
+        initool set ${sabnzbd-state-dir}/sabnzbd.ini "" __comment__ '${edited-flag}' \
+        | initool set - misc download_dir "${nixarr.mediaDir}/usenet/.incomplete" \
+        | initool set - misc complete_dir "${nixarr.mediaDir}/usenet/manual" \
+        | initool set - misc dirscan_dir "${nixarr.mediaDir}/usenet/.watch" \
+        '' +
         
         # set host to 0.0.0.0 if remote access needed
         optionalString access-externally ''
@@ -59,7 +58,8 @@ with lib; let
         ) +
 
         ''
-        > ${sabnzbd-state-dir}/sabnzbd.ini
+        > ${sabnzbd-state-dir}/sabnzbd.ini.tmp \
+        && mv ${sabnzbd-state-dir}/sabnzbd.ini{.tmp,}
         ''
       );
     }
@@ -168,6 +168,32 @@ in {
           } + "/bin/set-sabnzbd-ini-values"
         )
       ];
+
+      ExecStartPost = mkBefore [
+        (
+          "+" + pkgs.writeShellApplication {
+            name = "ensure-sabnzbd-config-edits";
+            runtimeInputs = with pkgs; [initool coreutils systemd];
+            text = ''
+              until [ -f "${cfg.stateDir}/sabnzbd.ini" ]
+              do
+                sleep 1
+              done
+
+              if ! initool get "${cfg.stateDir}/sabnzbd.ini" "" __comment__; then
+                # force sabnzbd.service restart for ExecStartPre to run now
+                #  that sabnzbd.ini has been created by the instance
+                systemctl restart -f sabnzbd.service
+              fi
+
+              exit
+            '';
+          } + "/bin/ensure-sabnzbd-config-edits"
+        )
+      ];
+      Restart = "on-failure";
+      StartLimitInterval = 15;
+      StartLimitBurst = 5;
     };
 
     # Enable and specify VPN namespace to confine service in.
