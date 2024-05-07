@@ -28,13 +28,21 @@ with lib; let
     }:
     pkgs.writeShellApplication {
       name = "set-sabnzbd-ini-values";
-      runtimeInputs = with pkgs; [initool];
+      runtimeInputs = with pkgs; [initool sabnzbd sudo coreutils];
       text = with lib.strings; (
         # set download dirs
         ''
         if [ ! -f ${sabnzbd-state-dir}/sabnzbd.ini ]; then
-          exit 0
-        fi
+          sudo -u usenet -g media sabnzbd -p -d -f ${sabnzbd-state-dir}/sabnzbd.ini
+          sab_pid=$!
+
+          until [ -f "${sabnzbd-state-dir}/sabnzbd.ini" ]
+          do
+            sleep 1
+          done
+
+          kill -INT $sab_pid
+       fi
 
         initool set ${sabnzbd-state-dir}/sabnzbd.ini "" __comment__ '${edited-flag}' \
         | initool set - misc download_dir "${nixarr.mediaDir}/usenet/.incomplete" \
@@ -169,28 +177,28 @@ in {
         )
       ];
 
-      ExecStartPost = mkBefore [
-        (
-          "+" + pkgs.writeShellApplication {
-            name = "ensure-sabnzbd-config-edits";
-            runtimeInputs = with pkgs; [initool coreutils systemd];
-            text = ''
-              until [ -f "${cfg.stateDir}/sabnzbd.ini" ]
-              do
-                sleep 1
-              done
-
-              if ! initool get "${cfg.stateDir}/sabnzbd.ini" "" __comment__; then
-                # force sabnzbd.service restart for ExecStartPre to run now
-                #  that sabnzbd.ini has been created by the instance
-                systemctl restart -f sabnzbd.service
-              fi
-
-              exit
-            '';
-          } + "/bin/ensure-sabnzbd-config-edits"
-        )
-      ];
+     #  ExecStartPost = mkBefore [
+        # (
+        #   "+" + pkgs.writeShellApplication {
+        #     name = "ensure-sabnzbd-config-edits";
+        #     runtimeInputs = with pkgs; [initool coreutils systemd];
+        #     text = ''
+        #       until [ -f "${cfg.stateDir}/sabnzbd.ini" ]
+        #       do
+        #         sleep 1
+        #       done
+        #
+        #       if ! initool get "${cfg.stateDir}/sabnzbd.ini" "" __comment__; then
+        #         # force sabnzbd.service restart for ExecStartPre to run now
+        #         #  that sabnzbd.ini has been created by the instance
+        #         systemctl restart -f sabnzbd.service
+        #       fi
+        #
+        #       exit
+        #     '';
+        #   } + "/bin/ensure-sabnzbd-config-edits"
+        # )
+     #  ];
       Restart = "on-failure";
       StartLimitInterval = 15;
       StartLimitBurst = 5;
