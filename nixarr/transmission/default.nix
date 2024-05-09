@@ -301,7 +301,8 @@ in {
       ];
     };
 
-    systemd.services.transmission.serviceConfig = mkIf cfg-cross-seed.enable {
+    systemd.services.transmission.serviceConfig = {
+      # Always prioritize all other services wrt. IO
       IOSchedulingPriority = 7;
       ExecStartPre = mkIf cfg-cross-seed.enable (
         mkBefore [
