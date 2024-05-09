@@ -163,7 +163,7 @@ in {
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0750 usenet root - -"
+      "d '${cfg.stateDir}' 0700 usenet root - -"
     ];
 
     services.sabnzbd = {

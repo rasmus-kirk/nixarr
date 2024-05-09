@@ -38,7 +38,7 @@ with lib; let
       find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
     '' + strings.optionalString cfg.sabnzbd.enable ''
       chown -R usenet:root "${cfg.sabnzbd.stateDir}"
-      find "${cfg.sabnzbd.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
+      find "${cfg.sabnzbd.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
     '' + strings.optionalString cfg.transmission.privateTrackers.cross-seed.enable ''
       chown -R cross-seed:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
       find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
