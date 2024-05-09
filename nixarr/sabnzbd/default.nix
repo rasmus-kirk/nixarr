@@ -187,29 +187,6 @@ in {
           } + "/bin/set-sabnzbd-ini-values"
         )
       ];
-
-     #  ExecStartPost = mkBefore [
-        # (
-        #   "+" + pkgs.writeShellApplication {
-        #     name = "ensure-sabnzbd-config-edits";
-        #     runtimeInputs = with pkgs; [initool coreutils systemd];
-        #     text = ''
-        #       until [ -f "${cfg.stateDir}/sabnzbd.ini" ]
-        #       do
-        #         sleep 1
-        #       done
-        #
-        #       if ! initool get "${cfg.stateDir}/sabnzbd.ini" "" __comment__; then
-        #         # force sabnzbd.service restart for ExecStartPre to run now
-        #         #  that sabnzbd.ini has been created by the instance
-        #         systemctl restart -f sabnzbd.service
-        #       fi
-        #
-        #       exit
-        #     '';
-        #   } + "/bin/ensure-sabnzbd-config-edits"
-        # )
-     #  ];
       Restart = "on-failure";
       StartLimitInterval = 15;
       StartLimitBurst = 5;
