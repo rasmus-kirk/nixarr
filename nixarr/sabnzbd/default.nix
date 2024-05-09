@@ -6,7 +6,6 @@
 }:
 with lib; let
   cfg = config.nixarr.sabnzbd;
-  defaultPort = 8080;
   nixarr = config.nixarr;
 
   edited-flag = "edited by nixarr";
@@ -22,6 +21,7 @@ with lib; let
   mkINIInitScript = (
     {
       sabnzbd-state-dir,
+      guiPort,
       access-externally ? true,
       whitelist-hosts ? [],
       whitelist-ranges ? []
@@ -48,6 +48,7 @@ with lib; let
         | initool set - misc download_dir "${nixarr.mediaDir}/usenet/.incomplete" \
         | initool set - misc complete_dir "${nixarr.mediaDir}/usenet/manual" \
         | initool set - misc dirscan_dir "${nixarr.mediaDir}/usenet/.watch" \
+        | initool set - misc port "${builtins.toString guiPort}" \
         '' +
         
         # set host to 0.0.0.0 if remote access needed
@@ -92,6 +93,15 @@ in {
         ```
 
         Is not supported, because `/home/user` is owned by `user`.
+      '';
+    };
+
+    guiPort = mkOption {
+      type = types.port;
+      default = 8080;
+      example = 9999;
+      description = ''
+        The port that SABnzbd's GUI will listen on for incomming connections.
       '';
     };
 
@@ -163,13 +173,14 @@ in {
       configFile = "${cfg.stateDir}/sabnzbd.ini";
     };
 
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ defaultPort ];
+    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.guiPort ];
 
     systemd.services.sabnzbd.serviceConfig = {
       ExecStartPre = mkBefore [
         (
           "+" + mkINIInitScript {
             sabnzbd-state-dir = cfg.stateDir;
+            guiPort = cfg.guiPort;
             access-externally = cfg.openFirewall;
             whitelist-hosts = cfg.whitelistHostnames;
             whitelist-ranges = cfg.whitelistRanges;
@@ -214,8 +225,8 @@ in {
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = defaultPort;
-          to = defaultPort;
+          from = cfg.guiPort;
+          to = cfg.guiPort;
         }
       ];
     };
@@ -227,17 +238,17 @@ in {
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
 
-      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+      virtualHosts."127.0.0.1:${builtins.toString cfg.guiPort}" = {
         listen = [
           {
             addr = "0.0.0.0";
-            port = defaultPort;
+            port = cfg.guiPort;
           }
         ];
         locations."/" = {
           recommendedProxySettings = true;
           proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+          proxyPass = "http://192.168.15.1:${builtins.toString cfg.guiPort}";
         };
       };
     };
