@@ -7,72 +7,6 @@
 with lib; let
   cfg = config.nixarr.sabnzbd;
   nixarr = config.nixarr;
-
-  edited-flag = "edited by nixarr";
-
-  mkSetHostWhitelistCmd = with lib.strings; (hosts: ''
-    | initool set - misc host_whitelist ${concatStringsSep "," hosts} \
-  '');
-
-  mkSetRangeWhitelistCmd = with lib.strings; (ranges: ''
-    | initool set - misc local_ranges ${concatStringsSep "," ranges} \
-  '');
-
-  mkINIInitScript = (
-    {
-      sabnzbd-state-dir,
-      guiPort,
-      access-externally ? true,
-      whitelist-hosts ? [],
-      whitelist-ranges ? []
-    }:
-    pkgs.writeShellApplication {
-      name = "set-sabnzbd-ini-values";
-      runtimeInputs = with pkgs; [initool sabnzbd sudo coreutils];
-      text = with lib.strings; (
-        # set download dirs
-        ''
-        if [ ! -f ${sabnzbd-state-dir}/sabnzbd.ini ]; then
-          sudo -u usenet -g media sabnzbd -p -d -f ${sabnzbd-state-dir}/sabnzbd.ini
-          sab_pid=$!
-
-          until [ -f "${sabnzbd-state-dir}/sabnzbd.ini" ]
-          do
-            sleep 1
-          done
-
-          kill -INT $sab_pid
-       fi
-
-        initool set ${sabnzbd-state-dir}/sabnzbd.ini "" __comment__ '${edited-flag}' \
-        | initool set - misc download_dir "${nixarr.mediaDir}/usenet/.incomplete" \
-        | initool set - misc complete_dir "${nixarr.mediaDir}/usenet/manual" \
-        | initool set - misc dirscan_dir "${nixarr.mediaDir}/usenet/.watch" \
-        | initool set - misc port "${builtins.toString guiPort}" \
-        '' +
-        
-        # set host to 0.0.0.0 if remote access needed
-        optionalString access-externally ''
-          | initool set - misc host 0.0.0.0 \
-        '' +
-        
-        # set hostname whitelist
-        optionalString (builtins.length whitelist-hosts > 0) (
-          mkSetHostWhitelistCmd whitelist-hosts
-        ) +
-
-        # set ip range whitelist
-        optionalString (builtins.length whitelist-ranges > 0) (
-          mkSetRangeWhitelistCmd whitelist-ranges
-        ) +
-
-        ''
-        > ${sabnzbd-state-dir}/sabnzbd.ini.tmp \
-        && mv ${sabnzbd-state-dir}/sabnzbd.ini{.tmp,}
-        ''
-      );
-    }
-  );  
 in {
   options.nixarr.sabnzbd = {
     enable = mkEnableOption "Enable the SABnzbd service.";
@@ -159,7 +93,7 @@ in {
     };
   };
 
-  imports = [];
+  imports = [ ./config.nix ];
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
@@ -176,17 +110,6 @@ in {
     networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.guiPort ];
 
     systemd.services.sabnzbd.serviceConfig = {
-      ExecStartPre = mkBefore [
-        (
-          "+" + mkINIInitScript {
-            sabnzbd-state-dir = cfg.stateDir;
-            guiPort = cfg.guiPort;
-            access-externally = cfg.openFirewall;
-            whitelist-hosts = cfg.whitelistHostnames;
-            whitelist-ranges = cfg.whitelistRanges;
-          } + "/bin/set-sabnzbd-ini-values"
-        )
-      ];
       Restart = "on-failure";
       StartLimitInterval = 15;
       StartLimitBurst = 5;
