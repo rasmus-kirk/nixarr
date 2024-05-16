@@ -30,6 +30,20 @@ let
     )
   ) dynamic-configs;
 
+  fix-config-permissions-script = pkgs.writeShellApplication {
+    name = "sabnzbd-fix-config-permissions";
+    runtimeInputs = with pkgs; [util-linux];
+    text = ''
+      if [ ! -f ${ini-file-target} ]; then
+        echo 'FAILURE: cannot change permissions of ${ini-file-target}, file does not exist'
+        exit 1
+      fi
+
+      chmod 600 ${ini-file-target}
+      chown usenet:media ${ini-file-target}
+    '';
+  };
+
   apply-dynamic-configs-script = pkgs.writeShellApplication {
     name = "sabnzbd-set-dynamic-values";
     runtimeInputs = with pkgs; [initool util-linux];
@@ -80,6 +94,7 @@ in
 {
   systemd.tmpfiles.rules = [ "C ${cfg.stateDir}/sabnzbd.ini - - - - ${./base-config.ini}" ];
   systemd.services.sabnzbd.serviceConfig.ExecStartPre = lib.mkBefore [
+    ("+" + fix-config-permissions-script + "/bin/sabnzbd-fix-config-permissions")
     (gen-uuids-script + "/bin/sabnzbd-set-random-api-uuids")
     (apply-dynamic-configs-script + "/bin/sabnzbd-set-dynamic-values")
   ];
