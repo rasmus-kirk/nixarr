@@ -54,7 +54,7 @@ let
       fi
 
       cp --preserve ${ini-file-target}{,.tmp}
-      initool set ${ini-file-target} "" __comment__ 'created by nixarr' \
+      initool set ${ini-file-target} "" __comment__ 'edited by nixarr' \
     '' + (strings.concatStrings (lists.flatten dynamic-config-set-cmds))
     + ''
       > ${ini-file-target}.tmp && mv -f ${ini-file-target}{.tmp,}
