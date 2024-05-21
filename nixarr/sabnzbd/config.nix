@@ -3,14 +3,13 @@ let
   cfg = config.nixarr.sabnzbd;
   nixarr = config.nixarr;
   ini-file-target = "${cfg.stateDir}/sabnzbd.ini";
-
   concatStringsCommaIfExists = with lib.strings; stringList: (
     optionalString (builtins.length stringList > 0) (
       concatStringsSep "," stringList
     )
   );
 
-  dynamic-configs = {
+  user-configs = {
     misc = {
       host = if cfg.openFirewall then "0.0.0.0" else "127.0.0.1";
       port = cfg.guiPort;
@@ -22,13 +21,29 @@ let
     };
   };
 
-  dynamic-config-set-cmds = with lib.attrsets; mapAttrsToList (
+  api-key-configs = {
+    misc = {
+      api_key = "";
+      nzb_key = "";
+    };
+  };
+
+  compiled-configs = {misc = (user-configs.misc // api-key-configs.misc);};
+
+  ini-base-config-file = pkgs.writeTextFile {
+    name = "base-config.ini"; 
+    text = lib.generators.toINI {} compiled-configs;
+  };
+
+  mkSedEditValue = name: value: ''sed -E 's%(\b${name} ?= ?).*%\1${builtins.toString value}%g' '';
+
+  user-config-set-cmds = with lib.attrsets; mapAttrsToList (
     group-n: group-v: (
       mapAttrsToList (
-        n: v: "| initool set - ${group-n} ${n} \"${builtins.toString v}\" \\\n"
+        n: v: "${mkSedEditValue n v} \\\n"
       ) group-v
     )
-  ) dynamic-configs;
+  ) user-configs;
 
   fix-config-permissions-script = pkgs.writeShellApplication {
     name = "sabnzbd-fix-config-permissions";
@@ -44,9 +59,9 @@ let
     '';
   };
 
-  apply-dynamic-configs-script = pkgs.writeShellApplication {
-    name = "sabnzbd-set-dynamic-values";
-    runtimeInputs = with pkgs; [initool util-linux];
+  apply-user-configs-script = pkgs.writeShellApplication {
+    name = "sabnzbd-set-user-values";
+    runtimeInputs = with pkgs; [gnused util-linux];
     text = with lib; ''
       if [ ! -f ${ini-file-target} ]; then
         echo "FAILURE: Cannot write changes to ${ini-file-target}, file does not exist"
@@ -54,8 +69,8 @@ let
       fi
 
       cp --preserve ${ini-file-target}{,.tmp}
-      initool set ${ini-file-target} "" __comment__ 'edited by nixarr' \
-    '' + (strings.concatStrings (lists.flatten dynamic-config-set-cmds))
+      < ${ini-file-target} \
+    '' + (strings.concatStringsSep "|" (lists.flatten user-config-set-cmds))
     + ''
       > ${ini-file-target}.tmp && mv -f ${ini-file-target}{.tmp,}
     '';
@@ -64,7 +79,7 @@ let
   bashCheckIfEmptyStr = v: "[[ -z \$${v} || \$${v} == '\"\"' ]]";
   gen-uuids-script = pkgs.writeShellApplication {
     name = "sabnzbd-set-random-api-uuids";
-    runtimeInputs = with pkgs; [initool util-linux];
+    runtimeInputs = with pkgs; [initool gnused util-linux];
     text = ''
       if [ ! -f ${ini-file-target} ]; then
         echo "FAILURE: ${ini-file-target} does not exist. Cannot generate crypto strings."
@@ -73,29 +88,24 @@ let
 
       api_key_value=$(initool get ${ini-file-target} misc api_key -v)
       nzb_key_value=$(initool get ${ini-file-target} misc nzb_key -v)
-
-      cp --preserve ${ini-file-target}{,.tmp}
-      if ${bashCheckIfEmptyStr "api_key_value"}; then
+      
+      if ${bashCheckIfEmptyStr "api_key_value"} || ${bashCheckIfEmptyStr "nzb_key_value"}; then
+        cp --preserve ${ini-file-target}{,.tmp}
         api_uuid=$(uuidgen --random | tr -d '-')
-        initool set ${ini-file-target} misc api_key "$api_uuid" \
-          > ${ini-file-target}.tmp
-        echo "Generated api_key for ${ini-file-target}"
-      fi
-      if ${bashCheckIfEmptyStr "nzb_key_value"}; then
         nzb_uuid=$(uuidgen --random | tr -d '-')
-        initool set ${ini-file-target} misc nzb_key "$nzb_uuid" \
-          > ${ini-file-target}.tmp
-        echo "Generated nzb_key for ${ini-file-target}"
+        < ${ini-file-target} \
+          ${mkSedEditValue "api_key" "'\"$api_uuid\"'"} \
+          | ${mkSedEditValue "nzb_key" "'\"$nzb_uuid\"'"} \
+          > ${ini-file-target}.tmp && mv -f ${ini-file-target}{.tmp,}
       fi
-      mv -f ${ini-file-target}{.tmp,}
     '';
   };
 in
 {
-  systemd.tmpfiles.rules = [ "C ${cfg.stateDir}/sabnzbd.ini - - - - ${./base-config.ini}" ];
+  systemd.tmpfiles.rules = [ "C ${cfg.stateDir}/sabnzbd.ini - - - - ${ini-base-config-file}" ];
   systemd.services.sabnzbd.serviceConfig.ExecStartPre = lib.mkBefore [
     ("+" + fix-config-permissions-script + "/bin/sabnzbd-fix-config-permissions")
     (gen-uuids-script + "/bin/sabnzbd-set-random-api-uuids")
-    (apply-dynamic-configs-script + "/bin/sabnzbd-set-dynamic-values")
+    (apply-user-configs-script + "/bin/sabnzbd-set-user-values")
   ];
 }
