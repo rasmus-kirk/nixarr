@@ -59,22 +59,33 @@ let
     '';
   };
 
-  apply-user-configs-script = pkgs.writeShellApplication {
-    name = "sabnzbd-set-user-values";
-    runtimeInputs = with pkgs; [gnused util-linux];
-    text = with lib; ''
-      if [ ! -f ${ini-file-target} ]; then
-        echo "FAILURE: Cannot write changes to ${ini-file-target}, file does not exist"
-        exit 1
-      fi
+  user-configs-to-python = with lib;
+    attrsets.collect (f: !builtins.isAttrs f) (
+      attrsets.mapAttrsRecursive (
+        path: value:
+          "sab_config_map['"
+          + (lib.strings.concatStringsSep "']['" path)
+          + "'] = '"
+          + (builtins.toString value)
+          + "'"
+      )
+      user-configs
+    );
+  apply-user-configs-script = with lib; (pkgs.writers.writePython3Bin
+    "sabnzbd-set-user-values" {libraries = [pkgs.python3Packages.configobj];} ''
+      from pathlib import Path
+      from configobj import ConfigObj
 
-      cp --preserve ${ini-file-target}{,.tmp}
-      < ${ini-file-target} \
-    '' + (strings.concatStringsSep "|" (lists.flatten user-config-set-cmds))
-    + ''
-      > ${ini-file-target}.tmp && mv -f ${ini-file-target}{.tmp,}
-    '';
-  };
+      sab_config_path = Path("${ini-file-target}")
+      if not sab_config_path.is_file() or sab_config_path.suffix != ".ini":
+          raise Exception(f"{sab_config_path} is not a valid config file path.")
+
+      sab_config_map = ConfigObj(str(sab_config_path))
+
+      ${lib.strings.concatStringsSep "\n" user-configs-to-python}
+
+      sab_config_map.write()
+    '');
 
   bashCheckIfEmptyStr = v: "[[ -z \$${v} || \$${v} == '\"\"' ]]";
   gen-uuids-script = pkgs.writeShellApplication {
