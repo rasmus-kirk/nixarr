@@ -1,17 +1,25 @@
-{ config, pkgs, lib, ... }:
-let
+{
+  config,
+  pkgs,
+  lib,
+  ...
+}: let
   cfg = config.nixarr.sabnzbd;
   nixarr = config.nixarr;
   ini-file-target = "${cfg.stateDir}/sabnzbd.ini";
-  concatStringsCommaIfExists = with lib.strings; stringList: (
-    optionalString (builtins.length stringList > 0) (
-      concatStringsSep "," stringList
-    )
-  );
+  concatStringsCommaIfExists = with lib.strings;
+    stringList: (
+      optionalString (builtins.length stringList > 0) (
+        concatStringsSep "," stringList
+      )
+    );
 
   user-configs = {
     misc = {
-      host = if cfg.openFirewall then "0.0.0.0" else "127.0.0.1";
+      host =
+        if cfg.openFirewall
+        then "0.0.0.0"
+        else "127.0.0.1";
       port = cfg.guiPort;
       download_dir = "${nixarr.mediaDir}/usenet/.incomplete";
       complete_dir = "${nixarr.mediaDir}/usenet/manual";
@@ -28,22 +36,25 @@ let
     };
   };
 
-  compiled-configs = {misc = (user-configs.misc // api-key-configs.misc);};
+  compiled-configs = {misc = user-configs.misc // api-key-configs.misc;};
 
   ini-base-config-file = pkgs.writeTextFile {
-    name = "base-config.ini"; 
+    name = "base-config.ini";
     text = lib.generators.toINI {} compiled-configs;
   };
 
   mkSedEditValue = name: value: ''sed -E 's%(\b${name} ?= ?).*%\1${builtins.toString value}%g' '';
 
-  user-config-set-cmds = with lib.attrsets; mapAttrsToList (
-    group-n: group-v: (
-      mapAttrsToList (
-        n: v: "${mkSedEditValue n v} \\\n"
-      ) group-v
+  user-config-set-cmds = with lib.attrsets;
+    mapAttrsToList (
+      group-n: group-v: (
+        mapAttrsToList (
+          n: v: "${mkSedEditValue n v} \\\n"
+        )
+        group-v
+      )
     )
-  ) user-configs;
+    user-configs;
 
   fix-config-permissions-script = pkgs.writeShellApplication {
     name = "sabnzbd-fix-config-permissions";
@@ -99,7 +110,7 @@ let
 
       api_key_value=$(initool get ${ini-file-target} misc api_key -v)
       nzb_key_value=$(initool get ${ini-file-target} misc nzb_key -v)
-      
+
       if ${bashCheckIfEmptyStr "api_key_value"} || ${bashCheckIfEmptyStr "nzb_key_value"}; then
         cp --preserve ${ini-file-target}{,.tmp}
         api_uuid=$(uuidgen --random | tr -d '-')
@@ -111,9 +122,8 @@ let
       fi
     '';
   };
-in
-{
-  systemd.tmpfiles.rules = [ "C ${cfg.stateDir}/sabnzbd.ini - - - - ${ini-base-config-file}" ];
+in {
+  systemd.tmpfiles.rules = ["C ${cfg.stateDir}/sabnzbd.ini - - - - ${ini-base-config-file}"];
   systemd.services.sabnzbd.serviceConfig.ExecStartPre = lib.mkBefore [
     ("+" + fix-config-permissions-script + "/bin/sabnzbd-fix-config-permissions")
     (gen-uuids-script + "/bin/sabnzbd-set-random-api-uuids")

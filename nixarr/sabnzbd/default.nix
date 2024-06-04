@@ -49,7 +49,7 @@ in {
 
     whitelistHostnames = mkOption {
       type = types.listOf types.str;
-      default = [ config.networking.hostName ];
+      default = [config.networking.hostName];
       defaultText = "[ config.networking.hostName ]";
       example = ''[ "mediaserv" "media.example.com" ]'';
       description = ''
@@ -71,7 +71,7 @@ in {
 
     whitelistRanges = mkOption {
       type = types.listOf types.str;
-      default = [ ];
+      default = [];
       defaultText = "[ ]";
       example = ''[ "192.168.1.0/24" "10.0.0.0/23" ]'';
       description = ''
@@ -93,7 +93,7 @@ in {
     };
   };
 
-  imports = [ ./config.nix ];
+  imports = [./config.nix];
 
   config = mkIf cfg.enable {
     systemd.tmpfiles.rules = [
@@ -107,7 +107,7 @@ in {
       configFile = "${cfg.stateDir}/sabnzbd.ini";
     };
 
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [ cfg.guiPort ];
+    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.guiPort];
 
     systemd.services.sabnzbd.serviceConfig = {
       Restart = "on-failure";
