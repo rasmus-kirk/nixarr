@@ -26,6 +26,7 @@
       dirscan_dir = "${nixarr.mediaDir}/usenet/watch";
       host_whitelist = concatStringsCommaIfExists cfg.whitelistHostnames;
       local_ranges = concatStringsCommaIfExists cfg.whitelistRanges;
+      permissions = "775";
     };
   };
 
