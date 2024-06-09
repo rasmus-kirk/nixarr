@@ -275,11 +275,11 @@ in {
       "d '${cfg.mediaDir}/usenet'             0755 usenet media - -"
       "d '${cfg.mediaDir}/usenet/.incomplete' 0755 usenet media - -"
       "d '${cfg.mediaDir}/usenet/.watch'      0755 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/manual'      0755 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/liadarr'     0755 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/radarr'      0755 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/sonarr'      0755 usenet media - -"
-      "d '${cfg.mediaDir}/usenet/readarr'     0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/manual'      0775 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/liadarr'     0775 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/radarr'      0775 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/sonarr'      0775 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/readarr'     0775 usenet media - -"
     ];
 
     environment.systemPackages = with pkgs; [
