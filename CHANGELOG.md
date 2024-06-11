@@ -1,5 +1,11 @@
 # Changelog
 
+## 2024-06-11
+
+Updated:
+- VPNConfinement submodule
+
+
 ## 2024-03-12
 
 Added:
