@@ -234,6 +234,17 @@ in {
       description = "Transmission web-UI port.";
     };
 
+    credentialsFile = mkOption {
+      type = types.path;
+      description = ''
+        Path to a JSON file to be merged with the settings.
+        Useful to merge a file which is better kept out of the Nix store
+        to set secret config parameters like `rpc-password`.
+      '';
+      default = "/dev/null";
+      example = "/var/lib/secrets/transmission/settings.json";
+    };
+
     extraSettings = mkOption {
       type = types.attrs;
       default = {};
@@ -339,6 +350,7 @@ in {
       package = pkgs.transmission_4;
       openRPCPort = cfg.openFirewall;
       openPeerPorts = cfg.openFirewall;
+      credentialsFile = cfg.credentialsFile;
       settings =
         {
           download-dir = downloadDir;
