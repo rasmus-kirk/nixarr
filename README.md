@@ -8,10 +8,10 @@ a home media server as easy, and pain free, as possible.
 If you have problems or feedback, feel free to join [the
 discord](https://discord.gg/n9ga99KwWC).
 
-Note that this is still in a somewhat alpha state, beware!
+Note that this is still in a somewhat beta state, beware!
 
 - Bugs are around
-- Options are still subject to change
+- Options generally won't be changed, but I reserve the right
 - Some options are mostly untested
 
 The general format won't change however. If you do still use it, any feedback
