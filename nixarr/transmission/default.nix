@@ -16,7 +16,7 @@ with lib; let
       runtimeInputs = with pkgs; [curl];
 
       text = ''
-        PROWLARR_API_KEY=$(cat prowlarr-api-key)
+        PROWLARR_API_KEY=$(cat ${cfg.stateDir}/prowlarr-api-key)
         curl -XPOST http://localhost:2468/api/webhook?apikey="$PROWLARR_API_KEY" --data-urlencode "infoHash=$TR_TORRENT_HASH"
       '';
     };
@@ -65,7 +65,16 @@ with lib; let
     };
 in {
   options.nixarr.transmission = {
-    enable = mkEnableOption "the Transmission service.";
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      example = true;
+      description = ''
+        Whether or not to enable the Transmission service.
+
+        **Required options:** [`nixarr.enable`](#nixarr.enable)
+      '';
+    };
 
     stateDir = mkOption {
       type = types.path;
@@ -252,6 +261,13 @@ in {
         message = ''
           The nixarr.transmission.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.enable -> nixarr.enable;
+        message = ''
+          The nixarr.transmission.enable option requires the nixarr.enable
+          option to be set, but it was not.
         '';
       }
       {

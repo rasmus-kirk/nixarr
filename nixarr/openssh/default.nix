@@ -12,7 +12,9 @@ in {
     default = false;
     example = true;
     description = ''
-      **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
+      **Required options:**
+        - [`nixarr.vpn.enable`](#nixarr.vpn.enable)
+        - [`nixarr.enable`](#nixarr.enable)
 
       Run the openssh service through a vpn, exposing it to the internet.
 
@@ -44,6 +46,13 @@ in {
 
   config = mkIf cfg.expose.vpn.enable {
     assertions = [
+      {
+        assertion = cfg.expose.vpn.enable -> nixarr.enable;
+        message = ''
+          The nixarr.openssh.expose.vpn.enable option requires the
+          nixarr.enable option to be set, but it was not.
+        '';
+      }
       {
         assertion = cfg.expose.vpn.enable -> nixarr.vpn.enable;
         message = ''

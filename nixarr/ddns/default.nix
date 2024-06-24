@@ -6,6 +6,7 @@
 }:
 with lib; let
   cfg = config.nixarr.ddns;
+  nixarr = config.nixarr;
   ddns-njalla = pkgs.writeShellApplication {
     name = "ddns-njalla";
 
@@ -44,6 +45,7 @@ in {
           description = ''
             **Required options:**
 
+            - [`nixarr.enable`](#nixarr.enable)
             - [`nixarr.ddns.njalla.keysFile`](#nixarr.ddns.njalla.keysfile)
             - [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
@@ -73,6 +75,7 @@ in {
         description = ''
           **Required options:**
 
+          - [`nixarr.enable`](#nixarr.enable)
           - [`nixarr.ddns.njalla.keysFile`](#nixarr.ddns.njalla.keysfile)
 
           Whether or not to enable DDNS for a [Njalla](https://njal.la/)
@@ -118,16 +121,31 @@ in {
         '';
       }
       {
-        assertion =
-          cfg.njalla.vpn.enable
-          -> (
-            cfg.njalla.vpn.keysFile
-            != null
-            && config.nixarr.vpn.enable
-          );
+        assertion = cfg.njalla.enable -> nixarr.enable;
         message = ''
-          The nixarr.ddns.njalla.enable option requires the
-          nixarr.vpn.enable option to be set, but it was not.
+          The nixarr.ddns.njalla.enable option requires the nixarr.enable
+          option to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.njalla.vpn.enable -> nixarr.enable;
+        message = ''
+          The nixarr.ddns.njalla.vpn.enable option requires the nixarr.enable
+          option to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.njalla.vpn.enable -> cfg.njalla.vpn.keysFile != null;
+        message = ''
+          The nixarr.ddns.njalla.enable option requires the nixarr.vpn.keysFile
+          option to be set (not null), but it was not.
+        '';
+      }
+      {
+        assertion = cfg.njalla.vpn.enable -> config.nixarr.vpn.enable;
+        message = ''
+          The nixarr.ddns.njalla.enable option requires the nixarr.vpn.enable
+          option to be set, but it was not.
         '';
       }
     ];
