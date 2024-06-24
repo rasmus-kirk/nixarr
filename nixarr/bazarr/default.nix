@@ -12,7 +12,16 @@ in {
   ];
 
   options.nixarr.bazarr = {
-    enable = mkEnableOption "the bazarr service.";
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      example = true;
+      description = ''
+        Whether or not to enable the Bazarr service.
+
+        **Required options:** [`nixarr.enable`](#nixarr.enable)
+      '';
+    };
 
     stateDir = mkOption {
       type = types.path;
@@ -60,6 +69,13 @@ in {
         message = ''
           The nixarr.bazarr.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.enable -> nixarr.enable;
+        message = ''
+          The nixarr.bazarr.enable option requires the nixarr.enable option
+          to be set, but it was not.
         '';
       }
     ];

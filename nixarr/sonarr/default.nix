@@ -13,7 +13,12 @@ in {
     enable = mkOption {
       type = types.bool;
       default = false;
-      description = "Enable the Sonarr service.";
+      example = true;
+      description = ''
+        Whether or not to enable the Sonarr service.
+
+        **Required options:** [`nixarr.enable`](#nixarr.enable)
+      '';
     };
 
     stateDir = mkOption {
@@ -57,6 +62,13 @@ in {
 
   config = mkIf cfg.enable {
     assertions = [
+      {
+        assertion = cfg.enable -> nixarr.enable;
+        message = ''
+          The nixarr.sonarr.enable option requires the
+          nixarr.enable option to be set, but it was not.
+        '';
+      }
       {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''

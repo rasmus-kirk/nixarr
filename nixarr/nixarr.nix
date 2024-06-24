@@ -267,7 +267,6 @@ in {
       fix-permissions
     ];
 
-    # TODO: wtf to do about openports
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;
       openVPNPorts = optional cfg.vpn.vpnTestService.enable {
@@ -301,6 +300,9 @@ in {
             ''
               cd "$(mktemp -d)"
 
+              # DNS information
+              dig google.com
+
               # Print resolv.conf
               echo "/etc/resolv.conf contains:"
               cat /etc/resolv.conf
@@ -329,10 +331,6 @@ in {
             );
         };
       in "${vpn-test}/bin/vpn-test";
-
-      bindsTo = ["netns@wg.service"];
-      requires = ["network-online.target"];
-      after = ["wg.service"];
     };
   };
 }
