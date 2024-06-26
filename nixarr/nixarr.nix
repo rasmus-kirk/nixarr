@@ -300,6 +300,7 @@ in {
             ''
               cd "$(mktemp -d)"
 
+              # DNS information
               dig google.com
 
               # Print resolv.conf
