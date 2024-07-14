@@ -1,7 +1,6 @@
 {
   config,
   lib,
-  pkgs,
   ...
 }:
 with lib; let
@@ -111,7 +110,6 @@ in {
 
     systemd.services.sabnzbd.serviceConfig = {
       Restart = "on-failure";
-      StartLimitInterval = 15;
       StartLimitBurst = 5;
     };
 
