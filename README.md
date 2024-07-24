@@ -12,7 +12,7 @@ Note that this is still in a somewhat beta state, beware!
 
 - Bugs are around
 - Options generally won't be changed, but I reserve the right
-- Some options are mostly untested
+- Few options are mostly untested
 
 The general format won't change however. If you do still use it, any feedback
 would be greatly appreciated.
