@@ -10,12 +10,11 @@ discord](https://discord.gg/n9ga99KwWC).
 
 Note that this is still in a somewhat beta state, beware!
 
-- Bugs are around
-- Options generally won't be changed, but I reserve the right
+- A few known bugs are present
+- Options probably won't be changed, but I reserve the right
 - Few options are mostly untested
 
-The general format won't change however. If you do still use it, any feedback
-would be greatly appreciated.
+If you do still use it, any feedback would be greatly appreciated.
 
 ## Features
 
