@@ -14,7 +14,7 @@ in {
     openTcpPorts = mkOption {
       type = with types; listOf port;
       default = [];
-      description = lib.mdDoc ''
+      description = ''
         What TCP ports to open using UPNP.
       '';
       example = [46382 38473];
@@ -23,7 +23,7 @@ in {
     openUdpPorts = mkOption {
       type = with types; listOf port;
       default = [];
-      description = lib.mdDoc ''
+      description = ''
         What UDP ports to open using UPNP.
       '';
       example = [46382 38473];

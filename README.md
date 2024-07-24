@@ -51,16 +51,16 @@ because it can cause rate limiting issues.
 ## Options
 
 The documentation for the options can be found
-[here](https://nixarr.rasmuskirk.com/options.html)
+[here](https://nixarr.com/options.html)
 
 ## The Wiki
 
 If you want to know how to setup DDNS with Njalla, how to manage secrets in
-nix or examples, check out the [wiki](https://nixarr.rasmuskirk.com/wiki/)
+nix or examples, check out the [wiki](https://nixarr.com/wiki/)
 
 ## Examples
 
-See the [wiki](https://nixarr.rasmuskirk.com/wiki).
+See the [wiki](https://nixarr.com/wiki).
 
 ## Importing this module
 
