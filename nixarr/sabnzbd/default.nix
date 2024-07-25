@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 with lib; let
@@ -152,6 +153,7 @@ in {
     apply-user-configs-script = pkgs.writers.writePython3Bin "sabnzbd-set-user-values" {
       libraries = [pkgs.python3Packages.configobj];
     } ''
+        # flake8: noqa
         from pathlib import Path
         from configobj import ConfigObj
 
