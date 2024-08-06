@@ -26,7 +26,7 @@ in
       tmpdir=$(mktemp -d)
 
       mkdir -p $out
-      cp -r docs $out
+      cp -r docs docs/wiki $out
 
       # Generate md docs
       cat ${optionsDocNixos.optionsCommonMark} > "$tmpdir"/nixos-options.md

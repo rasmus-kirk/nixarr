@@ -4,13 +4,13 @@ title: DDNS Using Njalla
 
 Go to your domain on njalla:
 
-![Njalla Domain](/docs/wiki/ddns/njalla/domain.png)
+![Njalla Domain](domain.png)
 
 Then press "Add record", select "Dynamic" and write your subdomain in the
 input box. It should now be added to your records. Click on the record,
 you should now see something like the following:
 
-![Njalla Record](/docs/wiki/ddns/njalla/record.png)
+![Njalla Record](record.png)
 
 Given this, your JSON file should contain the following:
 
