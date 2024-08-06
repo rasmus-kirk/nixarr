@@ -168,9 +168,27 @@ in {
         sab_config_map.write()
     '';
   in mkIf cfg.enable {
+    users = {
+      groups.usenet = {};
+      users.usenet = {
+        isSystemUser = true;
+        group = "usenet";
+      };
+    };
+
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0700 usenet root - -"
       "C ${cfg.stateDir}/sabnzbd.ini - - - - ${ini-base-config-file}"
+
+      # Media dirs
+      "d '${cfg.mediaDir}/usenet'             0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/.incomplete' 0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/.watch'      0755 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/manual'      0775 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/liadarr'     0775 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/radarr'      0775 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/sonarr'      0775 usenet media - -"
+      "d '${cfg.mediaDir}/usenet/readarr'     0775 usenet media - -"
     ];
 
     services.sabnzbd = {

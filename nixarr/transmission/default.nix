@@ -290,14 +290,33 @@ in {
       }
     ];
 
+    users = {
+      groups = {
+        torrenter = {};
+        cross-seed = {};
+      };
+      users.torrenter = {
+        isSystemUser = true;
+        group = "torrenter";
+      };
+    };
+
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0750 torrenter cross-seed - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
       "d '${cfg.stateDir}/.config' 0750 torrenter cross-seed - -"
       "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter cross-seed - -"
-     ];
 
-    users.groups.cross-seed = {};
+      # Media Dirs
+      "d '${cfg.mediaDir}/torrents'             0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/.incomplete' 0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/.watch'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/manual'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/lidarr'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/radarr'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
+      "d '${cfg.mediaDir}/torrents/readarr'     0755 torrenter media - -"
+     ];
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
