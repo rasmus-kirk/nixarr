@@ -212,11 +212,11 @@ in
           "d '${cfg.stateDir}' 0700 streamer root - -"
 
           # Media Dirs
-          "d '${cfg.mediaDir}/library'              0775 streamer  media - -"
-          "d '${cfg.mediaDir}/library/shows'        0775 streamer  media - -"
-          "d '${cfg.mediaDir}/library/movies'       0775 streamer  media - -"
-          "d '${cfg.mediaDir}/library/music'        0775 streamer  media - -"
-          "d '${cfg.mediaDir}/library/books'        0775 streamer  media - -"
+          "d '${nixarr.mediaDir}/library'              0775 streamer  media - -"
+          "d '${nixarr.mediaDir}/library/shows'        0775 streamer  media - -"
+          "d '${nixarr.mediaDir}/library/movies'       0775 streamer  media - -"
+          "d '${nixarr.mediaDir}/library/music'        0775 streamer  media - -"
+          "d '${nixarr.mediaDir}/library/books'        0775 streamer  media - -"
         ];
 
         # Always prioritise Jellyfin IO

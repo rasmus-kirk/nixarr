@@ -308,14 +308,14 @@ in {
       "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter cross-seed - -"
 
       # Media Dirs
-      "d '${cfg.mediaDir}/torrents'             0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/.incomplete' 0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/.watch'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/manual'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/lidarr'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/radarr'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
-      "d '${cfg.mediaDir}/torrents/readarr'     0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents'             0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/.incomplete' 0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/.watch'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/manual'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/lidarr'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/radarr'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents/readarr'     0755 torrenter media - -"
      ];
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
