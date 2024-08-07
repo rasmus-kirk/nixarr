@@ -247,7 +247,7 @@ in {
 
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;
-      openVPNPorts = optional cfg.vpn.vpnTestService.port != null {
+      openVPNPorts = optional (cfg.vpn.vpnTestService.port != null) {
         port = cfg.vpn.vpnTestService.port;
         protocol = "tcp";
       };

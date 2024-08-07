@@ -7,8 +7,8 @@ In order to open a port through a VPN you need to open a port with your VPN-prov
 **Note:** Not all VPN-providers support this feature! Notably, Mullvad does not anymore!
 
 **Note:** The port present in the
-  [nixarr.vpn.wgConf](https://nixarr.com/options.html#nixarr.vpn.wgconf),
-  should not be used for any options!
+          [nixarr.vpn.wgConf](https://nixarr.com/options.html#nixarr.vpn.wgconf),
+          should not be used for any options!
 
 ## AirVPN
 
@@ -29,17 +29,44 @@ Then you can set that port for a service, for example
 
 ## Debugging Ports
 
+**Note:** See [this GH issue](https://github.com/rasmus-kirk/nixarr/issues/27)
+          first, since it's a common problem
+
 You can debug an open port using the
-[nixarr.vpn.vpnTestService](https://nixarr.com/options.html#nixarr.vpn.vpntestservice.enable).
+[nixarr.vpn.vpnTestService](https://nixarr.com/options.html#nixarr.vpn.vpntestservice.enable):
+
+```nix {.numberLines}
+  nixarr.vpn.vpnTestService = {
+    enable = true;
+    port = 12345;
+  };
+```
+
+The service should be started automatically, to rerun it:
+
+```sh
+  systemctl restart vpnTestService
+```
+
 If the DNS and IP checks out, it will
 open a `netcat` instance on the port specified in
 [nixarr.vpn.vpnTestService.port](https://nixarr.com/options.html#nixarr.vpn.vpntestservice.port).
-You can then run:
+You can then run the following from any computer:
 
 ```sh
   nc <public VPN ip> <specified port>
 ```
 
-Where the "_public VPN ip_" is the one shown in the `vpnTestService` logs as
-your ip. Upon succesful connection type messages that _should_ show up in the
-`vpnTestService` logs.
+Where the "`public VPN ip`" is the public IP of your VPN address, i.e. the
+one shown in the `vpnTestService` logs as your ip:
+
+```
+
+```
+
+Upon succesful connection type messages that _should_ show up in the
+`vpnTestService` logs. Reminder, to check the logs:
+
+```sh
+  journalctl -xeu vpnTestService
+```
