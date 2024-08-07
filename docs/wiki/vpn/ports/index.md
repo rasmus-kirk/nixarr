@@ -4,11 +4,11 @@ title: Opening Ports
 
 In order to open a port through a VPN you need to open a port with your VPN-provider.
 
-**Note:** Not all VPN-providers support this feature! Notably, Mullvad does not anymore!
+> **Note:** Not all VPN-providers support this feature! Notably, Mullvad does not anymore!
 
-**Note:** The port present in the
-          [nixarr.vpn.wgConf](https://nixarr.com/options.html#nixarr.vpn.wgconf),
-          should not be used for any options!
+> **Note:** The port present in the
+>           [nixarr.vpn.wgConf](https://nixarr.com/options.html#nixarr.vpn.wgconf),
+>           should not be used for any options!
 
 ## AirVPN
 
@@ -29,8 +29,8 @@ Then you can set that port for a service, for example
 
 ## Debugging Ports
 
-**Note:** See [this GH issue](https://github.com/rasmus-kirk/nixarr/issues/27)
-          first, since it's a common problem
+> **Note:** See [this GH issue](https://github.com/rasmus-kirk/nixarr/issues/27)
+>           first, since it's a common problem
 
 You can debug an open port using the
 [nixarr.vpn.vpnTestService](https://nixarr.com/options.html#nixarr.vpn.vpntestservice.enable):
@@ -45,7 +45,7 @@ You can debug an open port using the
 The service should be started automatically, to rerun it:
 
 ```sh
-  systemctl restart vpnTestService
+  systemctl restart vpn-test-service
 ```
 
 If the DNS and IP checks out, it will
@@ -58,15 +58,45 @@ You can then run the following from any computer:
 ```
 
 Where the "`public VPN ip`" is the public IP of your VPN address, i.e. the
-one shown in the `vpnTestService` logs as your ip:
+one shown in the `vpn-test-service` logs as your ip:
 
+```default
+  ; <<>> DiG 9.18.27 <<>> google.com
+  
+  ...
+  
+  Getting IP:
+  {
+    "ip": "12.34.56.78",
+    "hostname": "---.--.---.--.-------.----",
+    "city": "---------",
+    "region": "---------",
+    "country": "--",
+    "loc": "00.0000,00.0000",
+    "org": "----------------------",
+    "postal": "------",
+    "timezone": "----------------",
+    "readme": "-----------------------------"
+  }
+  DNS leak test:
+  Your IP:
+  12.34.56.78 [------, ----------------------]
+  You use 3 DNS servers:
+  ---.---.---.-- [------, -----------------------]
+  ---.---.---.- [------, -----------------------]
+  ---.---.---.- [------, -----------------------]
+  Conclusion:
+  DNS may be leaking.
 ```
 
-```
+> **Note:** It says that my DNS may be leaking, but all my DNS-servers are
+> from country B, while I'm located in country A. Take the conclusion with a
+> grain of salt
 
-Upon succesful connection type messages that _should_ show up in the
-`vpnTestService` logs. Reminder, to check the logs:
+Here, your "`public VPN ip`" would be "`12.34.56.78`". Upon succesful
+connection type messages that _should_ show up in the `vpn-test-service`
+logs. Reminder, to check the logs:
 
 ```sh
-  journalctl -xeu vpnTestService
+  journalctl -xeu vpn-test-service
 ```
