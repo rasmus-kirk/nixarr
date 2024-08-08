@@ -28,14 +28,14 @@ in
         description = ''
           The location of the state directory for the Jellyfin service.
 
-          **Warning:** Setting this to any path, where the subpath is not
-          owned by root, will fail! For example:
-
-          ```nix
-            stateDir = /home/user/nixarr/.state/jellyfin
-          ```
-
-          Is not supported, because `/home/user` is owned by `user`.
+          > **Warning:** Setting this to any path, where the subpath is not
+          > owned by root, will fail! For example:
+          > 
+          > ```nix
+          >   stateDir = /home/user/nixarr/.state/jellyfin
+          > ```
+          > 
+          > Is not supported, because `/home/user` is owned by `user`.
         '';
       };
 
@@ -76,8 +76,8 @@ in
               Expose the Jellyfin web service to the internet, allowing anyone to
               access it.
 
-              **Warning:** Do _not_ enable this without setting up Jellyfin
-              authentication through localhost first!
+              > **Warning:** Do _not_ enable this without setting up Jellyfin
+              > authentication through localhost first!
             '';
           };
 
@@ -117,8 +117,8 @@ in
               Expose the Jellyfin web service to the internet with https support,
               allowing anyone to access it.
 
-              **Warning:** Do _not_ enable this without setting up Jellyfin
-              authentication through localhost first!
+              > **Warning:** Do _not_ enable this without setting up Jellyfin
+              > authentication through localhost first!
             '';
           };
 

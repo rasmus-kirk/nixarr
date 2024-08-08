@@ -108,8 +108,8 @@ forwarding. I suggest [AirVpn](https://airvpn.org/), since they support
 static port forwarding, support wg-quick configurations and accept Monero,
 but you can use whatever you want.
 
-**Notice:** There is [an open](https://github.com/rasmus-kirk/nixarr/issues/27)
-issue regarding the DNS servers of AirVPN.
+> **Notice:** There is [an open](https://github.com/rasmus-kirk/nixarr/issues/27)
+> issue regarding the DNS servers of AirVPN.
 
 ## Domain Registrars
 

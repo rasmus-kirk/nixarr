@@ -29,14 +29,14 @@ in {
       description = ''
         The location of the state directory for the Sonarr service.
 
-        **Warning:** Setting this to any path, where the subpath is not
-        owned by root, will fail! For example:
-
-        ```nix
-          stateDir = /home/user/nixarr/.state/sonarr
-        ```
-
-        Is not supported, because `/home/user` is owned by `user`.
+        > **Warning:** Setting this to any path, where the subpath is not
+        > owned by root, will fail! For example:
+        > 
+        > ```nix
+        >   stateDir = /home/user/nixarr/.state/sonarr
+        > ```
+        > 
+        > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
 

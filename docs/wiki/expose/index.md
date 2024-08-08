@@ -37,7 +37,7 @@ up, of your server. This lets you access the services on `localhost:6001`
 through `localhost:6007`. [Example 2](/wiki/examples/example-2) has an
 example configuration for this.
 
-**Warning:** Disable password authentication if you use SSH, it's insecure!
+> **Warning:** Disable password authentication if you use SSH, it's insecure!
 
 ## Without Authentication
 

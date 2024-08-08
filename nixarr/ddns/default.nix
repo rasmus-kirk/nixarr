@@ -54,8 +54,8 @@ in {
             the public ip of your VPN. Useful if you're running services
             over VPN and want a domain that points to the corresponding ip.
 
-            **Note:** You can enable both this and the regular njalla DDNS
-            service.
+            > **Note:** You can enable both this and the regular njalla DDNS
+            > service.
           '';
         };
 

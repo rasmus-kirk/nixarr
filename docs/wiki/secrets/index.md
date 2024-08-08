@@ -8,7 +8,7 @@ config in `/nix/store` somewhere (_Not good!_). The way to solve this is to
 keep your secrets in files and pass these to nix. Below, I will present two
 ways of accomplishing this.
 
-**Warning:** Do _not_ let secrets live in your configuration directory either!
+> **Warning:** Do _not_ let secrets live in your configuration directory either!
 
 ## The simple way
 
@@ -37,10 +37,10 @@ And set the accompanying Nixarr option:
   };
 ```
 
-**Note:** This is "impure", meaning that since the file is not part of the nix
-store, a nixos rollback will not restore a previous secret (not a big problem
-if the secrets are not changed often). This also means you have to rebuild Nixos
-using the `--impure` flag set.
+> **Note:** This is "impure", meaning that since the file is not part of the nix
+> store, a nixos rollback will not restore a previous secret (not a big problem
+> if the secrets are not changed often). This also means you have to rebuild Nixos
+> using the `--impure` flag set.
 
 ## Agenix - A Path to Purity
 

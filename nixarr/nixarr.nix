@@ -132,14 +132,14 @@ in {
       description = ''
         The location of the media directory for the services.
 
-        **Warning:** Setting this to any path, where the subpath is not
-        owned by root, will fail! For example:
-
-        ```nix
-          mediaDir = /home/user/nixarr
-        ```
-
-        Is not supported, because `/home/user` is owned by `user`.
+        > **Warning:** Setting this to any path, where the subpath is not
+        > owned by root, will fail! For example:
+        > 
+        > ```nix
+        >   mediaDir = /home/user/nixarr
+        > ```
+        > 
+        > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
 
@@ -150,14 +150,14 @@ in {
       description = ''
         The location of the state directory for the services.
 
-        **Warning:** Setting this to any path, where the subpath is not
-        owned by root, will fail! For example:
-
-        ```nix
-          stateDir = /home/user/nixarr/.state
-        ```
-
-        Is not supported, because `/home/user` is owned by `user`.
+        > **Warning:** Setting this to any path, where the subpath is not
+        > owned by root, will fail! For example:
+        > 
+        > ```nix
+        >   stateDir = /home/user/nixarr/.state
+        > ```
+        > 
+        > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
 

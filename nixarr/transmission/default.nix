@@ -84,14 +84,14 @@ in {
       description = ''
         The location of the state directory for the Transmission service.
 
-        **Warning:** Setting this to any path, where the subpath is not
-        owned by root, will fail! For example:
-
-        ```nix
-          stateDir = /home/user/nixarr/.state/transmission
-        ```
-
-        Is not supported, because `/home/user` is owned by `user`.
+        > **Warning:** Setting this to any path, where the subpath is not
+        > owned by root, will fail! For example:
+        > 
+        > ```nix
+        >   stateDir = /home/user/nixarr/.state/transmission
+        > ```
+        > 
+        > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
 
@@ -163,14 +163,14 @@ in {
           description = ''
             The location of the state directory for the cross-seed service.
 
-            **Warning:** Setting this to any path, where the subpath is not
-            owned by root, will fail! For example:
-
-            ```nix
-              stateDir = /home/user/nixarr/.state/cross-seed
-            ```
-
-            Is not supported, because `/home/user` is owned by `user`.
+            > **Warning:** Setting this to any path, where the subpath is not
+            > owned by root, will fail! For example:
+            > 
+            > ```nix
+            >   stateDir = /home/user/nixarr/.state/cross-seed
+            > ```
+            > 
+            > Is not supported, because `/home/user` is owned by `user`.
           '';
         };
 

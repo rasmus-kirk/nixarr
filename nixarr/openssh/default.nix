@@ -18,29 +18,29 @@ in {
 
       Run the openssh service through a vpn, exposing it to the internet.
 
-      **Warning:** This lets anyone on the internet connect through SSH,
-      make sure the SSH configuration is secure! Disallowing password
-      authentication and only allowing SSH-keys is considered secure.
+      > **Warning:** This lets anyone on the internet connect through SSH,
+      > make sure the SSH configuration is secure! Disallowing password
+      > authentication and only allowing SSH-keys is considered secure.
 
-      **Note:** This option does _not_ enable the SSHD service you still
-      need to setup sshd in your nixos configuration, fx:
-
-      ```nix
-        services.openssh = {
-          enable = true;
-          settings.PasswordAuthentication = false;
-          # Get this port from your VPN provider
-          ports [ 12345 ];
-        };
-
-        users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
-          ./path/to/public/key/machine.pub
-        ];
-      ```
-
-      Then replace `username` with your username and the `keyFiles` path to a
-      ssh public key file from the machine that you want to have access. Don't
-      use password authentication as it is insecure!
+      > **Note:** This option does _not_ enable the SSHD service you still
+      > need to setup sshd in your nixos configuration, fx:
+      >
+      > ```nix
+      >   services.openssh = {
+      >     enable = true;
+      >     settings.PasswordAuthentication = false;
+      >     # Get this port from your VPN provider
+      >     ports [ 12345 ];
+      >   };
+      >
+      >   users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
+      >     ./path/to/public/key/machine.pub
+      >   ];
+      > ```
+      >
+      > Then replace `username` with your username and the `keyFiles` path to a
+      > ssh public key file from the machine that you want to have access. Don't
+      > use password authentication as it is insecure!
     '';
   };
 

@@ -46,8 +46,8 @@ through a VPN, then you could use the following configuration:
   };
 ```
 
-**Note:** that the submodule supports more namespaces than just one, but Nixarr
-uses the name `wg`, so you should use that too.
+> **Note:** that the submodule supports more namespaces than just one, but Nixarr
+> uses the name `wg`, so you should use that too.
 
 Services running over the VPN will have address `192.168.15.1` instead of
 `127.0.0.1`. For more options and information on the VPN-submodule, check out
