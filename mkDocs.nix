@@ -45,6 +45,7 @@ in
           --highlight-style docs/pandoc/gruvbox.theme \
           --lua-filter docs/pandoc/lua/anchor-links.lua \
           --css /docs/pandoc/style.css \
+          --css /docs/pandoc/inline-code-style.css \
           --template docs/pandoc/template.html \
           -V lang=en \
           -V --mathjax \

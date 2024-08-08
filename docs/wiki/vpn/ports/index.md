@@ -60,6 +60,12 @@ You can then run the following from any computer:
 Where the "`public VPN ip`" is the public IP of your VPN address, i.e. the
 one shown in the `vpn-test-service` logs as your ip:
 
+```sh
+  journalctl -xeu vpn-test-service
+```
+
+Which should look something like:
+
 ```default
   ; <<>> DiG 9.18.27 <<>> google.com
   
@@ -93,10 +99,4 @@ one shown in the `vpn-test-service` logs as your ip:
 > from country B, while I'm located in country A. Take the conclusion with a
 > grain of salt
 
-Here, your "`public VPN ip`" would be "`12.34.56.78`". Upon succesful
-connection type messages that _should_ show up in the `vpn-test-service`
-logs. Reminder, to check the logs:
-
-```sh
-  journalctl -xeu vpn-test-service
-```
+Here, your "`public VPN ip`" would be "`12.34.56.78`".
