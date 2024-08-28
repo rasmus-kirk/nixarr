@@ -76,6 +76,8 @@ in {
       '';
     };
 
+    package = mkPackageOption pkgs "transmission_4" { };
+
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/transmission";
@@ -366,7 +368,7 @@ in {
         if cfg.flood.enable
         then pkgs.flood-for-transmission
         else null;
-      package = pkgs.transmission_4;
+      package = cfg.package;
       openRPCPort = cfg.openFirewall;
       openPeerPorts = cfg.openFirewall;
       credentialsFile = cfg.credentialsFile;
