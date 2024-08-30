@@ -94,8 +94,8 @@ in {
     vpnnamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = defaultPort;
-          to = defaultPort;
+          from = 8787;
+          to = 8787;
         }
       ];
     };
