@@ -1,5 +1,5 @@
 {
-  description = "The Nixarr Nixos Module for Hosting the \"*Arrs\"";
+  description = "The Nixarr Media Server Nixos Module";
 
   nixConfig = {
     extra-substituters = ["https://nix-community.cachix.org"];

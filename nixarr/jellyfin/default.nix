@@ -261,21 +261,6 @@ in
               };
             };
           })
-          (mkIf cfg.vpn.enable {
-            virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = mkIf cfg.vpn.enable {
-              listen = [
-                {
-                  addr = "0.0.0.0";
-                  port = defaultPort;
-                }
-              ];
-              locations."/" = {
-                recommendedProxySettings = true;
-                proxyWebsockets = true;
-                proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
-              };
-            };
-          })
           (mkIf cfg.expose.vpn.enable {
             virtualHosts."${builtins.toString cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = {
               enableACME = true;
