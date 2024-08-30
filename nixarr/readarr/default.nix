@@ -99,27 +99,5 @@ in {
         }
       ];
     };
-
-    services.nginx = mkIf cfg.vpn.enable {
-      enable = true;
-
-      recommendedTlsSettings = true;
-      recommendedOptimisation = true;
-      recommendedGzipSettings = true;
-
-      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
-        listen = [
-          {
-            addr = "0.0.0.0";
-            port = defaultPort;
-          }
-        ];
-        locations."/" = {
-          recommendedProxySettings = true;
-          proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
-        };
-      };
-    };
   };
 }
