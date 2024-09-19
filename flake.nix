@@ -31,6 +31,7 @@
   outputs = inputs @ {
     flake-parts,
     vpnconfinement,
+    sub-merge,
     ...
   }:
     flake-parts.lib.mkFlake {

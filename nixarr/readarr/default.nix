@@ -6,6 +6,7 @@
 with lib; let
   cfg = config.nixarr.readarr;
   nixarr = config.nixarr;
+  defaultPort = 8787;
 in {
   options.nixarr.readarr = {
     enable = mkOption {
