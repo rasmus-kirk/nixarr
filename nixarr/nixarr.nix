@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  inputs,
   ...
 }:
 with lib; let
@@ -240,6 +241,7 @@ in {
     ];
 
     environment.systemPackages = with pkgs; [
+      inputs.sub-merge.packages."${system}".default
       jdupes
       list-unlinked
       fix-permissions
@@ -259,7 +261,6 @@ in {
       wireguardConfigFile = cfg.vpn.wgConf;
     };
 
-    # TODO: openports
     systemd.services.vpn-test-service = mkIf cfg.vpn.vpnTestService.enable {
       enable = true;
 
