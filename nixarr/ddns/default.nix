@@ -196,9 +196,9 @@ in {
         ddnsNjallaVpn = {
           description = "Sets the Njalla DDNS records over VPN";
 
-          vpnconfinement = {
+          vpnConfinement = {
             enable = true;
-            vpnnamespace = "wg";
+            vpnNamespace = "wg";
           };
 
           serviceConfig = {

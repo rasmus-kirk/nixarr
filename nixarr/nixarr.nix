@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  inputs,
   ...
 }:
 with lib; let
@@ -241,13 +240,12 @@ in {
     ];
 
     environment.systemPackages = with pkgs; [
-      inputs.sub-merge.packages."${system}".default
       jdupes
       list-unlinked
       fix-permissions
     ];
 
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;
       openVPNPorts = optional (cfg.vpn.vpnTestService.port != null) {
         port = cfg.vpn.vpnTestService.port;
@@ -264,9 +262,9 @@ in {
     systemd.services.vpn-test-service = mkIf cfg.vpn.vpnTestService.enable {
       enable = true;
 
-      vpnconfinement = {
+      vpnConfinement = {
         enable = true;
-        vpnnamespace = "wg";
+        vpnNamespace = "wg";
       };
 
       script = let

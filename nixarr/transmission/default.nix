@@ -431,13 +431,13 @@ in {
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.transmission.vpnconfinement = mkIf cfg.vpn.enable {
+    systemd.services.transmission.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
-      vpnnamespace = "wg";
+      vpnNamespace = "wg";
     };
 
     # Port mappings
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
           from = cfg.uiPort;

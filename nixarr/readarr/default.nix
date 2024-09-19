@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 with lib; let
@@ -19,6 +20,8 @@ in {
         **Required options:** [`nixarr.enable`](#nixarr.enable)
       '';
     };
+
+    package = mkPackageOption pkgs "readarr" { };
 
     stateDir = mkOption {
       type = types.path;
@@ -79,6 +82,7 @@ in {
 
     services.readarr = {
       enable = cfg.enable;
+      package = cfg.package;
       user = "readarr";
       group = "media";
       openFirewall = cfg.openFirewall;
@@ -86,13 +90,13 @@ in {
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.readarr.vpnconfinement = mkIf cfg.vpn.enable {
+    systemd.services.readarr.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
-      vpnnamespace = "wg";
+      vpnNamespace = "wg";
     };
 
     # Port mappings
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
           from = defaultPort;

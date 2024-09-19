@@ -1,10 +1,18 @@
 # Changelog
 
+## 2024-09-19
+
+Added:
+- Options to control the package of each service
+- sub-merge package to systemPkgs
+
+Updated:
+- All submodules (notably VPNConfinement)
+
 ## 2024-06-11
 
 Updated:
 - VPNConfinement submodule
-
 
 ## 2024-03-12
 

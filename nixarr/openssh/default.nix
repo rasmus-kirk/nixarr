@@ -89,13 +89,13 @@ in {
       else [];
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.openssh.vpnconfinement = {
+    systemd.services.openssh.vpnConfinement = {
       enable = true;
-      vpnnamespace = "wg";
+      vpnNamespace = "wg";
     };
 
     # Port mappings
-    vpnnamespaces.wg = {
+    vpnNamespaces.wg = {
       portMappings = [
         {
           From = defaultPort;

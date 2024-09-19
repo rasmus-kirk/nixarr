@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   cfg = config.nixarr.jellyfin;
@@ -19,6 +20,8 @@ in
           **Required options:** [`nixarr.enable`](#nixarr.enable)
         '';
       };
+
+      package = mkPackageOption pkgs "jellyfin" { };
 
       stateDir = mkOption {
         type = types.path;
@@ -224,6 +227,7 @@ in
 
         services.jellyfin = {
           enable = cfg.enable;
+          package = cfg.package;
           user = "streamer";
           group = "media";
           openFirewall = cfg.openFirewall;
@@ -295,14 +299,14 @@ in
         };
 
         # Enable and specify VPN namespace to confine service in.
-        systemd.services.jellyfin.vpnconfinement = mkIf cfg.vpn.enable {
+        systemd.services.jellyfin.vpnConfinement = mkIf cfg.vpn.enable {
           enable = true;
-          vpnnamespace = "wg";
+          vpnNamespace = "wg";
         };
 
         # Port mappings
         # TODO: openports if expose.vpn
-        vpnnamespaces.wg = mkIf cfg.vpn.enable {
+        vpnNamespaces.wg = mkIf cfg.vpn.enable {
           portMappings = [
             {
               from = defaultPort;

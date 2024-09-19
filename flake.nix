@@ -28,12 +28,12 @@
     treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
-  outputs = inputs @ {
+  outputs = {
     flake-parts,
     vpnconfinement,
     sub-merge,
     ...
-  }:
+  } @ inputs:
     flake-parts.lib.mkFlake {
       inherit inputs;
     } {
@@ -48,9 +48,9 @@
 
       flake = {
         nixosModules = rec {
-          nixarr = import ./nixarr vpnconfinement;
+          nixarr = import ./nixarr sub-merge vpnconfinement;
           imports = [ vpnconfinement.nixosModules.default ];
-          specialArgs = { inherit inputs; };
+          #specialArgs = { inherit sub-merge; };
           default = nixarr;
         };
       };

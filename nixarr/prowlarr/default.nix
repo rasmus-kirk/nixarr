@@ -1,7 +1,7 @@
-# TODO: Dir creation and file permissions in nix
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 with lib; let
@@ -24,6 +24,8 @@ in {
         **Required options:** [`nixarr.enable`](#nixarr.enable)
       '';
     };
+
+    package = mkPackageOption pkgs "prowlarr" { };
 
     stateDir = mkOption {
       type = types.path;
@@ -84,18 +86,19 @@ in {
 
     util-nixarr.services.prowlarr = {
       enable = true;
+      package = cfg.package;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.prowlarr.vpnconfinement = mkIf cfg.vpn.enable {
+    systemd.services.prowlarr.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
-      vpnnamespace = "wg";
+      vpnNamespace = "wg";
     };
 
     # Port mappings
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
           from = defaultPort;

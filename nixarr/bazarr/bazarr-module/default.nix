@@ -11,6 +11,8 @@ in {
     util-nixarr.services.bazarr = {
       enable = mkEnableOption "bazarr, a subtitle manager for Sonarr and Radarr";
 
+      package = mkPackageOption pkgs "bazarr" { };
+
       openFirewall = mkOption {
         type = types.bool;
         default = false;

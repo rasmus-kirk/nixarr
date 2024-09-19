@@ -22,20 +22,6 @@ with lib; let
     // Parse the JSON content into a JavaScript object
     let config = JSON.parse(configFileContent);
 
-    // Function to recursively replace null values with undefined
-    /*
-    function replaceNullWithUndefined(obj) {
-      Object.keys(obj).forEach(key => {
-        if (obj[key] === null) {
-          obj[key] = undefined;
-        } else if (typeof obj[key] === 'object') {
-          replaceNullWithUndefined(obj[key]);
-        }
-      });
-    }
-    replaceNullWithUndefined(config);
-    */
-
     // Export the configuration object
     module.exports = config;
   '';
@@ -52,19 +38,19 @@ in {
             delay = 10;
           }
         '';
-        description = "cross-seed config"; # TODO: todo
+        description = "Settings for cross-seed";
       };
 
       dataDir = mkOption {
         type = types.path;
         default = "/var/lib/cross-seed";
-        description = "cross-seed dataDir"; # TODO: todo
+        description = "The cross-seed dataDir";
       };
 
       credentialsFile = mkOption {
         type = types.path;
         default = "/run/secrets/cross-seed/credentialsFile.json";
-        description = "cross-seed dataDir"; # TODO: todo
+        description = "Secret options to be merged into the cross-seed config";
       };
 
       user = mkOption {

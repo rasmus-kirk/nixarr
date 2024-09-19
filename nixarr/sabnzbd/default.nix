@@ -30,6 +30,8 @@ in {
       '';
     };
 
+    package = mkPackageOption pkgs "sabnzbd" { };
+
     guiPort = mkOption {
       type = types.port;
       default = 8080;
@@ -195,6 +197,7 @@ in {
 
     services.sabnzbd = {
       enable = true;
+      package = cfg.package;
       user = "usenet";
       group = "media";
       configFile = "${cfg.stateDir}/sabnzbd.ini";
@@ -212,13 +215,13 @@ in {
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.sabnzbd.vpnconfinement = mkIf cfg.vpn.enable {
+    systemd.services.sabnzbd.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
-      vpnnamespace = "wg";
+      vpnNamespace = "wg";
     };
 
     # Port mappings
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
           from = cfg.guiPort;

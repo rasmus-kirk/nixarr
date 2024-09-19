@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 with lib; let
@@ -9,16 +10,18 @@ with lib; let
   defaultPort = 8686;
 in {
   options.nixarr.lidarr = {
-      enable = mkOption {
-        type = types.bool;
-        default = false;
-        example = true;
-        description = ''
-          Whether or not to enable the Lidarr service.
+    enable = mkOption {
+      type = types.bool;
+      default = false;
+      example = true;
+      description = ''
+        Whether or not to enable the Lidarr service.
 
-          **Required options:** [`nixarr.enable`](#nixarr.enable)
-        '';
-      };
+        **Required options:** [`nixarr.enable`](#nixarr.enable)
+      '';
+    };
+
+    package = mkPackageOption pkgs "lidarr" { };
 
     stateDir = mkOption {
       type = types.path;
@@ -79,6 +82,7 @@ in {
 
     services.lidarr = {
       enable = cfg.enable;
+      package = cfg.package;
       user = "lidarr";
       group = "media";
       openFirewall = cfg.openFirewall;
@@ -86,14 +90,14 @@ in {
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.lidarr.vpnconfinement = mkIf cfg.vpn.enable {
+    systemd.services.lidarr.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
-      vpnnamespace = "wg";
+      vpnNamespace = "wg";
     };
 
     # Port mappings
     # TODO: openports
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
           from = defaultPort;

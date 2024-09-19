@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 with lib; let
@@ -22,6 +23,8 @@ in {
         **Required options:** [`nixarr.enable`](#nixarr.enable)
       '';
     };
+
+    package = mkPackageOption pkgs "bazarr" { };
 
     stateDir = mkOption {
       type = types.path;
@@ -82,6 +85,7 @@ in {
 
     util-nixarr.services.bazarr = {
       enable = cfg.enable;
+      package = cfg.package;
       user = "bazarr";
       group = "media";
       openFirewall = cfg.openFirewall;
@@ -89,14 +93,14 @@ in {
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.bazarr.vpnconfinement = mkIf cfg.vpn.enable {
+    systemd.services.bazarr.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
-      vpnnamespace = "wg";
+      vpnNamespace = "wg";
     };
 
     # Port mappings
     # TODO: openports
-    vpnnamespaces.wg = mkIf cfg.vpn.enable {
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
           from = config.bazarr.listenPort;
