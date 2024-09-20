@@ -12,8 +12,8 @@
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
     vpnconfinement.inputs.nixpkgs.follows = "nixpkgs";
 
-    sub-merge.url = "github:rasmus-kirk/sub-merge";
-    sub-merge.inputs.nixpkgs.follows = "nixpkgs";
+    submerger.url = "github:rasmus-kirk/submerger";
+    submerger.inputs.nixpkgs.follows = "nixpkgs";
 
     # Flake stuff
     flake-parts.url = "github:hercules-ci/flake-parts";
@@ -31,7 +31,7 @@
   outputs = {
     flake-parts,
     vpnconfinement,
-    sub-merge,
+    submerger,
     ...
   } @ inputs:
     flake-parts.lib.mkFlake {
@@ -48,9 +48,8 @@
 
       flake = {
         nixosModules = rec {
-          nixarr = import ./nixarr sub-merge vpnconfinement;
+          nixarr = import ./nixarr submerger vpnconfinement;
           imports = [ vpnconfinement.nixosModules.default ];
-          #specialArgs = { inherit sub-merge; };
           default = nixarr;
         };
       };

@@ -98,7 +98,7 @@
         "flake-parts": "flake-parts",
         "flake-root": "flake-root",
         "nixpkgs": "nixpkgs",
-        "sub-merge": "sub-merge",
+        "submerger": "submerger",
         "treefmt-nix": "treefmt-nix",
         "vpnconfinement": "vpnconfinement"
       }
@@ -106,7 +106,7 @@
     "rust-overlay": {
       "inputs": {
         "nixpkgs": [
-          "sub-merge",
+          "submerger",
           "nixpkgs"
         ]
       },
@@ -124,7 +124,7 @@
         "type": "github"
       }
     },
-    "sub-merge": {
+    "submerger": {
       "inputs": {
         "nixpkgs": [
           "nixpkgs"
@@ -132,16 +132,16 @@
         "rust-overlay": "rust-overlay"
       },
       "locked": {
-        "lastModified": 1726777757,
-        "narHash": "sha256-erzx+U/itU8MmIj1lhYoKHElCWaHJetsUihTlfW2OrQ=",
+        "lastModified": 1726842908,
+        "narHash": "sha256-sn3oWKcdXmy42wsBg1yCFBHHRCKVkQ+D8YnlLY/RX3A=",
         "owner": "rasmus-kirk",
-        "repo": "sub-merge",
-        "rev": "01e8d59a07a6841a2ac17f5cf73f077e47bf2ec4",
+        "repo": "submerger",
+        "rev": "6ffa3b28017d9d67c48a2f9de98788da05aa5ba2",
         "type": "github"
       },
       "original": {
         "owner": "rasmus-kirk",
-        "repo": "sub-merge",
+        "repo": "submerger",
         "type": "github"
       }
     },
