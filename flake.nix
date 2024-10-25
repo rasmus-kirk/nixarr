@@ -14,78 +14,51 @@
 
     submerger.url = "github:rasmus-kirk/submerger";
     submerger.inputs.nixpkgs.follows = "nixpkgs";
-
-    # Flake stuff
-    flake-parts.url = "github:hercules-ci/flake-parts";
-    flake-parts.inputs.nixpkgs-lib.follows = "nixpkgs";
-
-    flake-root.url = "github:srid/flake-root";
-
-    devshell.url = "github:numtide/devshell";
-    devshell.inputs.nixpkgs.follows = "nixpkgs";
-
-    treefmt-nix.url = "github:numtide/treefmt-nix";
-    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
-    flake-parts,
+    nixpkgs,
     vpnconfinement,
     submerger,
     ...
   } @ inputs:
-    flake-parts.lib.mkFlake {
-      inherit inputs;
-    } {
-      imports = with inputs; [
-        flake-root.flakeModule
-        treefmt-nix.flakeModule
-        devshell.flakeModule
-      ];
-      systems = [
-        "x86_64-linux"
+    let
+      # Systems supported
+      supportedSystems = [
+        "x86_64-linux" # 64-bit Intel/AMD Linux
+        "aarch64-linux" # 64-bit ARM Linux
+        "x86_64-darwin" # 64-bit Intel macOS
+        "aarch64-darwin" # 64-bit ARM macOS
       ];
 
-      flake = {
-        nixosModules = rec {
-          nixarr = import ./nixarr submerger vpnconfinement;
-          imports = [ vpnconfinement.nixosModules.default ];
-          default = nixarr;
-        };
+      # Helper to provide system-specific attributes
+      forAllSystems = f: nixpkgs.lib.genAttrs supportedSystems (system: f {
+        pkgs = import nixpkgs { inherit system; };
+      });
+    in {
+      nixosModules = rec {
+        nixarr = import ./nixarr submerger vpnconfinement;
+        imports = [ vpnconfinement.nixosModules.default ];
+        default = nixarr;
       };
 
-      perSystem = {
-        config,
-        pkgs,
-        ...
-      }: {
-        treefmt.config = {
-          inherit (config.flake-root) projectRootFile;
-          package = pkgs.treefmt;
-
-          programs = {
-            alejandra.enable = true;
-            deadnix.enable = true;
-          };
+      devShells = forAllSystems ({ pkgs } : {
+        default = pkgs.mkShell {
+          packages = with pkgs; [
+            alejandra
+          ];
         };
+      });
 
-        packages = rec {
+      packages = forAllSystems ({ pkgs } : {
+        default = pkgs.mkShell rec {
           docs = pkgs.callPackage ./mkDocs.nix {inherit inputs;};
           default = docs;
         };
+      });
 
-        devshells.default = {
-          name = "Rasmus Kirk";
-
-          commands = [
-            {
-              category = "Tools";
-              name = "fmt";
-              help = "Format the source tree";
-              command = "nix fmt";
-            }
-          ];
-        };
-      };
+      formatters = forAllSystems ({ pkgs } : {
+        default = pkgs.alejandra;
+      });
     };
 }
