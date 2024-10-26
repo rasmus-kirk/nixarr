@@ -7,14 +7,14 @@
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
     vpnconfinement.inputs.nixpkgs.follows = "nixpkgs";
 
-    submerger.url = "github:rasmus-kirk/submerger";
-    submerger.inputs.nixpkgs.follows = "nixpkgs";
+    #submerger.url = "github:rasmus-kirk/submerger";
+    #submerger.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
     nixpkgs,
     vpnconfinement,
-    submerger,
+    #submerger,
     ...
   } @ inputs:
     let
@@ -32,7 +32,7 @@
       });
     in {
       nixosModules = rec {
-        nixarr = import ./nixarr submerger vpnconfinement;
+        nixarr = import ./nixarr vpnconfinement; #submerger vpnconfinement;
         imports = [ vpnconfinement.nixosModules.default ];
         default = nixarr;
       };
