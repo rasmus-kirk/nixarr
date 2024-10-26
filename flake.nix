@@ -7,14 +7,14 @@
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
     vpnconfinement.inputs.nixpkgs.follows = "nixpkgs";
 
-    #submerger.url = "github:rasmus-kirk/submerger";
-    #submerger.inputs.nixpkgs.follows = "nixpkgs";
+    submerger.url = "github:rasmus-kirk/submerger";
+    submerger.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
     nixpkgs,
     vpnconfinement,
-    #submerger,
+    submerger,
     ...
   } @ inputs:
     let
@@ -31,10 +31,11 @@
         pkgs = import nixpkgs { inherit system; };
       });
     in {
-      nixosModules = rec {
-        nixarr = import ./nixarr vpnconfinement; #submerger vpnconfinement;
-        imports = [ vpnconfinement.nixosModules.default ];
-        default = nixarr;
+      nixosModules = {
+        default = {
+          config._module.args = {inherit submerger;};
+          imports = [ ./nixarr vpnconfinement.nixosModules.default ];
+        };
       };
 
       devShells = forAllSystems ({ pkgs } : {
@@ -46,11 +47,10 @@
         };
       });
 
-      packages = forAllSystems ({ pkgs } : rec {
-        docs = pkgs.callPackage ./mkDocs.nix {inherit inputs;};
-        default = docs;
+      packages = forAllSystems ({ pkgs } : {
+        default = pkgs.callPackage ./mkDocs.nix {inherit inputs;};
       });
 
-      formatter = forAllSystems ({pkgs}: pkgs.alejandra);
+      formatter = forAllSystems ({ pkgs }: pkgs.alejandra);
     };
 }
