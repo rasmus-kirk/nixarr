@@ -1,11 +1,6 @@
 {
   description = "The Nixarr Media Server Nixos Module";
 
-  nixConfig = {
-    extra-substituters = ["https://nix-community.cachix.org"];
-    extra-trusted-public-keys = ["nix-community.cachix.org-1:mB9FSh9qf2dCimDSUo8Zy7bkq5CX+/rkCWyvRCYg3Fs="];
-  };
-
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
@@ -46,19 +41,16 @@
         default = pkgs.mkShell {
           packages = with pkgs; [
             alejandra
+            nixd
           ];
         };
       });
 
-      packages = forAllSystems ({ pkgs } : {
-        default = pkgs.mkShell rec {
-          docs = pkgs.callPackage ./mkDocs.nix {inherit inputs;};
-          default = docs;
-        };
+      packages = forAllSystems ({ pkgs } : rec {
+        docs = pkgs.callPackage ./mkDocs.nix {inherit inputs;};
+        default = docs;
       });
 
-      formatters = forAllSystems ({ pkgs } : {
-        default = pkgs.alejandra;
-      });
+      formatter = forAllSystems ({pkgs}: pkgs.alejandra);
     };
 }
