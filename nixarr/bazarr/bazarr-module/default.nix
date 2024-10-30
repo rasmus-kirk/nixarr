@@ -39,7 +39,7 @@ in {
 
       group = mkOption {
         type = types.str;
-        default = "bazarr";
+        default = "media";
         description = "Group under which bazarr runs.";
       };
     };
@@ -81,7 +81,7 @@ in {
       };
     };
 
-    users.groups = mkIf (cfg.group == "bazarr") {
+    users.groups = mkIf (cfg.group == "media") {
       bazarr = {};
     };
   };
