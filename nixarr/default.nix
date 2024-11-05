@@ -117,8 +117,6 @@ in {
       '';
     };
 
-    submerger.enable = mkEnableOption "submerger, a tool for merging subtitle files. This option just installs the binary";
-
     mediaUsers = mkOption {
       type = with types; listOf str;
       default = [];
@@ -246,7 +244,7 @@ in {
       jdupes
       list-unlinked
       fix-permissions
-    ] ++ (lib.lists.optional cfg.submerger.enable submerger.packages."${pkgs.system}".default);
+    ];
 
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       enable = true;

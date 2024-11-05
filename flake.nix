@@ -6,15 +6,11 @@
 
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
     vpnconfinement.inputs.nixpkgs.follows = "nixpkgs";
-
-    submerger.url = "github:rasmus-kirk/submerger";
-    submerger.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
     nixpkgs,
     vpnconfinement,
-    submerger,
     ...
   } @ inputs:
     let
@@ -33,7 +29,6 @@
     in {
       nixosModules = {
         default = {
-          config._module.args = {inherit submerger;};
           imports = [ ./nixarr vpnconfinement.nixosModules.default ];
         };
       };
