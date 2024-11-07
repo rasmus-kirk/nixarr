@@ -34,7 +34,7 @@ jobs:
       - name: Install Nix
         uses: DeterminateSystems/nix-installer-action@main
 
-      - run: nix build .#docs
+      - run: nix build
 
       - run: mkdir -p out && cp -r ./result/* out
 
