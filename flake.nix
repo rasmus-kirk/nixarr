@@ -5,7 +5,6 @@
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
 
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
-    vpnconfinement.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   outputs = {
