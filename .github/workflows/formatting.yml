@@ -12,8 +12,8 @@ on:
     workflow_dispatch:
 
 jobs:
-  generate-doc-options:
-    runs-on: ubuntu-22.04
+  check-formatting:
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v3
         with:
