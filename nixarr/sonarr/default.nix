@@ -21,7 +21,7 @@ in {
       '';
     };
 
-    package = mkPackageOption pkgs "sonarr" { };
+    package = mkPackageOption pkgs "sonarr" {};
 
     stateDir = mkOption {
       type = types.path;
@@ -33,11 +33,11 @@ in {
 
         > **Warning:** Setting this to any path, where the subpath is not
         > owned by root, will fail! For example:
-        > 
+        >
         > ```nix
         >   stateDir = /home/user/nixarr/.state/sonarr
         > ```
-        > 
+        >
         > Is not supported, because `/home/user` is owned by `user`.
       '';
     };

@@ -21,16 +21,16 @@ in {
 
         > **Warning:** Setting this to any path, where the subpath is not
         > owned by root, will fail! For example:
-        > 
+        >
         > ```nix
         >   stateDir = /home/user/nixarr/.state/sabnzbd
         > ```
-        > 
+        >
         > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
 
-    package = mkPackageOption pkgs "sabnzbd" { };
+    package = mkPackageOption pkgs "sabnzbd" {};
 
     guiPort = mkOption {
       type = types.port;
@@ -56,18 +56,18 @@ in {
       example = literalExpression ''[ "mediaserv" "media.example.com" ]'';
       description = ''
         A list that specifies what URLs that are allowed to represent your
-        SABnzbd instance. 
-        
+        SABnzbd instance.
+
         > **Note:** If you see an error message like this when trying to connect to
         > SABnzbd from another device:
-        > 
+        >
         > ```
         > Refused connection with hostname "your.hostname.com"
         > ```
-        > 
+        >
         > Then you should add your hostname ("`hostname.com`" above) to
         > this list.
-        > 
+        >
         > SABnzbd only allows connections matching these URLs in order to prevent
         > DNS hijacking. See <https://sabnzbd.org/wiki/extra/hostname-check.html>
         > for more info.
@@ -97,7 +97,7 @@ in {
     };
   };
 
-  config = let 
+  config = let
     ini-file-target = "${cfg.stateDir}/sabnzbd.ini";
     concatStringsCommaIfExists = with lib.strings;
       stringList: (
@@ -154,9 +154,10 @@ in {
         user-configs
       );
 
-    apply-user-configs-script = pkgs.writers.writePython3Bin "sabnzbd-set-user-values" {
-      libraries = [pkgs.python3Packages.configobj];
-    } ''
+    apply-user-configs-script =
+      pkgs.writers.writePython3Bin "sabnzbd-set-user-values" {
+        libraries = [pkgs.python3Packages.configobj];
+      } ''
         # flake8: noqa
         from pathlib import Path
         from configobj import ConfigObj
@@ -170,86 +171,87 @@ in {
         ${lib.strings.concatStringsSep "\n" user-configs-to-python-list}
 
         sab_config_map.write()
-    '';
-  in mkIf cfg.enable {
-    users = {
-      groups.usenet = {};
-      users.usenet = {
-        isSystemUser = true;
-        group = "usenet";
+      '';
+  in
+    mkIf cfg.enable {
+      users = {
+        groups.usenet = {};
+        users.usenet = {
+          isSystemUser = true;
+          group = "usenet";
+        };
       };
-    };
 
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 usenet root - -"
-      "C ${cfg.stateDir}/sabnzbd.ini - - - - ${ini-base-config-file}"
+      systemd.tmpfiles.rules = [
+        "d '${cfg.stateDir}' 0700 usenet root - -"
+        "C ${cfg.stateDir}/sabnzbd.ini - - - - ${ini-base-config-file}"
 
-      # Media dirs
-      "d '${nixarr.mediaDir}/usenet'             0755 usenet media - -"
-      "d '${nixarr.mediaDir}/usenet/.incomplete' 0755 usenet media - -"
-      "d '${nixarr.mediaDir}/usenet/.watch'      0755 usenet media - -"
-      "d '${nixarr.mediaDir}/usenet/manual'      0775 usenet media - -"
-      "d '${nixarr.mediaDir}/usenet/liadarr'     0775 usenet media - -"
-      "d '${nixarr.mediaDir}/usenet/radarr'      0775 usenet media - -"
-      "d '${nixarr.mediaDir}/usenet/sonarr'      0775 usenet media - -"
-      "d '${nixarr.mediaDir}/usenet/readarr'     0775 usenet media - -"
-    ];
-
-    services.sabnzbd = {
-      enable = true;
-      package = cfg.package;
-      user = "usenet";
-      group = "media";
-      configFile = "${cfg.stateDir}/sabnzbd.ini";
-    };
-
-    networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.guiPort];
-
-    systemd.services.sabnzbd.serviceConfig = {
-      ExecStartPre = lib.mkBefore [
-        ("+" + fix-config-permissions-script + "/bin/sabnzbd-fix-config-permissions")
-        (apply-user-configs-script + "/bin/sabnzbd-set-user-values")
+        # Media dirs
+        "d '${nixarr.mediaDir}/usenet'             0755 usenet media - -"
+        "d '${nixarr.mediaDir}/usenet/.incomplete' 0755 usenet media - -"
+        "d '${nixarr.mediaDir}/usenet/.watch'      0755 usenet media - -"
+        "d '${nixarr.mediaDir}/usenet/manual'      0775 usenet media - -"
+        "d '${nixarr.mediaDir}/usenet/liadarr'     0775 usenet media - -"
+        "d '${nixarr.mediaDir}/usenet/radarr'      0775 usenet media - -"
+        "d '${nixarr.mediaDir}/usenet/sonarr'      0775 usenet media - -"
+        "d '${nixarr.mediaDir}/usenet/readarr'     0775 usenet media - -"
       ];
-      Restart = "on-failure";
-      StartLimitBurst = 5;
-    };
 
-    # Enable and specify VPN namespace to confine service in.
-    systemd.services.sabnzbd.vpnConfinement = mkIf cfg.vpn.enable {
-      enable = true;
-      vpnNamespace = "wg";
-    };
+      services.sabnzbd = {
+        enable = true;
+        package = cfg.package;
+        user = "usenet";
+        group = "media";
+        configFile = "${cfg.stateDir}/sabnzbd.ini";
+      };
 
-    # Port mappings
-    vpnNamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = [
-        {
-          from = cfg.guiPort;
-          to = cfg.guiPort;
-        }
-      ];
-    };
+      networking.firewall.allowedTCPPorts = mkIf cfg.openFirewall [cfg.guiPort];
 
-    services.nginx = mkIf cfg.vpn.enable {
-      enable = true;
+      systemd.services.sabnzbd.serviceConfig = {
+        ExecStartPre = lib.mkBefore [
+          ("+" + fix-config-permissions-script + "/bin/sabnzbd-fix-config-permissions")
+          (apply-user-configs-script + "/bin/sabnzbd-set-user-values")
+        ];
+        Restart = "on-failure";
+        StartLimitBurst = 5;
+      };
 
-      recommendedTlsSettings = true;
-      recommendedOptimisation = true;
-      recommendedGzipSettings = true;
+      # Enable and specify VPN namespace to confine service in.
+      systemd.services.sabnzbd.vpnConfinement = mkIf cfg.vpn.enable {
+        enable = true;
+        vpnNamespace = "wg";
+      };
 
-      virtualHosts."127.0.0.1:${builtins.toString cfg.guiPort}" = {
-        listen = [
+      # Port mappings
+      vpnNamespaces.wg = mkIf cfg.vpn.enable {
+        portMappings = [
           {
-            addr = "0.0.0.0";
-            port = cfg.guiPort;
+            from = cfg.guiPort;
+            to = cfg.guiPort;
           }
         ];
-        locations."/" = {
-          recommendedProxySettings = true;
-          proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString cfg.guiPort}";
+      };
+
+      services.nginx = mkIf cfg.vpn.enable {
+        enable = true;
+
+        recommendedTlsSettings = true;
+        recommendedOptimisation = true;
+        recommendedGzipSettings = true;
+
+        virtualHosts."127.0.0.1:${builtins.toString cfg.guiPort}" = {
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = cfg.guiPort;
+            }
+          ];
+          locations."/" = {
+            recommendedProxySettings = true;
+            proxyWebsockets = true;
+            proxyPass = "http://192.168.15.1:${builtins.toString cfg.guiPort}";
+          };
         };
       };
     };
-  };
 }

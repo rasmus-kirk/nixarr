@@ -21,7 +21,7 @@ in {
       '';
     };
 
-    package = mkPackageOption pkgs "lidarr" { };
+    package = mkPackageOption pkgs "lidarr" {};
 
     stateDir = mkOption {
       type = types.path;

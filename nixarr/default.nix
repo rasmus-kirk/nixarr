@@ -21,47 +21,58 @@ with lib; let
   fix-permissions = pkgs.writeShellApplication {
     name = "fix-permissions";
     runtimeInputs = with pkgs; [util-linux];
-    text = ''
-      if [ "$EUID" -ne 0 ]; then
-        echo "Please run as root"
-        exit
-      fi
+    text =
+      ''
+        if [ "$EUID" -ne 0 ]; then
+          echo "Please run as root"
+          exit
+        fi
 
-      find "${cfg.mediaDir}" \( -type d -exec chmod 0775 {} + -true \) -o \( -exec chmod 0664 {} + \)
-    '' + strings.optionalString cfg.jellyfin.enable ''
-      chown -R streamer:media "${cfg.mediaDir}/library"
-      chown -R streamer:root "${cfg.jellyfin.stateDir}"
-      find "${cfg.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '' + strings.optionalString cfg.transmission.enable ''
-      chown -R torrenter:media "${cfg.mediaDir}/torrents"
-      chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
-      find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
-    '' + strings.optionalString cfg.sabnzbd.enable ''
-      chown -R usenet:media "${cfg.mediaDir}/usenet"
-      chown -R usenet:root "${cfg.sabnzbd.stateDir}"
-      find "${cfg.sabnzbd.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '' + strings.optionalString cfg.transmission.privateTrackers.cross-seed.enable ''
-      chown -R cross-seed:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
-      find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '' + strings.optionalString cfg.prowlarr.enable ''
-      chown -R prowlarr:root "${cfg.prowlarr.stateDir}"
-      find "${cfg.prowlarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '' + strings.optionalString cfg.sonarr.enable ''
-      chown -R sonarr:root "${cfg.sonarr.stateDir}"
-      find "${cfg.sonarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '' + strings.optionalString cfg.radarr.enable ''
-      chown -R radarr:root "${cfg.radarr.stateDir}"
-      find "${cfg.radarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '' + strings.optionalString cfg.lidarr.enable ''
-      chown -R lidarr:root "${cfg.lidarr.stateDir}"
-      find "${cfg.lidarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '' + strings.optionalString cfg.bazarr.enable ''
-      chown -R bazarr:root "${cfg.bazarr.stateDir}"
-      find "${cfg.bazarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '' + strings.optionalString cfg.readarr.enable ''
-      chown -R readarr:root "${cfg.readarr.stateDir}"
-      find "${cfg.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-    '';
+        find "${cfg.mediaDir}" \( -type d -exec chmod 0775 {} + -true \) -o \( -exec chmod 0664 {} + \)
+      ''
+      + strings.optionalString cfg.jellyfin.enable ''
+        chown -R streamer:media "${cfg.mediaDir}/library"
+        chown -R streamer:root "${cfg.jellyfin.stateDir}"
+        find "${cfg.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.transmission.enable ''
+        chown -R torrenter:media "${cfg.mediaDir}/torrents"
+        chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
+        find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
+      ''
+      + strings.optionalString cfg.sabnzbd.enable ''
+        chown -R usenet:media "${cfg.mediaDir}/usenet"
+        chown -R usenet:root "${cfg.sabnzbd.stateDir}"
+        find "${cfg.sabnzbd.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.transmission.privateTrackers.cross-seed.enable ''
+        chown -R cross-seed:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
+        find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.prowlarr.enable ''
+        chown -R prowlarr:root "${cfg.prowlarr.stateDir}"
+        find "${cfg.prowlarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.sonarr.enable ''
+        chown -R sonarr:root "${cfg.sonarr.stateDir}"
+        find "${cfg.sonarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.radarr.enable ''
+        chown -R radarr:root "${cfg.radarr.stateDir}"
+        find "${cfg.radarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.lidarr.enable ''
+        chown -R lidarr:root "${cfg.lidarr.stateDir}"
+        find "${cfg.lidarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.bazarr.enable ''
+        chown -R bazarr:root "${cfg.bazarr.stateDir}"
+        find "${cfg.bazarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.readarr.enable ''
+        chown -R readarr:root "${cfg.readarr.stateDir}"
+        find "${cfg.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      '';
   };
 in {
   imports = [
@@ -135,11 +146,11 @@ in {
 
         > **Warning:** Setting this to any path, where the subpath is not
         > owned by root, will fail! For example:
-        > 
+        >
         > ```nix
         >   mediaDir = /home/user/nixarr
         > ```
-        > 
+        >
         > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
@@ -153,11 +164,11 @@ in {
 
         > **Warning:** Setting this to any path, where the subpath is not
         > owned by root, will fail! For example:
-        > 
+        >
         > ```nix
         >   stateDir = /home/user/nixarr/.state
         > ```
-        > 
+        >
         > Is not supported, because `/home/user` is owned by `user`.
       '';
     };

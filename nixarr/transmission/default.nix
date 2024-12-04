@@ -76,7 +76,7 @@ in {
       '';
     };
 
-    package = mkPackageOption pkgs "transmission_4" { };
+    package = mkPackageOption pkgs "transmission_4" {};
 
     stateDir = mkOption {
       type = types.path;
@@ -88,11 +88,11 @@ in {
 
         > **Warning:** Setting this to any path, where the subpath is not
         > owned by root, will fail! For example:
-        > 
+        >
         > ```nix
         >   stateDir = /home/user/nixarr/.state/transmission
         > ```
-        > 
+        >
         > Is not supported, because `/home/user` is owned by `user`.
       '';
     };
@@ -108,7 +108,7 @@ in {
     extraAllowedIps = mkOption {
       type = with types; listOf str;
       default = [];
-      example = [ "10.19.5.10" ];
+      example = ["10.19.5.10"];
       description = ''
         Extra IP addresses allowed to access the Transmission RPC. By default
         `192.168.*` and `127.0.0.1` (localhost) are allowed, but if your
@@ -167,11 +167,11 @@ in {
 
             > **Warning:** Setting this to any path, where the subpath is not
             > owned by root, will fail! For example:
-            > 
+            >
             > ```nix
             >   stateDir = /home/user/nixarr/.state/cross-seed
             > ```
-            > 
+            >
             > Is not supported, because `/home/user` is owned by `user`.
           '';
         };
@@ -318,7 +318,7 @@ in {
       "d '${nixarr.mediaDir}/torrents/radarr'      0755 torrenter media - -"
       "d '${nixarr.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
       "d '${nixarr.mediaDir}/torrents/readarr'     0755 torrenter media - -"
-     ];
+    ];
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
@@ -387,8 +387,9 @@ in {
           rpc-port = cfg.uiPort;
           rpc-whitelist-enabled = true;
           rpc-whitelist = strings.concatStringsSep "," ([
-            "127.0.0.1,192.168.*,10.*" # Defaults
-          ] ++ cfg.extraAllowedIps);
+              "127.0.0.1,192.168.*,10.*" # Defaults
+            ]
+            ++ cfg.extraAllowedIps);
           rpc-authentication-required = false;
 
           blocklist-enabled = true;
