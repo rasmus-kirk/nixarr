@@ -49,6 +49,10 @@ with lib; let
         chown -R cross-seed:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
         find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
+      + strings.optionalString cfg.jellyseer.enable ''
+        chown -R jellyseer:root "${cfg.jellyseer.stateDir}"
+        find "${cfg.jellyseer.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
       + strings.optionalString cfg.prowlarr.enable ''
         chown -R prowlarr:root "${cfg.prowlarr.stateDir}"
         find "${cfg.prowlarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
@@ -77,6 +81,7 @@ with lib; let
 in {
   imports = [
     ./jellyfin
+    ./jellyseer
     ./bazarr
     ./ddns
     ./radarr
@@ -115,6 +120,7 @@ in {
         The following services are supported:
 
         - [Jellyfin](#nixarr.jellyfin.enable)
+        - [Jellyseer](#nixarr.Jellyseer.enable)
         - [Bazarr](#nixarr.bazarr.enable)
         - [Lidarr](#nixarr.lidarr.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)

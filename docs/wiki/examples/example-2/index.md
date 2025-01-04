@@ -51,6 +51,7 @@ example does the following:
     prowlarr.enable = true;
     readarr.enable = true;
     lidarr.enable = true;
+    jellyseerr.enable = true;
   };
 
   # The `openssh.vpn.enable` option does not enable openssh, so we do that here:
