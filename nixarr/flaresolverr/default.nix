@@ -24,7 +24,7 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 5055;
+      default = 8191;
       example = 12345;
       description = "Flaresolverr port.";
     };
