@@ -6,7 +6,6 @@
 }:
 with lib; let
   cfg = config.nixarr.jellyseerr;
-  defaultPort = 5055;
   nixarr = config.nixarr;
 in {
   options.nixarr.jellyseerr = {
@@ -23,23 +22,11 @@ in {
 
     package = mkPackageOption pkgs "jellyseerr" {};
 
-    stateDir = mkOption {
-      type = types.path;
-      default = "${nixarr.stateDir}/jellyseerr";
-      defaultText = literalExpression ''"''${nixarr.stateDir}/jellyseerr"'';
-      example = "/nixarr/.state/jellyseerr";
-      description = ''
-        The location of the state directory for the Jellyseerr service.
-
-        > **Warning:** Setting this to any path, where the subpath is not
-        > owned by root, will fail! For example:
-        >
-        > ```nix
-        >   stateDir = /home/user/nixarr/.state/Jellyseerr
-        > ```
-        >
-        > Is not supported, because `/home/user` is owned by `user`.
-      '';
+    port = mkOption {
+      type = types.port;
+      default = 5055;
+      example = 12345;
+      description = "Jellyseerr web-UI port.";
     };
 
     openFirewall = mkOption {
@@ -83,6 +70,8 @@ in {
     services.jellyseerr = {
       enable = cfg.enable;
       package = cfg.package;
+      openFirewall = cfg.openFirewall;
+      port = cfg.port;
     };
 
     # Enable and specify VPN namespace to confine service in.
