@@ -86,6 +86,7 @@ in {
     ./sonarr
     ./openssh
     ./prowlarr
+    ./flaresolverr
     ./transmission
     ./sabnzbd
     ../util
@@ -120,6 +121,7 @@ in {
         - [Bazarr](#nixarr.bazarr.enable)
         - [Lidarr](#nixarr.lidarr.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)
+        - [Flaresolverr](#nixarr.flaresolverr.enable)
         - [Radarr](#nixarr.radarr.enable)
         - [Readarr](#nixarr.readarr.enable)
         - [Sonarr](#nixarr.sonarr.enable)
