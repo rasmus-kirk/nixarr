@@ -49,10 +49,6 @@ with lib; let
         chown -R cross-seed:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
         find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
-      + strings.optionalString cfg.jellyseerr.enable ''
-        chown -R jellyseerr:root "${cfg.jellyseerr.stateDir}"
-        find "${cfg.jellyseerr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
       + strings.optionalString cfg.prowlarr.enable ''
         chown -R prowlarr:root "${cfg.prowlarr.stateDir}"
         find "${cfg.prowlarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
