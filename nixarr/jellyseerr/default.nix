@@ -83,8 +83,6 @@ in {
     services.jellyseerr = {
       enable = cfg.enable;
       package = cfg.package;
-      user = "jellyseerr";
-      group = "media";
     };
 
     # Enable and specify VPN namespace to confine service in.
