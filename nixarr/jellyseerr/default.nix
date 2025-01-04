@@ -7,6 +7,7 @@
 with lib; let
   cfg = config.nixarr.jellyseerr;
   nixarr = config.nixarr;
+  defaultPort = 5055;
 in {
   options.nixarr.jellyseerr = {
     enable = mkOption {
@@ -24,7 +25,7 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 5055;
+      default = defaultPort;
       example = 12345;
       description = "Jellyseerr web-UI port.";
     };
