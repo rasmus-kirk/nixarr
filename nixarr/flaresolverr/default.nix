@@ -7,7 +7,7 @@
 with lib; let
   cfg = config.nixarr.flaresolverr;
   nixarr = config.nixarr;
-  defaultPort = 8191
+  defaultPort = 8191;
 in {
   options.nixarr.flaresolverr = {
     enable = mkOption {
