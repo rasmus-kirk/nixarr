@@ -31,6 +31,11 @@ in {
       description = ''
         The location of the state directory for the Jellyseerr service.
 
+        > **Warning** this option does not work on the latest stable nixpkgs.
+        > If you are using an old version of nixpkgs, make sure to set the
+        > `jellyseerr.package` option to use the latest version from nixkpgs-unstable.
+
+
         > **Warning:** Setting this to any path, where the subpath is not
         > owned by root, will fail! For example:
         >
