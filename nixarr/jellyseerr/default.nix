@@ -23,6 +23,25 @@ in {
 
     package = mkPackageOption pkgs "jellyseerr" {};
 
+    stateDir = mkOption {
+      type = types.path;
+      default = "${nixarr.stateDir}/jellyseerr";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/jellyseerr"'';
+      example = "/nixarr/.state/jellyseerr";
+      description = ''
+        The location of the state directory for the Jellyseerr service.
+
+        > **Warning:** Setting this to any path, where the subpath is not
+        > owned by root, will fail! For example:
+        >
+        > ```nix
+        >   stateDir = /home/user/nixarr/.state/jellyseerr
+        > ```
+        >
+        > Is not supported, because `/home/user` is owned by `user`.
+      '';
+    };
+
     port = mkOption {
       type = types.port;
       default = defaultPort;
@@ -73,6 +92,7 @@ in {
       package = cfg.package;
       openFirewall = cfg.openFirewall;
       port = cfg.port;
+      configDir = cfg.stateDir;
     };
 
     # Enable and specify VPN namespace to confine service in.
