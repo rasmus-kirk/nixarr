@@ -72,8 +72,7 @@ with lib; let
       + strings.optionalString cfg.readarr.enable ''
         chown -R readarr:root "${cfg.readarr.stateDir}"
         find "${cfg.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      '';
-
+      ''
       + strings.optionalString cfg.jellyseerr.enable ''
         chown -R jellyseerr:root "${cfg.jellyseerr.stateDir}"
         find "${cfg.jellyseerr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
