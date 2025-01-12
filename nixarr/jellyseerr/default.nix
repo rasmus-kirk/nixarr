@@ -91,8 +91,8 @@ in {
       }
     ];
 
-    services.jellyseerr = {
-      enable = cfg.enable;
+    util-nixarr.services.jellyseerr = {
+      enable = true;
       package = cfg.package;
       openFirewall = cfg.openFirewall;
       port = cfg.port;
