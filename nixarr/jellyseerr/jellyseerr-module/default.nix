@@ -28,7 +28,13 @@ in {
       configDir = mkOption {
         type = types.str;
         default = "/var/lib/jellyseerr";
-        description = "The directory where Jellyseerr stores its data files.";
+        description = "The directory where Jellyseerr stores its config data.";
+      };
+
+      port = lib.mkOption {
+        type = lib.types.port;
+        default = 5055;
+        description = ''The port which the Jellyseerr web UI should listen to.'';
       };
 
       openFirewall = mkOption {
