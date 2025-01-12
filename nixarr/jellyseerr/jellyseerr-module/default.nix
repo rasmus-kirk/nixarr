@@ -8,7 +8,7 @@ with lib; let
   cfg = config.util-nixarr.services.jellyseerr;
 in {
   options = {
-    util-nixarr.services.prowlarr = {
+    util-nixarr.services.jellyseerr = {
       enable = mkEnableOption "Jellyseerr";
 
       package = mkPackageOption pkgs "jellyseerr" {};
@@ -44,7 +44,7 @@ in {
       "d '${cfg.configDir}' 0700 ${cfg.user} ${cfg.group} - -"
     ];
 
-    systemd.services.prowlarr = {
+    systemd.services.jellyseerr = {
       description = "Jellyseerr, a requests manager for Jellyfin";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
