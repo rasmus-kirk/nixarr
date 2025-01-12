@@ -67,21 +67,6 @@ in {
         Group = cfg.group;
         ExecStart = lib.getExe cfg.package;
         Restart = "on-failure";
-        # ProtectHome = true;
-        # ProtectSystem = "strict";
-        # PrivateTmp = true;
-        # PrivateDevices = true;
-        # ProtectHostname = true;
-        # ProtectClock = true;
-        # ProtectKernelTunables = true;
-        # ProtectKernelModules = true;
-        # ProtectKernelLogs = true;
-        # ProtectControlGroups = true;
-        # NoNewPrivileges = true;
-        # RestrictRealtime = true;
-        # RestrictSUIDSGID = true;
-        # RemoveIPC = true;
-        # PrivateMounts = true;
       };
     };
 

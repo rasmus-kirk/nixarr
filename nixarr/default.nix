@@ -131,6 +131,9 @@ in {
         - [SABnzbd](#nixarr.sabnzbd.enable)
 
         Remember to read the options.
+
+        > **Warning:** The Jellyseerr module currently does not work on nixos 24.11.
+        > You will have to update to the `unstable` branch in order for it to work.
       '';
     };
 
