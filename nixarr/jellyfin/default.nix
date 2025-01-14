@@ -64,46 +64,6 @@ in
       };
 
       expose = {
-        vpn = {
-          enable = mkOption {
-            type = types.bool;
-            default = false;
-            example = true;
-            description = ''
-              **Required options:**
-
-              - [`nixarr.jellyfin.vpn.enable`](#nixarr.jellyfin.vpn.enable)
-              - [`nixarr.jellyfin.expose.vpn.port`](#nixarr.jellyfin.expose.vpn.port)
-              - [`nixarr.jellyfin.expose.vpn.accessibleFrom`](#nixarr.jellyfin.expose.vpn.accessiblefrom)
-
-              Expose the Jellyfin web service to the internet, allowing anyone to
-              access it.
-
-              > **Warning:** Do _not_ enable this without setting up Jellyfin
-              > authentication through localhost first!
-            '';
-          };
-
-          port = mkOption {
-            type = with types; nullOr port;
-            default = null;
-            example = 12345;
-            description = ''
-              The port to access jellyfin on. Get this port from your VPN
-              provider.
-            '';
-          };
-
-          accessibleFrom = mkOption {
-            type = with types; nullOr str;
-            default = null;
-            example = "jellyfin.airvpn.org";
-            description = ''
-              The IP or domain that Jellyfin should be able to be accessed from.
-            '';
-          };
-        };
-
         https = {
           enable = mkOption {
             type = types.bool;
@@ -184,23 +144,6 @@ in
               - nixarr.jellyfin.expose.acmeMail
             '';
           }
-          {
-            assertion =
-              cfg.expose.vpn.enable
-              -> (
-                cfg.vpn.enable
-                && (cfg.expose.vpn.port != null)
-                && (cfg.expose.vpn.accessibleFrom != null)
-              );
-            message = ''
-              The nixarr.jellyfin.expose.vpn.enable option requires the
-              following options to be set, but one of them were not:
-
-              - nixarr.jellyfin.vpn.enable
-              - nixarr.jellyfin.expose.vpn.port
-              - nixarr.jellyfin.expose.vpn.accessibleFrom
-            '';
-          }
         ];
 
         users = {
@@ -276,18 +219,10 @@ in
               locations."/" = {
                 recommendedProxySettings = true;
                 proxyWebsockets = true;
-                proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
-              };
-            };
-          })
-          (mkIf cfg.expose.vpn.enable {
-            virtualHosts."${builtins.toString cfg.expose.vpn.accessibleFrom}:${builtins.toString cfg.expose.vpn.port}" = {
-              enableACME = true;
-              forceSSL = true;
-              locations."/" = {
-                recommendedProxySettings = true;
-                proxyWebsockets = true;
-                proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+                proxyPass = if cfg.expose.vpn.enable then
+                  "http://192.168.15.1:${builtins.toString cfg.expose.vpn.port}"
+                else
+                  "http://192.168.15.1:${builtins.toString defaultPort}";
               };
             };
           })
@@ -313,10 +248,6 @@ in
               to = defaultPort;
             }
           ];
-          openVPNPorts = optional cfg.expose.vpn.enable {
-            port = cfg.expose.vpn.port;
-            protocol = "tcp";
-          };
         };
       };
   }

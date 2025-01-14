@@ -6,12 +6,10 @@ An example where port forwarding is not an option. This is useful if,
 for example, you're living in a dorm that does not allow it. This
 example does the following:
 
-- Runs Jellyfin and exposes it to the internet on a set port
+- Runs Jellyfin
 - Starts openssh and runs it through the VPN so that it can be accessed
   outside your home network
 - Runs all the supported "*Arrs"
-
-> **Warning:** This is largely untested ATM!
 
 ```nix {.numberLines}
   nixarr = {
@@ -22,17 +20,7 @@ example does the following:
       wgConf = "/data/.secret/wg.conf";
     };
 
-    jellyfin = {
-      enable = true;
-      vpn.enable = true;
-
-      # Access the Jellyfin web-ui from the internet.
-      # Get this port from your VPN provider
-      expose.vpn = {
-        enable = true;
-        port = 12345;
-      };
-    };
+    jellyfin.enable = true;
 
     # Setup SSH service that runs through VPN.
     # Lets you connect through ssh from the internet without having access to
@@ -60,7 +48,7 @@ example does the following:
     enable = true;
     settings.PasswordAuthentication = false;
     # Get this port from your VPN provider
-    ports = [ 54321 ]
+    ports = [ 34567 ]
   };
   # Adds your public keys as trusted devices
   users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
@@ -87,6 +75,5 @@ can use SSH tunneling. Simply run:
     -L 6007:localhost:6767
 ```
 
-Replace `user` with your user and `ip` with the public ip, or domain if set
-up, of your server. This lets you access the services on `localhost:6001`
-through `localhost:6007`.
+Replace `user` with your user and `ip` with the VPN ip. This lets you access
+the services on `localhost:6001` through `localhost:6007`.
