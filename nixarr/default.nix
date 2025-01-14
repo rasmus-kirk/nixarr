@@ -71,11 +71,16 @@ with lib; let
       + strings.optionalString cfg.readarr.enable ''
         chown -R readarr:root "${cfg.readarr.stateDir}"
         find "${cfg.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.jellyseerr.enable ''
+        chown -R jellyseerr:root "${cfg.jellyseerr.stateDir}"
+        find "${cfg.jellyseerr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       '';
   };
 in {
   imports = [
     ./jellyfin
+    ./jellyseerr
     ./bazarr
     ./ddns
     ./radarr
@@ -114,6 +119,7 @@ in {
         The following services are supported:
 
         - [Jellyfin](#nixarr.jellyfin.enable)
+        - [Jellyseerr](#nixarr.jellyseerr.enable)
         - [Bazarr](#nixarr.bazarr.enable)
         - [Lidarr](#nixarr.lidarr.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)
@@ -124,6 +130,9 @@ in {
         - [SABnzbd](#nixarr.sabnzbd.enable)
 
         Remember to read the options.
+
+        > **Warning:** The Jellyseerr module currently does not work on nixos 24.11.
+        > You will have to update to the `unstable` branch in order for it to work.
       '';
     };
 
