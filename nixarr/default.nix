@@ -2,7 +2,6 @@
   config,
   lib,
   pkgs,
-  submerger,
   ...
 }:
 with lib; let

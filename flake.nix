@@ -3,12 +3,14 @@
 
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs-sonarr.url = "github:nixos/nixpkgs/328abff1f7a707dc8da8e802f724f025521793ea";
 
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
   };
 
   outputs = {
     nixpkgs,
+    nixpkgs-sonarr,
     vpnconfinement,
     ...
   } @ inputs: let
@@ -30,6 +32,7 @@
     nixosModules = {
       default = {
         imports = [./nixarr vpnconfinement.nixosModules.default];
+        config._module.args = {inherit nixpkgs-sonarr;};
       };
     };
 

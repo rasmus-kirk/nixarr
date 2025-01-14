@@ -2,6 +2,7 @@
   config,
   lib,
   pkgs,
+  nixpkgs-sonarr,
   ...
 }:
 with lib; let
@@ -21,7 +22,7 @@ in {
       '';
     };
 
-    package = mkPackageOption pkgs "sonarr" {};
+    package = mkPackageOption nixpkgs-sonarr.legacyPackages."${pkgs.system}".pkgs "sonarr" {};
 
     stateDir = mkOption {
       type = types.path;
