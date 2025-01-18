@@ -1,3 +1,4 @@
+# TODO: Add expose options for this module
 {
   config,
   pkgs,
@@ -67,6 +68,22 @@ in {
         Group = cfg.group;
         ExecStart = lib.getExe cfg.package;
         Restart = "on-failure";
+        # TODO: These are from nixpkgs, add them back if we add expose options
+        # ProtectHome = true;
+        # ProtectSystem = "strict";
+        # PrivateTmp = true;
+        # PrivateDevices = true;
+        # ProtectHostname = true;
+        # ProtectClock = true;
+        # ProtectKernelTunables = true;
+        # ProtectKernelModules = true;
+        # ProtectKernelLogs = true;
+        # ProtectControlGroups = true;
+        # NoNewPrivileges = true;
+        # RestrictRealtime = true;
+        # RestrictSUIDSGID = true;
+        # RemoveIPC = true;
+        # PrivateMounts = true;
       };
     };
 

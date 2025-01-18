@@ -1,5 +1,14 @@
 # Changelog
 
+## 2025-01-18
+
+Added:
+- Jellyseer service
+- Sonarr default package, pinned to older working sonarr package
+
+Removed:
+- Jellyfin expose VPN options
+
 ## 2024-09-19
 
 Added:

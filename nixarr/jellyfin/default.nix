@@ -219,10 +219,7 @@ in
               locations."/" = {
                 recommendedProxySettings = true;
                 proxyWebsockets = true;
-                proxyPass = if cfg.expose.vpn.enable then
-                  "http://192.168.15.1:${builtins.toString cfg.expose.vpn.port}"
-                else
-                  "http://192.168.15.1:${builtins.toString defaultPort}";
+                proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
               };
             };
           })
