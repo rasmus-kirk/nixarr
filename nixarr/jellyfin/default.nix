@@ -240,7 +240,6 @@ in
         };
 
         # Port mappings
-        # TODO: openports if expose.vpn
         vpnNamespaces.wg = mkIf cfg.vpn.enable {
           portMappings = [
             {
