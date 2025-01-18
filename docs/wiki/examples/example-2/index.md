@@ -52,7 +52,7 @@ example does the following:
   };
   # Adds your public keys as trusted devices
   users.extraUsers.username.openssh.authorizedKeys.keyFiles = [
-    ./path/to/public/key/machine.pub}
+    ./path/to/public/key/machine.pub
   ];
 ```
 
@@ -72,8 +72,9 @@ can use SSH tunneling. Simply run:
     -L 6004:localhost:7878 \
     -L 6005:localhost:8686 \
     -L 6006:localhost:8787 \
-    -L 6007:localhost:6767
+    -L 6007:localhost:6767 \
+    -L 6008:localhost:8096
 ```
 
 Replace `user` with your user and `ip` with the VPN ip. This lets you access
-the services on `localhost:6001` through `localhost:6007`.
+the services on `localhost:6001` through `localhost:6008`.
