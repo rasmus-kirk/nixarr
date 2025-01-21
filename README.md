@@ -1,5 +1,3 @@
-# Nixarr
-
 ![Logo](./docs/img/logo-2.png)
 
 This is a Nixos module that aims to make the installation and management of
