@@ -75,6 +75,10 @@ with lib; let
       + strings.optionalString cfg.jellyseerr.enable ''
         chown -R jellyseerr:root "${cfg.jellyseerr.stateDir}"
         find "${cfg.jellyseerr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
+      + strings.optionalString cfg.recyclarr.enable ''
+        chown -R recyclarr:root "${cfg.recyclarr.stateDir}"
+        find "${cfg.recyclarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       '';
   };
 in {
@@ -91,6 +95,7 @@ in {
     ./prowlarr
     ./transmission
     ./sabnzbd
+    ./recyclarr
     ../util
   ];
 
@@ -125,6 +130,7 @@ in {
         - [Prowlarr](#nixarr.prowlarr.enable)
         - [Radarr](#nixarr.radarr.enable)
         - [Readarr](#nixarr.readarr.enable)
+        - [Recyclarr](#nixarr.recyclarr.enable)
         - [Sonarr](#nixarr.sonarr.enable)
         - [Transmission](#nixarr.transmission.enable)
         - [SABnzbd](#nixarr.sabnzbd.enable)
