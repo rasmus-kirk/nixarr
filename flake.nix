@@ -54,6 +54,7 @@
       website = website-builder.lib {
         pkgs = pkgs;
         src = "${self}";
+        timestamp = self.lastModified;
         headerTitle = "Nixarr";
         standalonePages = [
           {
@@ -99,6 +100,31 @@
     in {
       default = website.package;
       debug = website.loop;
+      testPkg = pkgs.stdenv.mkDerivation {
+        name = "test-pkg";
+        src = ./.;
+        buildInputs = [(
+          pkgs.writeShellApplication {
+            name = "test-pkg-builder";
+
+            runtimeInputs = with pkgs; [
+              pandoc
+              coreutils
+              findutils
+              gnused
+              rsync
+              git
+            ];
+
+            text = ''
+              echo "${self.lastModified}"
+            '';
+          }
+        )];
+        phases = ["unpackPhase" "buildPhase"];
+        buildPhase = "test-pkg-builder";
+      };
+
     });
 
     formatter = forAllSystems ({pkgs}: pkgs.alejandra);
