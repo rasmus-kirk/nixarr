@@ -16,26 +16,9 @@
         "type": "github"
       }
     },
-    "nixpkgs-sonarr": {
-      "locked": {
-        "lastModified": 1732219096,
-        "narHash": "sha256-gbvtOPW7K7v4EFo7Feo5s+SI7FMVrCOA5CgnuMhWO/Y=",
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "328abff1f7a707dc8da8e802f724f025521793ea",
-        "type": "github"
-      },
-      "original": {
-        "owner": "nixos",
-        "repo": "nixpkgs",
-        "rev": "328abff1f7a707dc8da8e802f724f025521793ea",
-        "type": "github"
-      }
-    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
-        "nixpkgs-sonarr": "nixpkgs-sonarr",
         "vpnconfinement": "vpnconfinement",
         "website-builder": "website-builder"
       }
