@@ -6,13 +6,8 @@ a home media server as easy, and pain free, as possible.
 If you have problems or feedback, feel free to join [the
 discord](https://discord.gg/n9ga99KwWC).
 
-Note that this is still in a somewhat beta state, beware!
-
-- A few known bugs are present
-- Options probably won't be changed, but I reserve the right
-- Few options are mostly untested
-
-If you do still use it, any feedback would be greatly appreciated.
+Note that this is still not 100% stable, so it is possible, but very unlikely,
+that I will remove or change options in a non-backwards-compatible way.
 
 ## Features
 
@@ -22,7 +17,8 @@ If you do still use it, any feedback would be greatly appreciated.
   creates directories and users for your media library. It also sets sane
   permissions.
 - **State Management:** All services support state management and all state
-  that they manage is located by default in `/data/.state/nixarr/*`
+  that they manage is located by default in `/data/.state/nixarr/*`. This means
+  that you only have to backup your media directory and `/data/.state/nixarr`.
 - **Optional Dynamic DNS support:** If you use [Njalla](https://njal.la/)
   and don't have a static IP, you can use the `nixarr.ddns.njalla.enable`
   option to dynamically update a DNS record that points to the dynamic public
