@@ -31,6 +31,11 @@ Updated:
 Updated:
 - VPNConfinement submodule
 
+## 2024-05-09
+
+Fixed:
+- Jellyfin now has highest IO priority and transmission has lowest
+
 ## 2024-03-12
 
 Added:
