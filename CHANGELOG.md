@@ -1,5 +1,13 @@
 # Changelog
 
+## 2025-03-17
+
+Added:
+- Recyclarr
+
+Removed:
+- Sonarr default package now defaults to current nixpkgs sonarr package again.
+
 ## 2025-01-18
 
 Added:
