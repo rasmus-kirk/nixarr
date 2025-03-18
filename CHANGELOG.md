@@ -4,6 +4,7 @@
 
 Added:
 - Plex service
+- Expose and sandboxing to Jellyseerr module
 
 Updated:
 - If `nixarr.enable` is not enabled other services will automatically now
