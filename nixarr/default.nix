@@ -34,6 +34,11 @@ with lib; let
         chown -R streamer:root "${cfg.jellyfin.stateDir}"
         find "${cfg.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
+      + strings.optionalString cfg.plex.enable ''
+        chown -R streamer:media "${cfg.mediaDir}/library"
+        chown -R streamer:root "${cfg.plex.stateDir}"
+        find "${cfg.plex.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
       + strings.optionalString cfg.transmission.enable ''
         chown -R torrenter:media "${cfg.mediaDir}/torrents"
         chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
@@ -85,6 +90,7 @@ in {
   imports = [
     ./jellyfin
     ./jellyseerr
+    ./plex
     ./bazarr
     ./ddns
     ./radarr
@@ -125,6 +131,7 @@ in {
 
         - [Jellyfin](#nixarr.jellyfin.enable)
         - [Jellyseerr](#nixarr.jellyseerr.enable)
+        - [Plex](#nixarr.plex.enable)
         - [Bazarr](#nixarr.bazarr.enable)
         - [Lidarr](#nixarr.lidarr.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)
