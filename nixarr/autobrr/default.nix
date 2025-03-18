@@ -135,6 +135,8 @@ in {
         Group = "root";
         UMask = 066;
         DynamicUser = lib.mkForce false;
+        # disable SecretFilec
+        LoadCredential = lib.mkForce null;
         # disable state directory
         StateDirectory = lib.mkForce null;
         ExecStartPre = lib.mkForce (pkgs.writeShellScript "autobrr-config-prep" ''
