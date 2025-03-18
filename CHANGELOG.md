@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+Added:
+- Plex
+
 ## 2025-03-17
 
 Added:
