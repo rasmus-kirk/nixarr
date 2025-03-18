@@ -16,6 +16,8 @@ in {
       example = true;
       description = ''
         Whether or not to enable the Jellyfin service.
+
+        **Conflicting options:** [`nixarr.plex.enable`](#nixarr.plex.enable)
       '';
     };
 
@@ -105,6 +107,13 @@ in {
   config = mkIf (nixarr.enable && cfg.enable) {
     assertions = [
       {
+        assertion = cfg.enable -> !nixarr.plex.enable;
+        message = ''
+          The nixarr.jellyfin.vpn.enable option requires the nixarr.plex.enable
+          option to NOT be set, but it was.
+        '';
+      }
+      {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''
           The nixarr.jellyfin.vpn.enable option requires the
@@ -147,11 +156,11 @@ in {
       "d '${cfg.stateDir}' 0700 streamer root - -"
 
       # Media Dirs
-      "d '${nixarr.mediaDir}/library'              0775 streamer  media - -"
-      "d '${nixarr.mediaDir}/library/shows'        0775 streamer  media - -"
-      "d '${nixarr.mediaDir}/library/movies'       0775 streamer  media - -"
-      "d '${nixarr.mediaDir}/library/music'        0775 streamer  media - -"
-      "d '${nixarr.mediaDir}/library/books'        0775 streamer  media - -"
+      "d '${nixarr.mediaDir}/library'        0775 streamer media - -"
+      "d '${nixarr.mediaDir}/library/shows'  0775 streamer media - -"
+      "d '${nixarr.mediaDir}/library/movies' 0775 streamer media - -"
+      "d '${nixarr.mediaDir}/library/music'  0775 streamer media - -"
+      "d '${nixarr.mediaDir}/library/books'  0775 streamer media - -"
     ];
 
     # Always prioritise Jellyfin IO
