@@ -66,8 +66,50 @@ in {
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
+        **Conflicting options:** [`nixarr.jellyseerr.expose.https.enable`](#nixarr.jellyseerr.expose.https.enable)
+
         Route Jellyseerr traffic through the VPN.
       '';
+    };
+
+    expose = {
+      https = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          example = true;
+          description = ''
+            **Required options:**
+
+            - [`nixarr.jellyseerr.expose.https.acmeMail`](#nixarr.jellyseerr.expose.https.acmemail)
+            - [`nixarr.jellyseerr.expose.https.domainName`](#nixarr.jellyseerr.expose.https.domainname)
+
+            **Conflicting options:** [`nixarr.jellyseerr.vpn.enable`](#nixarr.jellyseerr.vpn.enable)
+
+            Expose the Jellyseerr web service to the internet with https support,
+            allowing anyone to access it.
+
+            > **Warning:** Do _not_ enable this without setting up Jellyseerr
+            > authentication through localhost first!
+          '';
+        };
+
+        upnp.enable = mkEnableOption "UPNP to try to open ports 80 and 443 on your router.";
+
+        domainName = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          example = "jellyseerr.example.com";
+          description = "The domain name to host Jellyseerr on.";
+        };
+
+        acmeMail = mkOption {
+          type = types.nullOr types.str;
+          default = null;
+          example = "mail@example.com";
+          description = "The ACME mail required for the letsencrypt bot.";
+        };
+      };
     };
   };
 
@@ -80,6 +122,28 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
+      {
+        assertion = !(cfg.vpn.enable && cfg.expose.https.enable);
+        message = ''
+          The nixarr.jellyseerr.vpn.enable option conflicts with the
+          nixarr.jellyseerr.expose.https.enable option. You cannot set both.
+        '';
+      }
+      {
+        assertion =
+          cfg.expose.https.enable
+          -> (
+            (cfg.expose.https.domainName != null)
+            && (cfg.expose.https.acmeMail != null)
+          );
+        message = ''
+          The nixarr.jellyseerr.expose.https.enable option requires the
+          following options to be set, but one of them were not:
+
+          - nixarr.jellyseerr.expose.https.domainName
+          - nixarr.jellyseerr.expose.https.acmeMail
+        '';
+      }
     ];
 
     util-nixarr.services.jellyseerr = {
@@ -88,6 +152,56 @@ in {
       openFirewall = cfg.openFirewall;
       port = cfg.port;
       configDir = cfg.stateDir;
+    };
+
+    networking.firewall = mkIf cfg.expose.https.enable {
+      allowedTCPPorts = [80 443];
+    };
+
+    util-nixarr.upnp = mkIf cfg.expose.https.upnp.enable {
+      enable = true;
+      openTcpPorts = [80 443];
+    };
+
+    services.nginx = mkMerge [
+      (mkIf (cfg.expose.https.enable || cfg.vpn.enable) {
+        enable = true;
+
+        recommendedTlsSettings = true;
+        recommendedOptimisation = true;
+        recommendedGzipSettings = true;
+      })
+      (mkIf cfg.expose.https.enable {
+        virtualHosts."${builtins.replaceStrings ["\n"] [""] cfg.expose.https.domainName}" = {
+          enableACME = true;
+          forceSSL = true;
+          locations."/" = {
+            recommendedProxySettings = true;
+            proxyWebsockets = true;
+            proxyPass = "http://127.0.0.1:${builtins.toString defaultPort}";
+          };
+        };
+      })
+      (mkIf cfg.vpn.enable {
+        virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = defaultPort;
+            }
+          ];
+          locations."/" = {
+            recommendedProxySettings = true;
+            proxyWebsockets = true;
+            proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+          };
+        };
+      })
+    ];
+
+    security.acme = mkIf cfg.expose.https.enable {
+      acceptTerms = true;
+      defaults.email = cfg.expose.https.acmeMail;
     };
 
     # Enable and specify VPN namespace to confine service in.
@@ -104,28 +218,6 @@ in {
           to = defaultPort;
         }
       ];
-    };
-
-    services.nginx = mkIf cfg.vpn.enable {
-      enable = true;
-
-      recommendedTlsSettings = true;
-      recommendedOptimisation = true;
-      recommendedGzipSettings = true;
-
-      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
-        listen = [
-          {
-            addr = "0.0.0.0";
-            port = defaultPort;
-          }
-        ];
-        locations."/" = {
-          recommendedProxySettings = true;
-          proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
-        };
-      };
     };
   };
 }
