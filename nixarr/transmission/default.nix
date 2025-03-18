@@ -71,8 +71,6 @@ in {
       example = true;
       description = ''
         Whether or not to enable the Transmission service.
-
-        **Required options:** [`nixarr.enable`](#nixarr.enable)
       '';
     };
 
@@ -267,20 +265,13 @@ in {
     ./cross-seed
   ];
 
-  config = mkIf cfg.enable {
+  config = mkIf (nixarr.enable && cfg.enable) {
     assertions = [
       {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''
           The nixarr.transmission.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
-        '';
-      }
-      {
-        assertion = cfg.enable -> nixarr.enable;
-        message = ''
-          The nixarr.transmission.enable option requires the nixarr.enable
-          option to be set, but it was not.
         '';
       }
       {

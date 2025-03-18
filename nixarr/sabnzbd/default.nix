@@ -173,7 +173,17 @@ in {
         sab_config_map.write()
       '';
   in
-    mkIf cfg.enable {
+    mkIf (nixarr.enable && cfg.enable) {
+      assertions = [
+        {
+          assertion = cfg.vpn.enable -> nixarr.vpn.enable;
+          message = ''
+            The nixarr.readarr.vpn.enable option requires the
+            nixarr.vpn.enable option to be set, but it was not.
+          '';
+        }
+      ];
+
       users = {
         groups.usenet = {};
         users.usenet = {

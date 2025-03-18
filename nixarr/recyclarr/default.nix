@@ -59,8 +59,6 @@ in {
       example = true;
       description = ''
         Whether or not to enable the Recyclarr service. This service does not need to be run behind a VPN.
-
-        **Required options:** [`nixarr.enable`](#nixarr.enable)
       '';
     };
 
@@ -164,15 +162,8 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = mkIf (nixarr.enable && cfg.enable) {
     assertions = [
-      {
-        assertion = cfg.enable -> nixarr.enable;
-        message = ''
-          The nixarr.recyclarr.enable option requires the nixarr.enable
-          option to be set, but it was not.
-        '';
-      }
       {
         assertion = cfg.enable -> (nixarr.radarr.enable || nixarr.sonarr.enable);
         message = ''

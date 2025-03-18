@@ -16,8 +16,6 @@ in {
       example = true;
       description = ''
         Whether or not to enable the Radarr service.
-
-        **Required options:** [`nixarr.enable`](#nixarr.enable)
       '';
     };
 
@@ -62,15 +60,8 @@ in {
     };
   };
 
-  config = mkIf cfg.enable {
+  config = mkIf (nixarr.enable && cfg.enable) {
     assertions = [
-      {
-        assertion = cfg.enable -> nixarr.enable;
-        message = ''
-          The nixarr.radarr.enable option requires the
-          nixarr.enable option to be set, but it was not.
-        '';
-      }
       {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''

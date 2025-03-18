@@ -45,7 +45,6 @@ in {
           description = ''
             **Required options:**
 
-            - [`nixarr.enable`](#nixarr.enable)
             - [`nixarr.ddns.njalla.keysFile`](#nixarr.ddns.njalla.keysfile)
             - [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
@@ -75,7 +74,6 @@ in {
         description = ''
           **Required options:**
 
-          - [`nixarr.enable`](#nixarr.enable)
           - [`nixarr.ddns.njalla.keysFile`](#nixarr.ddns.njalla.keysfile)
 
           Whether or not to enable DDNS for a [Njalla](https://njal.la/)
@@ -111,27 +109,13 @@ in {
     };
   };
 
-  config = mkIf cfg.njalla.enable {
+  config = mkIf (nixarr.enable && cfg.enable) {
     assertions = [
       {
         assertion = cfg.njalla.enable -> cfg.njalla.keysFile != null;
         message = ''
           The nixarr.ddns.njalla.enable option requires the
           nixarr.ddns.njalla.keysFile option to be set, but it was not.
-        '';
-      }
-      {
-        assertion = cfg.njalla.enable -> nixarr.enable;
-        message = ''
-          The nixarr.ddns.njalla.enable option requires the nixarr.enable
-          option to be set, but it was not.
-        '';
-      }
-      {
-        assertion = cfg.njalla.vpn.enable -> nixarr.enable;
-        message = ''
-          The nixarr.ddns.njalla.vpn.enable option requires the nixarr.enable
-          option to be set, but it was not.
         '';
       }
       {

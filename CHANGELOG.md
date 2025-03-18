@@ -5,6 +5,10 @@
 Added:
 - Plex service
 
+Updated:
+- If `nixarr.enable` is not enabled other services will automatically now
+  be disabled, instead of throwing an assertion error.
+
 ## 2025-03-17
 
 Added:
