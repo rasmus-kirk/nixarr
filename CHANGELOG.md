@@ -3,12 +3,12 @@
 ## Unreleased
 
 Added:
-- Plex
+- Plex service
 
 ## 2025-03-17
 
 Added:
-- Recyclarr
+- Recyclarr service
 
 Removed:
 - Sonarr default package now defaults to current nixpkgs sonarr package again.
