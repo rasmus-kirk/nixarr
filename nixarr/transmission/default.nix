@@ -11,71 +11,36 @@ with lib; let
 
   cfg-cross-seed = config.nixarr.transmission.privateTrackers.cross-seed;
   downloadDir = "${nixarr.mediaDir}/torrents";
-  transmissionCrossSeedScript = with builtins;
-    pkgs.writeShellApplication {
-      name = "transmission-cross-seed-script";
+  transmissionCrossSeedScript = pkgs.writeShellApplication {
+    name = "transmission-cross-seed-script";
+    runtimeInputs = with pkgs; [curl];
+    text = ''
+      PROWLARR_API_KEY=$(cat "${nixarr.stateDir}/api-keys/prowlarr.key")
+      curl -XPOST http://localhost:2468/api/webhook?apikey="$PROWLARR_API_KEY" --data-urlencode "infoHash=$TR_TORRENT_HASH"
+    '';
+  };
+  mkCrossSeedCredentials = pkgs.writeShellApplication {
+    name = "mk-cross-seed-credentials";
+    runtimeInputs = with pkgs; [jq];
+    text = ''
+      INDEX_LINKS=(${strings.concatMapStringsSep " " toString cfg.privateTrackers.cross-seed.indexIds})
+      TMP_JSON=$(mktemp)
+      CRED_FILE="/run/secrets/cross-seed/credentialsFile.json"
+      PROWLARR_API_KEY=$(cat "${nixarr.stateDir}/api-keys/prowlarr.key")
+      CRED_DIR=$(dirname "$CRED_FILE")
 
-      runtimeInputs = with pkgs; [curl];
+      mkdir -p "$CRED_DIR"
+      echo '{}' > "$CRED_FILE"
+      chmod 400 "$CRED_FILE"
+      chown "${config.util-nixarr.services.cross-seed.user}" "$CRED_FILE"
 
-      text = ''
-        PROWLARR_API_KEY=$(cat ${cfg.stateDir}/prowlarr-api-key)
-        curl -XPOST http://localhost:2468/api/webhook?apikey="$PROWLARR_API_KEY" --data-urlencode "infoHash=$TR_TORRENT_HASH"
-      '';
-    };
-  importProwlarrApi = with builtins;
-    pkgs.writeShellApplication {
-      name = "import-prowlarr-api";
-
-      runtimeInputs = with pkgs; [yq];
-
-      text = ''
-        while [ ! -f "${nixarr.prowlarr.stateDir}/config.xml" ]; do
-          echo "Waiting for prowlarr to start..."
-          sleep 1
-        done
-
-        touch ${cfg.stateDir}/prowlarr-api-key
-        chmod 400 ${cfg.stateDir}/prowlarr-api-key
-        chown ${globals.transmission.user} ${cfg.stateDir}/prowlarr-api-key
-        xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml" > "${cfg.stateDir}/prowlarr-api-key"
-      '';
-    };
-  mkCrossSeedCredentials = with builtins;
-    pkgs.writeShellApplication {
-      name = "mk-cross-seed-credentials";
-
-      runtimeInputs = with pkgs; [jq yq];
-
-      text =
-        "INDEX_LINKS=("
-        + (strings.concatMapStringsSep " " toString cfg.privateTrackers.cross-seed.indexIds)
-        + ")"
-        + "\n"
-        + ''
-          TMP_JSON=$(mktemp)
-          CRED_FILE="/run/secrets/cross-seed/credentialsFile.json"
-
-          while [ ! -f "${nixarr.prowlarr.stateDir}/config.xml" ]; do
-            echo "Waiting for prowlarr to start..."
-            sleep 1
-          done
-
-          PROWLARR_API_KEY=$(xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
-          # shellcheck disable=SC2034
-          CRED_DIR=$(dirname "$CRED_FILE")
-
-          mkdir -p "$CRED_DIR"
-          echo '{}' > "$CRED_FILE"
-          chmod 400 "$CRED_FILE"
-          chown "${config.util-nixarr.services.cross-seed.user}" "$CRED_FILE"
-
-          for i in "''${INDEX_LINKS[@]}"
-          do
-            LINK="http://localhost:9696/$i/api?apikey=$PROWLARR_API_KEY"
-            jq ".torznab += [\"$LINK\"]" "$CRED_FILE" > "$TMP_JSON" && mv "$TMP_JSON" "$CRED_FILE"
-          done
-        '';
-    };
+      for i in "''${INDEX_LINKS[@]}"
+      do
+        LINK="http://localhost:9696/$i/api?apikey=$PROWLARR_API_KEY"
+        jq ".torznab += [\"$LINK\"]" "$CRED_FILE" > "$TMP_JSON" && mv "$TMP_JSON" "$CRED_FILE"
+      done
+    '';
+  };
 in {
   options.nixarr.transmission = {
     enable = mkOption {
@@ -345,23 +310,26 @@ in {
         }
         // cfg-cross-seed.extraSettings;
     };
-    # Run as root in case that the cfg.credentialsFile is not readable by cross-seed
-    systemd.services.cross-seed.serviceConfig = mkIf cfg-cross-seed.enable {
-      ExecStartPre = mkBefore [
-        (
-          "+" + "${mkCrossSeedCredentials}/bin/mk-cross-seed-credentials"
-        )
-      ];
+
+    systemd.services.cross-seed = mkIf cfg-cross-seed.enable {
+      after = ["prowlarr-api-key.service"];
+      requires = ["prowlarr-api-key.service"];
+      serviceConfig = {
+        SupplementaryGroups = ["prowlarr-api"];
+        ExecStartPre = mkBefore [
+          ("+" + "${mkCrossSeedCredentials}/bin/mk-cross-seed-credentials")
+        ];
+      };
     };
 
-    systemd.services.transmission.serviceConfig = {
-      # Always prioritize all other services wrt. IO
-      IOSchedulingPriority = 7;
-      ExecStartPre = mkIf cfg-cross-seed.enable (
-        mkBefore [
-          ("+" + "${importProwlarrApi}/bin/import-prowlarr-api")
-        ]
-      );
+    systemd.services.transmission = {
+      after = mkIf cfg-cross-seed.enable ["prowlarr-api-key.service"];
+      requires = mkIf cfg-cross-seed.enable ["prowlarr-api-key.service"];
+      serviceConfig = {
+        # Always prioritize all other services wrt. IO
+        IOSchedulingPriority = 7;
+        SupplementaryGroups = mkIf cfg-cross-seed.enable ["prowlarr-api"];
+      };
     };
 
     services.transmission = {

@@ -209,9 +209,6 @@ in {
         isSystemUser = true;
         group = globals.recyclarr.group;
         uid = globals.uids.${globals.recyclarr.user};
-        extraGroups =
-          (optional nixarr.radarr.enable "radarr-api")
-          ++ (optional nixarr.sonarr.enable "sonarr-api");
       };
     };
 
@@ -232,13 +229,7 @@ in {
         (optional nixarr.radarr.enable "radarr-api.service")
         ++ (optional nixarr.sonarr.enable "sonarr-api.service");
       serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        UMask = "0077"; # Results in 0600 permissions
-        User = config.services.recyclarr.user;
-        ExecStart = pkgs.writeShellScript "recyclar-setup" ''
-          set -euo pipefail
-          echo -n > '${cfg.stateDir}/env'
+        ExecStart = lib.mkForce (pkgs.writeShellScript "recyclarr-wrapper" ''
           ${optionalString nixarr.radarr.enable ''
             printf RADARR_API_KEY= >> '${cfg.stateDir}/env'
             cat '${nixarr.stateDir}/secrets/radarr.api-key' >> '${cfg.stateDir}/env'
@@ -247,23 +238,14 @@ in {
             printf SONARR_API_KEY= >> '${cfg.stateDir}/env'
             cat '${nixarr.stateDir}/secrets/sonarr.api-key' >> '${cfg.stateDir}/env'
           ''}
-        '';
-      };
-    };
-
-    systemd.services.recyclarr = {
-      requires = ["recyclarr-setup.service"];
-      after = ["recyclarr-setup.service"];
-      serviceConfig = {
-        ExecStart = lib.mkForce "${cfg.package}/bin/recyclarr sync --app-data ${cfg.stateDir} --config ${effectiveConfigFile}";
-        EnvironmentFile = "${cfg.stateDir}/env";
+          exec ${lib.getExe cfg.package} sync --app-data ${cfg.stateDir} --config ${effectiveConfigFile}
+        '');
         ReadWritePaths = [cfg.stateDir];
       };
     };
 
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0750 ${config.services.recyclarr.user} root - -"
-      "f '${cfg.stateDir}/env' 0600 ${config.services.recyclarr.user} ${config.services.recyclarr.group} - -"
     ];
   };
 }
