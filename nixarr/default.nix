@@ -202,33 +202,6 @@ in {
         example = [46382 38473];
       };
     };
-
-    monitoring = {
-      enable = mkOption {
-        type = types.bool;
-        default = false;
-        example = true;
-        description = ''
-          Whether to enable Prometheus monitoring for nixarr services.
-          This will configure various exporters for services that support them.
-        '';
-      };
-
-      exporters = mkOption {
-        type = types.attrsOf types.bool;
-        default = {};
-        example = {
-          transmission = true;
-          jellyfin = false;
-        };
-        description = ''
-          Fine-grained control over which service exporters to enable.
-          By default, exporters for all enabled services will be activated
-          when monitoring is enabled. Set a service to false to disable
-          its exporter specifically.
-        '';
-      };
-    };
   };
 
   config = mkIf cfg.enable {
