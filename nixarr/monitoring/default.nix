@@ -39,6 +39,11 @@ in {
           default = 9707;
           description = "Port for Sonarr metrics";
         };
+        listenAddr = mkOption {
+          type = types.str;
+          default = "127.0.0.1";
+          description = "Address for Sonarr exporter to listen on";
+        };
       };
       radarr.exporter = {
         enable = mkOption {
@@ -55,6 +60,11 @@ in {
           type = types.port;
           default = 9708;
           description = "Port for Radarr metrics";
+        };
+        listenAddr = mkOption {
+          type = types.str;
+          default = "127.0.0.1";
+          description = "Address for Radarr exporter to listen on";
         };
       };
       lidarr.exporter = {
@@ -73,6 +83,11 @@ in {
           default = 9709;
           description = "Port for Lidarr metrics";
         };
+        listenAddr = mkOption {
+          type = types.str;
+          default = "127.0.0.1";
+          description = "Address for Lidarr exporter to listen on";
+        };
       };
       readarr.exporter = {
         enable = mkOption {
@@ -90,6 +105,11 @@ in {
           default = 9710;
           description = "Port for Readarr metrics";
         };
+        listenAddr = mkOption {
+          type = types.str;
+          default = "127.0.0.1";
+          description = "Address for Readarr exporter to listen on";
+        };
       };
       prowlarr.exporter = {
         enable = mkOption {
@@ -106,6 +126,11 @@ in {
           type = types.port;
           default = 9711;
           description = "Port for Prowlarr metrics";
+        };
+        listenAddr = mkOption {
+          type = types.str;
+          default = "127.0.0.1";
+          description = "Address for Prowlarr exporter to listen on";
         };
       };
     };
@@ -125,6 +150,7 @@ in {
             url = "http://127.0.0.1:8989";
             apiKeyFile = "${cfg.stateDir}/api-keys/sonarr.key";
             port = cfg.sonarr.exporter.port;
+            listenAddress = cfg.sonarr.exporter.listenAddr;
           };
 
         exportarr-radarr =
@@ -136,6 +162,7 @@ in {
             url = "http://127.0.0.1:7878";
             apiKeyFile = "${cfg.stateDir}/api-keys/radarr.key";
             port = cfg.radarr.exporter.port;
+            listenAddress = cfg.radarr.exporter.listenAddr;
           };
 
         exportarr-lidarr =
@@ -147,6 +174,7 @@ in {
             url = "http://127.0.0.1:8686";
             apiKeyFile = "${cfg.stateDir}/api-keys/lidarr.key";
             port = cfg.lidarr.exporter.port;
+            listenAddress = cfg.lidarr.exporter.listenAddr;
           };
 
         exportarr-readarr =
@@ -158,6 +186,7 @@ in {
             url = "http://127.0.0.1:8787";
             apiKeyFile = "${cfg.stateDir}/api-keys/readarr.key";
             port = cfg.readarr.exporter.port;
+            listenAddress = cfg.readarr.exporter.listenAddr;
           };
 
         exportarr-prowlarr =
@@ -169,6 +198,7 @@ in {
             url = "http://127.0.0.1:9696";
             apiKeyFile = "${cfg.stateDir}/api-keys/prowlarr.key";
             port = cfg.prowlarr.exporter.port;
+            listenAddress = cfg.prowlarr.exporter.listenAddr;
           };
 
         # Enable node and systemd exporters by default
