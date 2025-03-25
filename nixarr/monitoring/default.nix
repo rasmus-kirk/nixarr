@@ -234,7 +234,7 @@ in {
                 requires = ["${service}-api-key.service"];
                 serviceConfig = {
                   DynamicUser = true;
-                  SupplementaryGroups = ["api-keys"];
+                  SupplementaryGroups = ["${service}-api"];
                 };
               };
             };
@@ -265,22 +265,27 @@ in {
         "prometheus-exportarr-sonarr-exporter" = mkIf (shouldEnableExporter "sonarr" && !isVpnConfined "sonarr") {
           after = ["sonarr-api-key.service"];
           requires = ["sonarr-api-key.service"];
+          serviceConfig.SupplementaryGroups = ["sonarr-api"];
         };
         "prometheus-exportarr-radarr-exporter" = mkIf (shouldEnableExporter "radarr" && !isVpnConfined "radarr") {
           after = ["radarr-api-key.service"];
           requires = ["radarr-api-key.service"];
+          serviceConfig.SupplementaryGroups = ["radarr-api"];
         };
         "prometheus-exportarr-lidarr-exporter" = mkIf (shouldEnableExporter "lidarr" && !isVpnConfined "lidarr") {
           after = ["lidarr-api-key.service"];
           requires = ["lidarr-api-key.service"];
+          serviceConfig.SupplementaryGroups = ["lidarr-api"];
         };
         "prometheus-exportarr-readarr-exporter" = mkIf (shouldEnableExporter "readarr" && !isVpnConfined "readarr") {
           after = ["readarr-api-key.service"];
           requires = ["readarr-api-key.service"];
+          serviceConfig.SupplementaryGroups = ["readarr-api"];
         };
         "prometheus-exportarr-prowlarr-exporter" = mkIf (shouldEnableExporter "prowlarr" && !isVpnConfined "prowlarr") {
           after = ["prowlarr-api-key.service"];
           requires = ["prowlarr-api-key.service"];
+          serviceConfig.SupplementaryGroups = ["prowlarr-api"];
         };
       }
     ];
