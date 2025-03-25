@@ -187,7 +187,9 @@ in {
           ''}
           exec ${lib.getExe cfg.package} sync --app-data ${cfg.stateDir} --config ${effectiveConfigFile}
         '');
-        SupplementaryGroups = ["api-keys"];
+        SupplementaryGroups = 
+          (optional nixarr.radarr.enable "radarr-api") ++
+          (optional nixarr.sonarr.enable "sonarr-api");
         ReadWritePaths = [cfg.stateDir];
       };
     };

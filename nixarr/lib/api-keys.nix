@@ -25,12 +25,12 @@ with lib; let
         else null
       } =
         serviceConfig.user or null;
-      Group = "api-keys";
+      Group = "${serviceName}-api";
       UMask = "0027"; # Results in 0640 permissions
 
       ExecStartPre = [
         "${pkgs.coreutils}/bin/mkdir -p ${cfg.stateDir}/api-keys"
-        "${pkgs.coreutils}/bin/chown root:api-keys ${cfg.stateDir}/api-keys"
+        "${pkgs.coreutils}/bin/chown root:${serviceName}-api ${cfg.stateDir}/api-keys"
         "${pkgs.coreutils}/bin/chmod 750 ${cfg.stateDir}/api-keys"
         # Wait for config file to exist
         "${pkgs.bash}/bin/bash -c 'while [ ! -f ${serviceConfig.stateDir}/config.xml ]; do sleep 1; done'"
@@ -39,29 +39,44 @@ with lib; let
       ExecStart = pkgs.writeShellScript "extract-${serviceName}-api-key" ''
         ${pkgs.dasel}/bin/dasel -f "${serviceConfig.stateDir}/config.xml" \
           -s ".Config.ApiKey" | tr -d '\n\r' > "${cfg.stateDir}/api-keys/${serviceName}.key"
-        chown $USER:api-keys "${cfg.stateDir}/api-keys/${serviceName}.key"
+        chown $USER:${serviceName}-api "${cfg.stateDir}/api-keys/${serviceName}.key"
       '';
     };
   };
 in {
   config = mkIf cfg.enable {
-    users.groups.api-keys = {};
-
-    # Ensure all services that need API keys are in the group
-    users.users = mkMerge [
-      # Static users
-      (mkIf cfg.transmission.enable {torrenter.extraGroups = ["api-keys"];})
-      (mkIf cfg.transmission.privateTrackers.cross-seed.enable {cross-seed.extraGroups = ["api-keys"];})
+    # Create per-service API key groups
+    users.groups = mkMerge [
+      (mkIf cfg.sonarr.enable {sonarr-api = {};})
+      (mkIf cfg.radarr.enable {radarr-api = {};})
+      (mkIf cfg.lidarr.enable {lidarr-api = {};})
+      (mkIf cfg.readarr.enable {readarr-api = {};})
+      (mkIf cfg.prowlarr.enable {prowlarr-api = {};})
     ];
 
-    # Add api-keys group to services with DynamicUser
+    # Add services that need API keys to their respective groups
+    users.users = mkMerge [
+      # Static users
+      (mkIf cfg.transmission.enable {
+        torrenter.extraGroups = optional cfg.prowlarr.enable "prowlarr-api";
+      })
+      (mkIf cfg.transmission.privateTrackers.cross-seed.enable {
+        cross-seed.extraGroups = optional cfg.prowlarr.enable "prowlarr-api";
+      })
+    ];
+
+    # Add api groups to services with DynamicUser
     systemd.services = mkMerge [
-      (mkIf cfg.sonarr.enable {sonarr.serviceConfig.SupplementaryGroups = ["api-keys"];})
-      (mkIf cfg.radarr.enable {radarr.serviceConfig.SupplementaryGroups = ["api-keys"];})
-      (mkIf cfg.lidarr.enable {lidarr.serviceConfig.SupplementaryGroups = ["api-keys"];})
-      (mkIf cfg.readarr.enable {readarr.serviceConfig.SupplementaryGroups = ["api-keys"];})
-      (mkIf cfg.prowlarr.enable {prowlarr.serviceConfig.SupplementaryGroups = ["api-keys"];})
-      (mkIf cfg.recyclarr.enable {recyclarr.serviceConfig.SupplementaryGroups = ["api-keys"];})
+      (mkIf cfg.sonarr.enable {sonarr.serviceConfig.SupplementaryGroups = ["sonarr-api"];})
+      (mkIf cfg.radarr.enable {radarr.serviceConfig.SupplementaryGroups = ["radarr-api"];})
+      (mkIf cfg.lidarr.enable {lidarr.serviceConfig.SupplementaryGroups = ["lidarr-api"];})
+      (mkIf cfg.readarr.enable {readarr.serviceConfig.SupplementaryGroups = ["readarr-api"];})
+      (mkIf cfg.prowlarr.enable {prowlarr.serviceConfig.SupplementaryGroups = ["prowlarr-api"];})
+      (mkIf cfg.recyclarr.enable {
+        recyclarr.serviceConfig.SupplementaryGroups = 
+          (optional cfg.sonarr.enable "sonarr-api") ++
+          (optional cfg.radarr.enable "radarr-api");
+      })
 
       # Create API key extractors for enabled services
       (mkIf cfg.sonarr.enable {"sonarr-api-key" = mkApiKeyExtractor "sonarr" cfg.sonarr;})
@@ -73,7 +88,7 @@ in {
 
     # Create the api-keys directory
     systemd.tmpfiles.rules = [
-      "d ${cfg.stateDir}/api-keys 0750 root api-keys - -"
+      "d ${cfg.stateDir}/api-keys 0750 root root - -"
     ];
   };
 }
