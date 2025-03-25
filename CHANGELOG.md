@@ -4,6 +4,7 @@
 
 Added:
 - Plex service
+- Autobrr service
 
 Updated:
 - If `nixarr.enable` is not enabled other services will automatically now

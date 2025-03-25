@@ -64,6 +64,8 @@ in {
         See https://autobrr.com/configuration/autobrr for more information.
 
         `sessionSecret` is automatically generated upon first installation and will be overridden.
+        This is done to ensure that the secret is not hard-coded in the configuration file.
+        The actual secret file is generated in the systemd service at `${cfg.stateDir}/session-secret`.
       '';
     };
 
@@ -112,6 +114,7 @@ in {
       enable = true;
       package = cfg.package;
       # We need to provide a secretFile even though we're handling it ourselves
+      # The actual secret file is generated in the systemd service at ${cfg.stateDir}/session-secret
       secretFile = "/dev/null"; # This is a placeholder that won't be used
       settings = mkMerge [
         # User settings
