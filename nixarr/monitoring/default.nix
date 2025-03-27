@@ -23,6 +23,14 @@ in {
         enable = mkEnableOption "Enable Prometheus exporters for all supported nixarr services";
       };
 
+      wireguard.exporter = {
+        port = mkOption {
+          type = types.port;
+          default = 9586;
+          description = "Port for Wireguard metrics";
+        };
+      };
+
       sonarr.exporter = {
         enable = mkOption {
           type = types.nullOr types.bool;
@@ -212,6 +220,7 @@ in {
         wireguard = mkIf cfg.vpn.enable {
           enable = true;
           openFirewall = false;
+          port = cfg.wireguard.exporter.port;
         };
       };
     };
@@ -246,7 +255,7 @@ in {
             (makeVpnExporterService "readarr")
             (makeVpnExporterService "prowlarr")
             {
-              # Add VPN confinement for wireguard exporter
+              # Add wireguard exporter to the VPN namespace so that it can access wireguard
               prometheus-wireguard-exporter = {
                 vpnConfinement = {
                   enable = true;
@@ -315,8 +324,8 @@ in {
         })
         ++ [
           {
-            from = 9586; # Default Wireguard exporter port
-            to = 9586;
+            from = cfg.wireguard.exporter.port;
+            to = cfg.wireguard.exporter.port;
           }
         ];
     };
@@ -328,6 +337,7 @@ in {
       ++ (optional (shouldEnableExporter "lidarr" && !isVpnConfined "lidarr") cfg.lidarr.exporter.port)
       ++ (optional (shouldEnableExporter "readarr" && !isVpnConfined "readarr") cfg.readarr.exporter.port)
       ++ (optional (shouldEnableExporter "prowlarr" && !isVpnConfined "prowlarr") cfg.prowlarr.exporter.port)
+      ++ [cfg.wireguard.exporter.port]
     );
   };
 }
