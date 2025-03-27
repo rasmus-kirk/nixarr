@@ -16,10 +16,12 @@ in {
       example = true;
       description = ''
         Whether or not to enable the Plex service.
+
+        **Conflicting options:** [`nixarr.jellyfin.enable`](#nixarr.jellyfin.enable)
       '';
     };
 
-    package = mkPackageOption pkgs "plexmediaserver" {};
+    package = mkPackageOption pkgs "plex" {};
 
     stateDir = mkOption {
       type = types.path;
@@ -104,6 +106,13 @@ in {
 
   config = mkIf (nixarr.enable && cfg.enable) {
     assertions = [
+      {
+        assertion = cfg.enable -> !nixarr.jellyfin.enable;
+        message = ''
+          The nixarr.plex.vpn.enable option requires the nixarr.jellyfin.enable
+          option to NOT be set, but it was.
+        '';
+      }
       {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''

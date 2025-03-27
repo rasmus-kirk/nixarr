@@ -109,7 +109,7 @@ in {
     };
   };
 
-  config = mkIf (nixarr.enable && cfg.enable) {
+  config = mkIf nixarr.enable {
     assertions = [
       {
         assertion = cfg.njalla.enable -> cfg.njalla.keysFile != null;
