@@ -81,6 +81,10 @@ with lib; let
         chown -R jellyseerr:root "${cfg.jellyseerr.stateDir}"
         find "${cfg.jellyseerr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
+      + strings.optionalString cfg.autobrr.enable ''
+        chown -R autobrr:root "${cfg.autobrr.stateDir}"
+        find "${cfg.autobrr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
       + strings.optionalString cfg.recyclarr.enable ''
         chown -R recyclarr:root "${cfg.recyclarr.stateDir}"
         find "${cfg.recyclarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
@@ -88,6 +92,7 @@ with lib; let
   };
 in {
   imports = [
+    ./autobrr
     ./jellyfin
     ./jellyseerr
     ./plex
@@ -141,6 +146,7 @@ in {
         - [Sonarr](#nixarr.sonarr.enable)
         - [Transmission](#nixarr.transmission.enable)
         - [SABnzbd](#nixarr.sabnzbd.enable)
+        - [Autobrr](#nixarr.autobrr.enable)
 
         Remember to read the options.
 

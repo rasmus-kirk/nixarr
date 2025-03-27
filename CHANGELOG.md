@@ -4,6 +4,7 @@
 
 Added:
 - Plex service
+- Autobrr service
 - Sandboxed Jellyseerr module and added expose option
 
 Updated:
