@@ -345,5 +345,32 @@ in {
       ++ (optional (shouldEnableExporter "prowlarr" && !isVpnConfined "prowlarr") cfg.prowlarr.exporter.port)
       ++ [cfg.wireguard.exporter.port]
     );
+
+    # Add port mapping for the Wireguard exporter
+    vpnNamespaces.wg = mkIf cfg.vpn.enable {
+      portMappings = lib.mkIf cfg.wireguard.exporter.enable [
+        {
+          from = cfg.wireguard.exporter.port;
+          to = cfg.wireguard.exporter.port;
+        }
+      ];
+    };
+
+    # Optionally add Nginx proxy for the Wireguard exporter
+    services.nginx = mkIf cfg.vpn.enable {
+      enable = true;
+      virtualHosts."127.0.0.1:${toString cfg.wireguard.exporter.port}" = {
+        listen = [
+          {
+            addr = "0.0.0.0";
+            port = cfg.wireguard.exporter.port;
+          }
+        ];
+        locations."/" = {
+          recommendedProxySettings = true;
+          proxyPass = "http://192.168.15.1:${toString cfg.wireguard.exporter.port}";
+        };
+      };
+    };
   };
 }
