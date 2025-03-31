@@ -169,50 +169,60 @@ in {
     services.prometheus = {
       exporters = {
         # Enable exportarr for each supported service if it's enabled
-        exportarr-sonarr =
-          mkIf (shouldEnableExporter "sonarr") {
-            enable = true;
-            url = "http://127.0.0.1:8989";
-            apiKeyFile = "${cfg.stateDir}/api-keys/sonarr.key";
-            port = cfg.sonarr.exporter.port;
-            listenAddress = if isVpnConfined "sonarr" then "0.0.0.0" else cfg.sonarr.exporter.listenAddr;
-          };
+        exportarr-sonarr = mkIf (shouldEnableExporter "sonarr") {
+          enable = true;
+          url = "http://127.0.0.1:8989";
+          apiKeyFile = "${cfg.stateDir}/api-keys/sonarr.key";
+          port = cfg.sonarr.exporter.port;
+          listenAddress =
+            if isVpnConfined "sonarr"
+            then "0.0.0.0"
+            else cfg.sonarr.exporter.listenAddr;
+        };
 
-        exportarr-radarr =
-          mkIf (shouldEnableExporter "radarr") {
-            enable = true;
-            url = "http://127.0.0.1:7878";
-            apiKeyFile = "${cfg.stateDir}/api-keys/radarr.key";
-            port = cfg.radarr.exporter.port;
-            listenAddress = if isVpnConfined "radarr" then "0.0.0.0" else cfg.radarr.exporter.listenAddr;
-          };
+        exportarr-radarr = mkIf (shouldEnableExporter "radarr") {
+          enable = true;
+          url = "http://127.0.0.1:7878";
+          apiKeyFile = "${cfg.stateDir}/api-keys/radarr.key";
+          port = cfg.radarr.exporter.port;
+          listenAddress =
+            if isVpnConfined "radarr"
+            then "0.0.0.0"
+            else cfg.radarr.exporter.listenAddr;
+        };
 
-        exportarr-lidarr =
-          mkIf (shouldEnableExporter "lidarr") {
-            enable = true;
-            url = "http://127.0.0.1:8686";
-            apiKeyFile = "${cfg.stateDir}/api-keys/lidarr.key";
-            port = cfg.lidarr.exporter.port;
-            listenAddress = if isVpnConfined "lidarr" then "0.0.0.0" else cfg.lidarr.exporter.listenAddr;
-          };
+        exportarr-lidarr = mkIf (shouldEnableExporter "lidarr") {
+          enable = true;
+          url = "http://127.0.0.1:8686";
+          apiKeyFile = "${cfg.stateDir}/api-keys/lidarr.key";
+          port = cfg.lidarr.exporter.port;
+          listenAddress =
+            if isVpnConfined "lidarr"
+            then "0.0.0.0"
+            else cfg.lidarr.exporter.listenAddr;
+        };
 
-        exportarr-readarr =
-          mkIf (shouldEnableExporter "readarr") {
-            enable = true;
-            url = "http://127.0.0.1:8787";
-            apiKeyFile = "${cfg.stateDir}/api-keys/readarr.key";
-            port = cfg.readarr.exporter.port;
-            listenAddress = if isVpnConfined "readarr" then "0.0.0.0" else cfg.readarr.exporter.listenAddr;
-          };
+        exportarr-readarr = mkIf (shouldEnableExporter "readarr") {
+          enable = true;
+          url = "http://127.0.0.1:8787";
+          apiKeyFile = "${cfg.stateDir}/api-keys/readarr.key";
+          port = cfg.readarr.exporter.port;
+          listenAddress =
+            if isVpnConfined "readarr"
+            then "0.0.0.0"
+            else cfg.readarr.exporter.listenAddr;
+        };
 
-        exportarr-prowlarr =
-          mkIf (shouldEnableExporter "prowlarr") {
-            enable = true;
-            url = "http://127.0.0.1:9696";
-            apiKeyFile = "${cfg.stateDir}/api-keys/prowlarr.key";
-            port = cfg.prowlarr.exporter.port;
-            listenAddress = if isVpnConfined "prowlarr" then "0.0.0.0" else cfg.prowlarr.exporter.listenAddr;
-          };
+        exportarr-prowlarr = mkIf (shouldEnableExporter "prowlarr") {
+          enable = true;
+          url = "http://127.0.0.1:9696";
+          apiKeyFile = "${cfg.stateDir}/api-keys/prowlarr.key";
+          port = cfg.prowlarr.exporter.port;
+          listenAddress =
+            if isVpnConfined "prowlarr"
+            then "0.0.0.0"
+            else cfg.prowlarr.exporter.listenAddr;
+        };
 
         # Enable node and systemd exporters by default
         node = {
