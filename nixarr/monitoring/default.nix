@@ -29,6 +29,11 @@ in {
           default = 9586;
           description = "Port for Wireguard metrics";
         };
+        listenAddr = mkOption {
+          type = types.str;
+          default = "0.0.0.0";
+          description = "Address for Wireguard exporter to listen on";
+        };
       };
 
       sonarr.exporter = {
@@ -49,8 +54,11 @@ in {
         };
         listenAddr = mkOption {
           type = types.str;
-          default = "127.0.0.1";
-          description = "Address for Sonarr exporter to listen on";
+          default = "0.0.0.0";
+          description = ''
+            Address for Sonarr exporter to listen on.
+            Note: This is forced to "0.0.0.0" if the service is VPN-confined.
+          '';
         };
       };
       radarr.exporter = {
@@ -71,8 +79,11 @@ in {
         };
         listenAddr = mkOption {
           type = types.str;
-          default = "127.0.0.1";
-          description = "Address for Radarr exporter to listen on";
+          default = "0.0.0.0";
+          description = ''
+            Address for Radarr exporter to listen on.
+            Note: This is forced to "0.0.0.0" if the service is VPN-confined.
+          '';
         };
       };
       lidarr.exporter = {
@@ -93,8 +104,11 @@ in {
         };
         listenAddr = mkOption {
           type = types.str;
-          default = "127.0.0.1";
-          description = "Address for Lidarr exporter to listen on";
+          default = "0.0.0.0";
+          description = ''
+            Address for Lidarr exporter to listen on.
+            Note: This is forced to "0.0.0.0" if the service is VPN-confined.
+          '';
         };
       };
       readarr.exporter = {
@@ -115,8 +129,11 @@ in {
         };
         listenAddr = mkOption {
           type = types.str;
-          default = "127.0.0.1";
-          description = "Address for Readarr exporter to listen on";
+          default = "0.0.0.0";
+          description = ''
+            Address for Readarr exporter to listen on.
+            Note: This is forced to "0.0.0.0" if the service is VPN-confined.
+          '';
         };
       };
       prowlarr.exporter = {
@@ -137,8 +154,11 @@ in {
         };
         listenAddr = mkOption {
           type = types.str;
-          default = "127.0.0.1";
-          description = "Address for Prowlarr exporter to listen on";
+          default = "0.0.0.0";
+          description = ''
+            Address for Prowlarr exporter to listen on.
+            Note: This is forced to "0.0.0.0" if the service is VPN-confined.
+          '';
         };
       };
     };
@@ -150,63 +170,48 @@ in {
       exporters = {
         # Enable exportarr for each supported service if it's enabled
         exportarr-sonarr =
-          mkIf (
-            cfg.sonarr.enable
-            && (cfg.sonarr.exporter.enable == null || cfg.sonarr.exporter.enable)
-          ) {
+          mkIf (shouldEnableExporter "sonarr") {
             enable = true;
             url = "http://127.0.0.1:8989";
             apiKeyFile = "${cfg.stateDir}/api-keys/sonarr.key";
             port = cfg.sonarr.exporter.port;
-            listenAddress = cfg.sonarr.exporter.listenAddr;
+            listenAddress = if isVpnConfined "sonarr" then "0.0.0.0" else cfg.sonarr.exporter.listenAddr;
           };
 
         exportarr-radarr =
-          mkIf (
-            cfg.radarr.enable
-            && (cfg.radarr.exporter.enable == null || cfg.radarr.exporter.enable)
-          ) {
+          mkIf (shouldEnableExporter "radarr") {
             enable = true;
             url = "http://127.0.0.1:7878";
             apiKeyFile = "${cfg.stateDir}/api-keys/radarr.key";
             port = cfg.radarr.exporter.port;
-            listenAddress = cfg.radarr.exporter.listenAddr;
+            listenAddress = if isVpnConfined "radarr" then "0.0.0.0" else cfg.radarr.exporter.listenAddr;
           };
 
         exportarr-lidarr =
-          mkIf (
-            cfg.lidarr.enable
-            && (cfg.lidarr.exporter.enable == null || cfg.lidarr.exporter.enable)
-          ) {
+          mkIf (shouldEnableExporter "lidarr") {
             enable = true;
             url = "http://127.0.0.1:8686";
             apiKeyFile = "${cfg.stateDir}/api-keys/lidarr.key";
             port = cfg.lidarr.exporter.port;
-            listenAddress = cfg.lidarr.exporter.listenAddr;
+            listenAddress = if isVpnConfined "lidarr" then "0.0.0.0" else cfg.lidarr.exporter.listenAddr;
           };
 
         exportarr-readarr =
-          mkIf (
-            cfg.readarr.enable
-            && (cfg.readarr.exporter.enable == null || cfg.readarr.exporter.enable)
-          ) {
+          mkIf (shouldEnableExporter "readarr") {
             enable = true;
             url = "http://127.0.0.1:8787";
             apiKeyFile = "${cfg.stateDir}/api-keys/readarr.key";
             port = cfg.readarr.exporter.port;
-            listenAddress = cfg.readarr.exporter.listenAddr;
+            listenAddress = if isVpnConfined "readarr" then "0.0.0.0" else cfg.readarr.exporter.listenAddr;
           };
 
         exportarr-prowlarr =
-          mkIf (
-            cfg.prowlarr.enable
-            && (cfg.prowlarr.exporter.enable == null || cfg.prowlarr.exporter.enable)
-          ) {
+          mkIf (shouldEnableExporter "prowlarr") {
             enable = true;
             url = "http://127.0.0.1:9696";
             apiKeyFile = "${cfg.stateDir}/api-keys/prowlarr.key";
             port = cfg.prowlarr.exporter.port;
-            listenAddress = cfg.prowlarr.exporter.listenAddr;
+            listenAddress = if isVpnConfined "prowlarr" then "0.0.0.0" else cfg.prowlarr.exporter.listenAddr;
           };
 
         # Enable node and systemd exporters by default
@@ -221,6 +226,7 @@ in {
           enable = true;
           openFirewall = false;
           port = cfg.wireguard.exporter.port;
+          listenAddress = cfg.wireguard.exporter.listenAddr;
         };
       };
     };
