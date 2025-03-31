@@ -73,9 +73,9 @@ in {
       (mkIf cfg.readarr.enable {readarr.serviceConfig.SupplementaryGroups = ["readarr-api"];})
       (mkIf cfg.prowlarr.enable {prowlarr.serviceConfig.SupplementaryGroups = ["prowlarr-api"];})
       (mkIf cfg.recyclarr.enable {
-        recyclarr.serviceConfig.SupplementaryGroups = 
-          (optional cfg.sonarr.enable "sonarr-api") ++
-          (optional cfg.radarr.enable "radarr-api");
+        recyclarr.serviceConfig.SupplementaryGroups =
+          (optional cfg.sonarr.enable "sonarr-api")
+          ++ (optional cfg.radarr.enable "radarr-api");
       })
 
       # Create API key extractors for enabled services
