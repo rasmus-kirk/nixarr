@@ -18,15 +18,25 @@ with lib; let
   # Build the final settings without using mkMerge/mkIf directly
   finalSettings =
     # Start with user settings
-    cfg.settings //
+    cfg.settings
+    //
     # Ensure host is 0.0.0.0 by default, and force it when VPN is enabled
-    (if (!(cfg.settings ? host) || cfg.vpn.enable) then { host = "0.0.0.0"; } else {}) //
+    (
+      if (!(cfg.settings ? host) || cfg.vpn.enable)
+      then {host = "0.0.0.0";}
+      else {}
+    )
+    //
     # Add metrics if enabled - use top-level keys as per autobrr docs
-    (if metricsEnabled then {
-      metricsEnabled = true;
-      metricsHost = "0.0.0.0";
-      metricsPort = cfg.exporter.port;
-    } else {});
+    (
+      if metricsEnabled
+      then {
+        metricsEnabled = true;
+        metricsHost = "0.0.0.0";
+        metricsPort = cfg.exporter.port;
+      }
+      else {}
+    );
 
   # Generate the template from the evaluated settings
   configTemplate = configFormat.generate "autobrr.toml" finalSettings;
