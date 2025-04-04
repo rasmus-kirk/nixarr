@@ -44,7 +44,7 @@ because it can cause rate limiting issues.
 ## Options
 
 The documentation for the options can be found
-[here](https://nixarr.com/options.html)
+[here](https://nixarr.com/nixos-options/)
 
 ## The Wiki
 
