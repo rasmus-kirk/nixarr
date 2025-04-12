@@ -107,13 +107,6 @@ in {
   config = mkIf (nixarr.enable && cfg.enable) {
     assertions = [
       {
-        assertion = cfg.enable -> !nixarr.jellyfin.enable;
-        message = ''
-          The nixarr.plex.vpn.enable option requires the nixarr.jellyfin.enable
-          option to NOT be set, but it was.
-        '';
-      }
-      {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''
           The nixarr.plex.vpn.enable option requires the
