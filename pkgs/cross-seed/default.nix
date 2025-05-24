@@ -2,10 +2,13 @@
   lib,
   buildNpmPackage,
   fetchFromGitHub,
+  nodejs_20,
 }:
 buildNpmPackage rec {
   pname = "cross-seed";
   version = "5.9.2";
+
+  nodejs = nodejs_20;
 
   src = fetchFromGitHub {
     owner = "cross-seed";
