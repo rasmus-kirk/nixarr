@@ -8,7 +8,6 @@ with lib; let
   cfg = config.util-nixarr.services.cross-seed;
   settingsFormat = pkgs.formats.json {};
   settingsFile = settingsFormat.generate "settings.json" cfg.settings;
-  cross-seedPkg = pkgs.callPackage ../../../pkgs/cross-seed {};
   configJs = pkgs.writeText "config.js" ''
     // Loads a json.config
     "use strict";
@@ -115,7 +114,7 @@ in {
         Type = "simple";
         User = cfg.user;
         Group = cfg.group;
-        ExecStart = "${cross-seedPkg}/bin/cross-seed daemon";
+        ExecStart = "${pkgs.cross-seed}/bin/cross-seed daemon";
         Restart = "on-failure";
       };
     };

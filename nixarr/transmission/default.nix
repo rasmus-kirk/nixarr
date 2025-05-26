@@ -371,6 +371,8 @@ in {
           watch-dir-enabled = true;
           watch-dir = "${downloadDir}/.watch";
 
+          umask = "002";
+
           rpc-bind-address =
             if cfg.vpn.enable
             then "192.168.15.1"
