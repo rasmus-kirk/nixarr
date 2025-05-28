@@ -235,7 +235,7 @@ in {
           network. You might have to use this option to extend your list
           with your local IP range by passing it with this option.
         '';
-        example = [ "192.168.2.0/24" ];
+        example = ["192.168.2.0/24"];
       };
 
       vpnTestService = {
@@ -308,11 +308,13 @@ in {
         port = cfg.vpn.vpnTestService.port;
         protocol = "tcp";
       };
-      accessibleFrom = [
-        "192.168.1.0/24"
-        "192.168.0.0/24"
-        "127.0.0.1"
-      ] ++ cfg.vpn.accessibleFrom ;
+      accessibleFrom =
+        [
+          "192.168.1.0/24"
+          "192.168.0.0/24"
+          "127.0.0.1"
+        ]
+        ++ cfg.vpn.accessibleFrom;
       wireguardConfigFile = cfg.vpn.wgConf;
     };
 
