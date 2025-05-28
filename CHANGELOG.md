@@ -1,19 +1,21 @@
 # Changelog
 
-## Unreleased
+## 2025-05-28
 
 Added:
 - Plex service
 - Autobrr service
-- Sandboxed Jellyseerr module and added expose option
+- Sandboxed Jellyseerr module and added expose option (fully resolves #22)
+- accessibleFrom option to VPN-submodule (see #51)
 
 Updated:
 - If `nixarr.enable` is not enabled other services will automatically now
   be disabled, instead of throwing an assertion error.
 
 Fixed:
-- Cross-seed now uses the nixpkgs package
-- Default Transmission umask set to "002" (664/775)
+- Airvpn DNS bug (Fixed #51)
+- Cross-seed now uses the nixpkgs package (fixed #51)
+- Default Transmission umask set to "002", meaning 664/775 permissions (fixed #56)
 
 ## 2025-03-17
 

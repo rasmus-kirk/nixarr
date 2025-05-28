@@ -220,6 +220,24 @@ in {
         description = "The path to the wireguard configuration file.";
       };
 
+      accessibleFrom = mkOption {
+        type = with types; listOf port;
+        default = [];
+        description = ''
+          What IP's the VPN submodule should be accessible from. By default
+          the following are included:
+
+          - "192.168.1.0/24"
+          - "192.168.0.0/24"
+          - "127.0.0.1"
+
+          Otherwise, you would not be able to services over your local
+          network. You might have to use this option to extend your list
+          with your local IP range by passing it with this option.
+        '';
+        example = [ "192.168.2.0/24" ];
+      };
+
       vpnTestService = {
         enable = mkEnableOption ''
           the vpn test service. Useful for testing DNS leaks or if the VPN
@@ -292,9 +310,9 @@ in {
       };
       accessibleFrom = [
         "192.168.1.0/24"
-        "10.0.0.0/8"
+        "192.168.0.0/24"
         "127.0.0.1"
-      ];
+      ] ++ cfg.vpn.accessibleFrom ;
       wireguardConfigFile = cfg.vpn.wgConf;
     };
 
