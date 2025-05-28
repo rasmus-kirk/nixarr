@@ -107,6 +107,7 @@ in {
     ./transmission
     ./sabnzbd
     ./recyclarr
+    ./monitoring
     ../util
   ];
 

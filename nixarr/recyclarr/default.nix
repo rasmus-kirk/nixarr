@@ -10,39 +10,6 @@ with lib; let
   nixarr = config.nixarr;
   format = pkgs.formats.yaml {};
 
-  # Helper function to extract API keys
-  extractApiKeys = pkgs.writeShellApplication {
-    name = "extract-recyclarr-api-keys";
-    runtimeInputs = with pkgs; [yq];
-    text = ''
-      # Ensure state directory exists with proper permissions
-      mkdir -p "${cfg.stateDir}"
-      chown ${config.services.recyclarr.user}:${config.services.recyclarr.group} "${cfg.stateDir}"
-      chmod 755 "${cfg.stateDir}"
-
-      ${optionalString nixarr.radarr.enable ''
-        # Extract Radarr API key
-        API_KEY_FILE="${cfg.stateDir}/radarr-api-key"
-        xq -r '.Config.ApiKey' "${nixarr.radarr.stateDir}/config.xml" > "$API_KEY_FILE"
-        chmod 400 "$API_KEY_FILE"
-        chown ${config.services.recyclarr.user}:${config.services.recyclarr.group} "$API_KEY_FILE"
-        echo "RADARR_API_KEY=$(tr -d '\n' < "$API_KEY_FILE")" >> "${cfg.stateDir}/env"
-      ''}
-
-      ${optionalString nixarr.sonarr.enable ''
-        # Extract Sonarr API key
-        API_KEY_FILE="${cfg.stateDir}/sonarr-api-key"
-        xq -r '.Config.ApiKey' "${nixarr.sonarr.stateDir}/config.xml" > "$API_KEY_FILE"
-        chmod 400 "$API_KEY_FILE"
-        chown ${config.services.recyclarr.user}:${config.services.recyclarr.group} "$API_KEY_FILE"
-        echo "SONARR_API_KEY=$(tr -d '\n' < "$API_KEY_FILE")" >> "${cfg.stateDir}/env"
-      ''}
-
-      chmod 400 "${cfg.stateDir}/env"
-      chown ${config.services.recyclarr.user}:${config.services.recyclarr.group} "${cfg.stateDir}/env"
-    '';
-  };
-
   # Generate configuration file from Nix attribute set if provided
   generatedConfigFile = format.generate "recyclarr-config.yml" cfg.configuration;
 
@@ -192,30 +159,27 @@ in {
       schedule = cfg.schedule;
     };
 
-    systemd.services.recyclarr-setup = {
-      description = "Setup Recyclarr environment";
-      requiredBy = ["recyclarr.service"];
-      before = ["recyclarr.service"];
-      requires =
-        (optionals nixarr.radarr.enable ["radarr.service"])
-        ++ (optionals nixarr.sonarr.enable ["sonarr.service"]);
-      after =
-        (optionals nixarr.radarr.enable ["radarr.service"])
-        ++ (optionals nixarr.sonarr.enable ["sonarr.service"]);
+    systemd.services.recyclarr = let
+      apiKeyDeps =
+        (optional nixarr.radarr.enable "radarr-api-key.service")
+        ++ (optional nixarr.sonarr.enable "sonarr-api-key.service");
+    in {
+      after = apiKeyDeps;
+      requires = apiKeyDeps;
 
       serviceConfig = {
-        Type = "oneshot";
-        RemainAfterExit = true;
-        ExecStart = "${extractApiKeys}/bin/extract-recyclarr-api-keys";
-      };
-    };
-
-    systemd.services.recyclarr = {
-      requires = ["recyclarr-setup.service"];
-      after = ["recyclarr-setup.service"];
-      serviceConfig = {
-        ExecStart = lib.mkForce "${cfg.package}/bin/recyclarr sync --app-data ${cfg.stateDir} --config ${effectiveConfigFile}";
-        EnvironmentFile = "${cfg.stateDir}/env";
+        ExecStart = lib.mkForce (pkgs.writeShellScript "recyclarr-wrapper" ''
+          ${optionalString nixarr.radarr.enable ''
+            export RADARR_API_KEY=$(cat "${nixarr.stateDir}/api-keys/radarr.key")
+          ''}
+          ${optionalString nixarr.sonarr.enable ''
+            export SONARR_API_KEY=$(cat "${nixarr.stateDir}/api-keys/sonarr.key")
+          ''}
+          exec ${lib.getExe cfg.package} sync --app-data ${cfg.stateDir} --config ${effectiveConfigFile}
+        '');
+        SupplementaryGroups =
+          (optional nixarr.radarr.enable "radarr-api")
+          ++ (optional nixarr.sonarr.enable "sonarr-api");
         ReadWritePaths = [cfg.stateDir];
       };
     };

@@ -82,7 +82,7 @@ in {
         RemoveIPC = true;
         PrivateMounts = true;
         ProtectSystem = "strict";
-        ReadWritePaths = [ cfg.configDir ];
+        ReadWritePaths = [cfg.configDir];
       };
     };
 
