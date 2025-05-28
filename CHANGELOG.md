@@ -11,6 +11,10 @@ Updated:
 - If `nixarr.enable` is not enabled other services will automatically now
   be disabled, instead of throwing an assertion error.
 
+Fixed:
+- Cross-seed now uses the nixpkgs package
+- Default Transmission umask set to "002" (664/775)
+
 ## 2025-03-17
 
 Added:
