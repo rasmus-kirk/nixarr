@@ -8,6 +8,10 @@ with lib; let
   cfg = config.nixarr.audiobookshelf;
   nixarr = config.nixarr;
 in {
+  imports = [
+    ./shelf-module
+  ];
+
   options.nixarr.audiobookshelf = {
     enable = mkOption {
       type = types.bool;
@@ -165,7 +169,7 @@ in {
     # Always prioritise Audiobookshelf IO
     systemd.services.audiobookshelf.serviceConfig.IOSchedulingPriority = 0;
 
-    services.audiobookshelf = {
+    util-nixarr.services.audiobookshelf = {
       enable = cfg.enable;
       package = cfg.package;
       port = cfg.port;

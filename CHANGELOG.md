@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+Added:
+- Audiobookshelf service, with expose options
+
 ## 2025-05-28
 
 Added:
