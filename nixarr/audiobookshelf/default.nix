@@ -45,7 +45,10 @@ in {
       type = types.port;
       default = 9292;
       example = 8000;
-      description = "Default port for Audiobookshelf";
+      description = ''
+        Default port for Audiobookshelf. The default is 8000 in nixpkgs,
+        but that's far too common a port to use.
+      '';
     };
 
     openFirewall = mkOption {

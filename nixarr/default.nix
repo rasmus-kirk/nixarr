@@ -39,6 +39,11 @@ with lib; let
         chown -R streamer:root "${cfg.plex.stateDir}"
         find "${cfg.plex.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
+      + strings.optionalString cfg.audiobookshelf.enable ''
+        chown -R streamer:media "${cfg.mediaDir}/library"
+        chown -R streamer:root "${cfg.audiobookshelf.stateDir}"
+        find "${cfg.audiobookshelf.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
       + strings.optionalString cfg.transmission.enable ''
         chown -R torrenter:media "${cfg.mediaDir}/torrents"
         chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
@@ -92,21 +97,22 @@ with lib; let
   };
 in {
   imports = [
+    ./audiobookshelf
     ./autobrr
-    ./jellyfin
-    ./jellyseerr
-    ./plex
     ./bazarr
     ./ddns
-    ./radarr
+    ./jellyfin
+    ./jellyseerr
     ./lidarr
-    ./readarr
-    ./sonarr
     ./openssh
+    ./plex
     ./prowlarr
-    ./transmission
-    ./sabnzbd
+    ./radarr
+    ./readarr
     ./recyclarr
+    ./sabnzbd
+    ./sonarr
+    ./transmission
     ../util
   ];
 
@@ -134,24 +140,22 @@ in {
 
         The following services are supported:
 
+        - [Audiobookshelf](#nixarr.audiobookshelf.enable)
+        - [Autobrr](#nixarr.autobrr.enable)
+        - [Bazarr](#nixarr.bazarr.enable)
         - [Jellyfin](#nixarr.jellyfin.enable)
         - [Jellyseerr](#nixarr.jellyseerr.enable)
-        - [Plex](#nixarr.plex.enable)
-        - [Bazarr](#nixarr.bazarr.enable)
         - [Lidarr](#nixarr.lidarr.enable)
+        - [Plex](#nixarr.plex.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)
         - [Radarr](#nixarr.radarr.enable)
         - [Readarr](#nixarr.readarr.enable)
         - [Recyclarr](#nixarr.recyclarr.enable)
+        - [SABnzbd](#nixarr.sabnzbd.enable)
         - [Sonarr](#nixarr.sonarr.enable)
         - [Transmission](#nixarr.transmission.enable)
-        - [SABnzbd](#nixarr.sabnzbd.enable)
-        - [Autobrr](#nixarr.autobrr.enable)
 
         Remember to read the options.
-
-        > **Warning:** The Jellyseerr module currently does not work on nixos 24.11.
-        > You will have to update to the `unstable` branch in order for it to work.
       '';
     };
 
