@@ -7,6 +7,9 @@
 with lib; let
   cfg = config.nixarr.plex;
   defaultPort = 32400;
+  uid = 242;
+  user = "streamer";
+  group = "media";
   nixarr = config.nixarr;
 in {
   options.nixarr.plex = {
@@ -138,22 +141,23 @@ in {
     ];
 
     users = {
-      groups.streamer = {};
-      users.streamer = {
+      groups."${group}" = {};
+      users."${user}" = {
         isSystemUser = true;
-        group = "streamer";
+        group = group;
+        uid = uid;
       };
     };
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 streamer root - -"
+      "d '${cfg.stateDir}' 0700 ${user} root - -"
 
       # Media Dirs
-      "d '${nixarr.mediaDir}/library'              0775 streamer  media - -"
-      "d '${nixarr.mediaDir}/library/shows'        0775 streamer  media - -"
-      "d '${nixarr.mediaDir}/library/movies'       0775 streamer  media - -"
-      "d '${nixarr.mediaDir}/library/music'        0775 streamer  media - -"
-      "d '${nixarr.mediaDir}/library/books'        0775 streamer  media - -"
+      "d '${nixarr.mediaDir}/library'              0775 ${user}  ${group} - -"
+      "d '${nixarr.mediaDir}/library/shows'        0775 ${user}  ${group} - -"
+      "d '${nixarr.mediaDir}/library/movies'       0775 ${user}  ${group} - -"
+      "d '${nixarr.mediaDir}/library/music'        0775 ${user}  ${group} - -"
+      "d '${nixarr.mediaDir}/library/books'        0775 ${user}  ${group} - -"
     ];
 
     # Always prioritise Plex IO
@@ -162,8 +166,8 @@ in {
     services.plex = {
       enable = cfg.enable;
       package = cfg.package;
-      user = "streamer";
-      group = "media";
+      user = user;
+      group = group;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };

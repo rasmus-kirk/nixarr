@@ -8,6 +8,8 @@ with lib; let
   cfg = config.nixarr.lidarr;
   nixarr = config.nixarr;
   port = 8686;
+  user = "lidarr";
+  group = "media";
 in {
   options.nixarr.lidarr = {
     enable = mkOption {
@@ -80,8 +82,8 @@ in {
     services.lidarr = {
       enable = cfg.enable;
       package = cfg.package;
-      user = "lidarr";
-      group = "media";
+      user = user;
+      group = group;
       settings.server.port = cfg.port;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;

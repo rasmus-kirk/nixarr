@@ -7,6 +7,8 @@
 with lib; let
   cfg = config.nixarr.radarr;
   port = 7878;
+  user = "radarr";
+  group = "media";
   nixarr = config.nixarr;
 in {
   options.nixarr.radarr = {

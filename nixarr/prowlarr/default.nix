@@ -8,6 +8,8 @@ with lib; let
   cfg = config.nixarr.prowlarr;
   nixarr = config.nixarr;
   uid = 293;
+  user = "prowlarr";
+  group = "prowlarr";
   port = 9696;
 in {
   options.nixarr.prowlarr = {
@@ -81,21 +83,19 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+      "d '${cfg.stateDir}' 0700 ${user} ${group} - -"
     ];
 
     systemd.services.prowlarr = {
       description = "prowlarr";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
-      environment = {
-        PROWLARR__SERVER__PORT = cfg.port;
-      };
+      environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
 
       serviceConfig = {
         Type = "simple";
-        User = cfg.user;
-        Group = cfg.group;
+        User = user;
+        Group = group;
         ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
         Restart = "on-failure";
       };
@@ -105,12 +105,14 @@ in {
       allowedTCPPorts = [cfg.port];
     };
 
-    users.users.prowlarr = {
-      group = "prowlarr";
-      home = cfg.stateDir;
-      uid = uid;
+    users = {
+      groups."${group}" = {};
+      users."${user}" = {
+        group = "prowlarr";
+        home = cfg.stateDir;
+        uid = uid;
+      };
     };
-    users.groups.prowlarr = {};
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.prowlarr.vpnConfinement = mkIf cfg.vpn.enable {

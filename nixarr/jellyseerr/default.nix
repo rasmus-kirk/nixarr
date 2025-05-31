@@ -8,6 +8,9 @@ with lib; let
   cfg = config.nixarr.jellyseerr;
   nixarr = config.nixarr;
   port = 5055;
+  uid = 294;
+  user = "jellyseerr";
+  group = "jellyseerr";
 in {
   options.nixarr.jellyseerr = {
     enable = mkOption {
@@ -184,16 +187,13 @@ in {
       };
     };
 
-    users.users = mkIf (cfg.user == "jellyseerr") {
-      jellyseerr = {
-        group = cfg.group;
-        home = cfg.configDir;
-        uid = 294;
+    users = {
+      users."${user}" = {
+        isSystemUser = true;
+        group = group;
+        uid = uid;
       };
-    };
-
-    users.groups = mkIf (cfg.group == "jellyseerr") {
-      jellyseerr = {};
+      groups."${group}" = {};
     };
 
     networking.firewall = mkIf cfg.expose.https.enable {

@@ -8,6 +8,8 @@ with lib; let
   cfg = config.nixarr.readarr-audiobook;
   nixarr = config.nixarr;
   uid = 269;
+  user = "readarr";
+  group = "readarr";
   port = 9494;
 in {
   options.nixarr.readarr-audiobook = {
@@ -81,21 +83,19 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+      "d '${cfg.stateDir}' 0700 ${user} ${group} - -"
     ];
 
     systemd.services.readarr-audiobook = {
       description = "Readarr-Audiobook";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
-      environment = {
-        READARR__SERVER__PORT = cfg.port;
-      };
+      environment.READARR__SERVER__PORT = builtins.toString cfg.port;
 
       serviceConfig = {
         Type = "simple";
-        User = cfg.user;
-        Group = cfg.group;
+        User = user;
+        Group = group;
         ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
         Restart = "on-failure";
       };
@@ -105,12 +105,12 @@ in {
       allowedTCPPorts = [cfg.port];
     };
 
-    users.users.readarr-audiobook = {
-      group = "readarr-audiobook";
+    users.users."${user}" = {
+      group = group;
       home = cfg.stateDir;
       uid = uid;
     };
-    users.groups.readarr-audiobook = {};
+    users.groups."${group}" = {};
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.readarr-audiobook.vpnConfinement = mkIf cfg.vpn.enable {

@@ -8,6 +8,8 @@ with lib; let
   cfg = config.nixarr.readarr;
   nixarr = config.nixarr;
   uid = 250;
+  user = "readarr";
+  group = "readarr";
   port = 8787;
 in {
   options.nixarr.readarr = {
@@ -79,21 +81,19 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+      "d '${cfg.stateDir}' 0700 ${user} ${group} - -"
     ];
 
     systemd.services.readarr = {
       description = "Readarr";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
-      environment = {
-        READARR__SERVER__PORT = cfg.port;
-      };
+      environment.READARR__SERVER__PORT = builtins.toString cfg.port;
 
       serviceConfig = {
         Type = "simple";
-        User = cfg.user;
-        Group = cfg.group;
+        User = user;
+        Group = group;
         ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
         Restart = "on-failure";
       };
@@ -104,7 +104,7 @@ in {
     };
 
     users.users.readarr = {
-      group = "readarr";
+      group = group;
       home = cfg.stateDir;
       uid = uid;
     };

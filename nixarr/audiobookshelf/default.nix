@@ -6,6 +6,10 @@
 }:
 with lib; let
   cfg = config.nixarr.audiobookshelf;
+  uid = 242;
+  user = "streamer";
+  group = "streamer";
+  port = 9292;
   nixarr = config.nixarr;
 in {
   options.nixarr.audiobookshelf = {
@@ -43,7 +47,7 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = 9292;
+      default = port;
       example = 8000;
       description = ''
         Default port for Audiobookshelf. The default is 8000 in nixpkgs,
@@ -113,7 +117,9 @@ in {
     };
   };
 
-  config = mkIf (nixarr.enable && cfg.enable) {
+  config = let
+    host = if cfg.vpn.enable then "192.168.15.1" else "127.0.0.1";
+  in mkIf (nixarr.enable && cfg.enable) {
     assertions = [
       {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
@@ -147,20 +153,21 @@ in {
     ];
 
     users = {
-      groups.streamer = {};
-      users.streamer = {
+      groups."${group}" = {};
+      users."${user}" = {
         isSystemUser = true;
-        group = "streamer";
+        group = group;
+        uid = uid;
       };
     };
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 streamer root - -"
+      "d '${cfg.stateDir}' 0700 ${user} root - -"
 
       # Media Dirs
-      "d '${nixarr.mediaDir}/library/books'       0775 streamer media - -"
-      "d '${nixarr.mediaDir}/library/audio-books' 0775 streamer media - -"
-      "d '${nixarr.mediaDir}/library/podcasts'    0775 streamer media - -"
+      "d '${nixarr.mediaDir}/library/books'       0775 ${user} ${group} - -"
+      "d '${nixarr.mediaDir}/library/audio-books' 0775 ${user} ${group} - -"
+      "d '${nixarr.mediaDir}/library/podcasts'    0775 ${user} ${group} - -"
     ];
 
     systemd.services.audiobookshelf = {
@@ -172,11 +179,11 @@ in {
       serviceConfig = {
         IOSchedulingPriority = 0;
         Type = "simple";
-        User = cfg.user;
-        Group = cfg.group;
-        StateDirectory = cfg.dataDir;
-        WorkingDirectory = cfg.dataDir;
-        ExecStart = "${cfg.package}/bin/audiobookshelf --host ${cfg.host} --port ${toString cfg.port}";
+        User = user;
+        Group = group;
+        StateDirectory = cfg.stateDir;
+        WorkingDirectory = cfg.stateDir;
+        ExecStart = "${cfg.package}/bin/audiobookshelf --host ${host} --port ${toString cfg.port}";
         Restart = "on-failure";
 
         # Security
@@ -195,16 +202,9 @@ in {
         RemoveIPC = true;
         PrivateMounts = true;
         ProtectSystem = "strict";
-        ReadWritePaths = [cfg.configDir];
+        ReadWritePaths = [cfg.stateDir];
       };
     };
-
-    users.users.audiobookshelf = {
-      isSystemUser = true;
-      group = cfg.group;
-      home = cfg.stateDir;
-    };
-    users.groups.audiobookshelf = { };
 
     networking.firewall = mkIf cfg.expose.https.enable {
       allowedTCPPorts = [80 443];

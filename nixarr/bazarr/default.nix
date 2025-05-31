@@ -7,6 +7,8 @@
 with lib; let
   cfg = config.nixarr.bazarr;
   port = 6767;
+  user = "bazarr";
+  group = "media";
   nixarr = config.nixarr;
 in {
   options.nixarr.bazarr = {
@@ -78,7 +80,7 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.dataDir}' 0700 bazarr root - -"
+      "d '${cfg.stateDir}' 0700 ${user} root - -"
     ];
 
     systemd.services.bazarr = {
@@ -88,8 +90,8 @@ in {
 
       serviceConfig = {
         Type = "simple";
-        User = "bazarr";
-        Group = "media";
+        User = user;
+        Group = group;
         SyslogIdentifier = "bazarr";
         ExecStart = pkgs.writeShellScript "start-bazarr" ''
           ${pkgs.bazarr}/bin/bazarr \
@@ -102,14 +104,16 @@ in {
     };
 
     networking.firewall = mkIf cfg.openFirewall {
-      allowedTCPPorts = [cfg.listenPort];
+      allowedTCPPorts = [cfg.port];
     };
 
-    users.users.bazarr = {
-      isSystemUser = true;
-      group = "media";
+    users = {
+      users."${user}" = {
+        isSystemUser = true;
+        group = group;
+      };
+      groups."${group}" = {};
     };
-    users.groups.bazarr = {};
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.bazarr.vpnConfinement = mkIf cfg.vpn.enable {
