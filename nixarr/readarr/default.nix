@@ -7,7 +7,8 @@
 with lib; let
   cfg = config.nixarr.readarr;
   nixarr = config.nixarr;
-  defaultPort = 8787;
+  uid = 250;
+  port = 8787;
 in {
   options.nixarr.readarr = {
     enable = mkOption {
@@ -20,6 +21,12 @@ in {
     };
 
     package = mkPackageOption pkgs "readarr" {};
+
+    port = mkOption {
+      type = types.port;
+      default = port;
+      description = "Port for Readarr to use.";
+    };
 
     stateDir = mkOption {
       type = types.path;
@@ -71,14 +78,37 @@ in {
       }
     ];
 
-    services.readarr = {
-      enable = cfg.enable;
-      package = cfg.package;
-      user = "readarr";
-      group = "media";
-      openFirewall = cfg.openFirewall;
-      dataDir = cfg.stateDir;
+    systemd.tmpfiles.rules = [
+      "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+    ];
+
+    systemd.services.readarr = {
+      description = "Readarr";
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
+      environment = {
+        READARR__SERVER__PORT = cfg.port;
+      };
+
+      serviceConfig = {
+        Type = "simple";
+        User = cfg.user;
+        Group = cfg.group;
+        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
+        Restart = "on-failure";
+      };
     };
+
+    networking.firewall = mkIf cfg.openFirewall {
+      allowedTCPPorts = [cfg.port];
+    };
+
+    users.users.readarr = {
+      group = "readarr";
+      home = cfg.stateDir;
+      uid = uid;
+    };
+    users.groups.readarr = {};
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.readarr.vpnConfinement = mkIf cfg.vpn.enable {
@@ -86,16 +116,14 @@ in {
       vpnNamespace = "wg";
     };
 
-    # Port mappings
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = defaultPort;
-          to = defaultPort;
+          from = cfg.port;
+          to = cfg.port;
         }
       ];
     };
-
     services.nginx = mkIf cfg.vpn.enable {
       enable = true;
 
@@ -103,17 +131,17 @@ in {
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
 
-      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+      virtualHosts."127.0.0.1:${builtins.toString cfg.port}" = {
         listen = [
           {
             addr = "0.0.0.0";
-            port = defaultPort;
+            port = cfg.port;
           }
         ];
         locations."/" = {
           recommendedProxySettings = true;
           proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+          proxyPass = "http://192.168.15.1:${builtins.toString cfg.port}";
         };
       };
     };

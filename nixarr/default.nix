@@ -82,6 +82,10 @@ with lib; let
         chown -R readarr:root "${cfg.readarr.stateDir}"
         find "${cfg.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
+      + strings.optionalString cfg.readarr-audiobook.enable ''
+        chown -R readarr:root "${cfg.readarr-audiobook.stateDir}"
+        find "${cfg.readarr-audiobook.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''
       + strings.optionalString cfg.jellyseerr.enable ''
         chown -R jellyseerr:root "${cfg.jellyseerr.stateDir}"
         find "${cfg.jellyseerr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
@@ -109,6 +113,7 @@ in {
     ./prowlarr
     ./radarr
     ./readarr
+    ./readarr-audiobook
     ./recyclarr
     ./sabnzbd
     ./sonarr
@@ -150,12 +155,13 @@ in {
         - [Prowlarr](#nixarr.prowlarr.enable)
         - [Radarr](#nixarr.radarr.enable)
         - [Readarr](#nixarr.readarr.enable)
+        - [Readarr Audiobook](#nixarr.readarr-audiobook.enable)
         - [Recyclarr](#nixarr.recyclarr.enable)
         - [SABnzbd](#nixarr.sabnzbd.enable)
         - [Sonarr](#nixarr.sonarr.enable)
         - [Transmission](#nixarr.transmission.enable)
 
-        Remember to read the options.
+        Remember to read the options!
       '';
     };
 

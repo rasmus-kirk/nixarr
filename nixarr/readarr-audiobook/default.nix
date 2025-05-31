@@ -5,44 +5,44 @@
   ...
 }:
 with lib; let
-  cfg = config.nixarr.prowlarr;
+  cfg = config.nixarr.readarr-audiobook;
   nixarr = config.nixarr;
-  uid = 293;
-  port = 9696;
+  uid = 269;
+  port = 9494;
 in {
-  options.nixarr.prowlarr = {
+  options.nixarr.readarr-audiobook = {
     enable = mkOption {
       type = types.bool;
       default = false;
       example = true;
       description = ''
-        Whether or not to enable the Prowlarr service. This has
+        Whether or not to enable the Readarr Audiobook service. This has
         a seperate service since running two instances is the standard
         way of being able to query both ebooks and audiobooks.
       '';
     };
 
-    package = mkPackageOption pkgs "prowlarr" {};
+    package = mkPackageOption pkgs "readarr" {};
 
     port = mkOption {
       type = types.port;
       default = port;
-      description = "Port for Prowlarr to use.";
+      description = "Port for Readarr Audiobook to use.";
     };
 
     stateDir = mkOption {
       type = types.path;
-      default = "${nixarr.stateDir}/prowlarr";
-      defaultText = literalExpression ''"''${nixarr.stateDir}/prowlarr"'';
-      example = "/nixarr/.state/prowlarr";
+      default = "${nixarr.stateDir}/readarr-audiobook";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/readarr-audiobook"'';
+      example = "/nixarr/.state/readarr-audiobook";
       description = ''
-        The location of the state directory for the Prowlarr service.
+        The location of the state directory for the Readarr Audiobook service.
 
         > **Warning:** Setting this to any path, where the subpath is not
         > owned by root, will fail! For example:
         >
         > ```nix
-        >   stateDir = /home/user/nixarr/.state/prowlarr
+        >   stateDir = /home/user/nixarr/.state/readarr-audiobook
         > ```
         >
         > Is not supported, because `/home/user` is owned by `user`.
@@ -51,10 +51,10 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.prowlarr.vpn.enable'';
+      defaultText = literalExpression ''!nixarr.readarr-audiobook.vpn.enable'';
       default = !cfg.vpn.enable;
       example = true;
-      description = "Open firewall for Prowlarr";
+      description = "Open firewall for Readarr Audiobook";
     };
 
     vpn.enable = mkOption {
@@ -64,7 +64,7 @@ in {
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
-        Route Prowlarr traffic through the VPN.
+        Route Readarr Audiobook traffic through the VPN.
       '';
     };
   };
@@ -74,7 +74,7 @@ in {
       {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''
-          The nixarr.prowlarr.vpn.enable option requires the
+          The nixarr.readarr-audiobook.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
@@ -84,12 +84,12 @@ in {
       "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
     ];
 
-    systemd.services.prowlarr = {
-      description = "prowlarr";
+    systemd.services.readarr-audiobook = {
+      description = "Readarr-Audiobook";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
       environment = {
-        PROWLARR__SERVER__PORT = cfg.port;
+        READARR__SERVER__PORT = cfg.port;
       };
 
       serviceConfig = {
@@ -105,15 +105,15 @@ in {
       allowedTCPPorts = [cfg.port];
     };
 
-    users.users.prowlarr = {
-      group = "prowlarr";
+    users.users.readarr-audiobook = {
+      group = "readarr-audiobook";
       home = cfg.stateDir;
       uid = uid;
     };
-    users.groups.prowlarr = {};
+    users.groups.readarr-audiobook = {};
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.prowlarr.vpnConfinement = mkIf cfg.vpn.enable {
+    systemd.services.readarr-audiobook.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
       vpnNamespace = "wg";
     };
