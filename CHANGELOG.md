@@ -3,6 +3,12 @@
 ## Unreleased
 
 Added:
+- Added Readarr Audiobook for running two readarr instances
+- Port configurations on:
+  - Radarr
+  - Sonarr
+  - Prowlarr
+  - Readarr
 - Audiobookshelf service, with expose options
 
 ## 2025-05-28
