@@ -6,7 +6,7 @@
 }:
 with lib; let
   cfg = config.nixarr.radarr;
-  defaultPort = 7878;
+  port = 7878;
   nixarr = config.nixarr;
 in {
   options.nixarr.radarr = {
@@ -20,6 +20,12 @@ in {
     };
 
     package = mkPackageOption pkgs "radarr" {};
+
+    port = mkOption {
+      type = types.port;
+      default = port;
+      description = "Port for Radarr to use.";
+    };
 
     stateDir = mkOption {
       type = types.path;
@@ -76,6 +82,7 @@ in {
       package = cfg.package;
       user = "radarr";
       group = "media";
+      settings.server.port = cfg.port;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
@@ -90,8 +97,8 @@ in {
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = defaultPort;
-          to = defaultPort;
+          from = cfg.port;
+          to = cfg.port;
         }
       ];
     };
@@ -103,17 +110,17 @@ in {
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
 
-      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+      virtualHosts."127.0.0.1:${builtins.toString cfg.port}" = {
         listen = [
           {
             addr = "0.0.0.0";
-            port = defaultPort;
+            port = cfg.port;
           }
         ];
         locations."/" = {
           recommendedProxySettings = true;
           proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+          proxyPass = "http://192.168.15.1:${builtins.toString cfg.port}";
         };
       };
     };

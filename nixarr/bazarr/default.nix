@@ -6,12 +6,9 @@
 }:
 with lib; let
   cfg = config.nixarr.bazarr;
+  port = 6767;
   nixarr = config.nixarr;
 in {
-  imports = [
-    ./bazarr-module
-  ];
-
   options.nixarr.bazarr = {
     enable = mkOption {
       type = types.bool;
@@ -23,6 +20,12 @@ in {
     };
 
     package = mkPackageOption pkgs "bazarr" {};
+
+    port = mkOption {
+      type = types.port;
+      default = port;
+      description = "Port for Bazarr to use.";
+    };
 
     stateDir = mkOption {
       type = types.path;
@@ -74,14 +77,39 @@ in {
       }
     ];
 
-    util-nixarr.services.bazarr = {
-      enable = cfg.enable;
-      package = cfg.package;
-      user = "bazarr";
-      group = "media";
-      openFirewall = cfg.openFirewall;
-      dataDir = cfg.stateDir;
+    systemd.tmpfiles.rules = [
+      "d '${cfg.dataDir}' 0700 bazarr root - -"
+    ];
+
+    systemd.services.bazarr = {
+      description = "bazarr";
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
+
+      serviceConfig = {
+        Type = "simple";
+        User = "bazarr";
+        Group = "media";
+        SyslogIdentifier = "bazarr";
+        ExecStart = pkgs.writeShellScript "start-bazarr" ''
+          ${pkgs.bazarr}/bin/bazarr \
+            --config '${cfg.stateDir}' \
+            --port ${toString cfg.port} \
+            --no-update True
+        '';
+        Restart = "on-failure";
+      };
     };
+
+    networking.firewall = mkIf cfg.openFirewall {
+      allowedTCPPorts = [cfg.listenPort];
+    };
+
+    users.users.bazarr = {
+      isSystemUser = true;
+      group = "media";
+    };
+    users.groups.bazarr = {};
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.bazarr.vpnConfinement = mkIf cfg.vpn.enable {
@@ -90,12 +118,11 @@ in {
     };
 
     # Port mappings
-    # TODO: openports
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = config.bazarr.listenPort;
-          to = config.bazarr.listenPort;
+          from = cfg.port;
+          to = cfg.port;
         }
       ];
     };
@@ -107,17 +134,17 @@ in {
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
 
-      virtualHosts."127.0.0.1:${builtins.toString config.bazarr.listenPort}" = {
+      virtualHosts."127.0.0.1:${builtins.toString cfg.port}" = {
         listen = [
           {
             addr = "0.0.0.0";
-            port = config.bazarr.listenPort;
+            port = cfg.port;
           }
         ];
         locations."/" = {
           recommendedProxySettings = true;
           proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString config.bazarr.listenPort}";
+          proxyPass = "http://192.168.15.1:${builtins.toString cfg.port}";
         };
       };
     };

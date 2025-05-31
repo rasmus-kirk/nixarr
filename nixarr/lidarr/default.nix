@@ -7,7 +7,7 @@
 with lib; let
   cfg = config.nixarr.lidarr;
   nixarr = config.nixarr;
-  defaultPort = 8686;
+  port = 8686;
 in {
   options.nixarr.lidarr = {
     enable = mkOption {
@@ -20,6 +20,12 @@ in {
     };
 
     package = mkPackageOption pkgs "lidarr" {};
+
+    port = mkOption {
+      type = types.port;
+      default = port;
+      description = "Port for Lidarr to use.";
+    };
 
     stateDir = mkOption {
       type = types.path;
@@ -76,6 +82,7 @@ in {
       package = cfg.package;
       user = "lidarr";
       group = "media";
+      settings.server.port = cfg.port;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
@@ -91,8 +98,8 @@ in {
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = defaultPort;
-          to = defaultPort;
+          from = cfg.port;
+          to = cfg.port;
         }
       ];
     };
@@ -104,17 +111,17 @@ in {
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
 
-      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+      virtualHosts."127.0.0.1:${builtins.toString cfg.port}" = {
         listen = [
           {
             addr = "0.0.0.0";
-            port = defaultPort;
+            port = cfg.port;
           }
         ];
         locations."/" = {
           recommendedProxySettings = true;
           proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+          proxyPass = "http://192.168.15.1:${builtins.toString cfg.port}";
         };
       };
     };

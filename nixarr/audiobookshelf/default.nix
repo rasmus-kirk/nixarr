@@ -8,10 +8,6 @@ with lib; let
   cfg = config.nixarr.audiobookshelf;
   nixarr = config.nixarr;
 in {
-  imports = [
-    ./shelf-module
-  ];
-
   options.nixarr.audiobookshelf = {
     enable = mkOption {
       type = types.bool;
@@ -162,22 +158,53 @@ in {
       "d '${cfg.stateDir}' 0700 streamer root - -"
 
       # Media Dirs
-      "d '${nixarr.mediaDir}/library/books'    0775 streamer media - -"
-      "d '${nixarr.mediaDir}/library/podcasts' 0775 streamer media - -"
+      "d '${nixarr.mediaDir}/library/books'       0775 streamer media - -"
+      "d '${nixarr.mediaDir}/library/audio-books' 0775 streamer media - -"
+      "d '${nixarr.mediaDir}/library/podcasts'    0775 streamer media - -"
     ];
 
-    # Always prioritise Audiobookshelf IO
-    systemd.services.audiobookshelf.serviceConfig.IOSchedulingPriority = 0;
+    systemd.services.audiobookshelf = {
+      description = "Audiobookshelf is a self-hosted audiobook and podcast server";
 
-    util-nixarr.services.audiobookshelf = {
-      enable = cfg.enable;
-      package = cfg.package;
-      port = cfg.port;
-      user = "streamer";
-      group = "media";
-      openFirewall = cfg.openFirewall;
-      dataDir = cfg.stateDir;
+      after = [ "network.target" ];
+      wantedBy = [ "multi-user.target" ];
+
+      serviceConfig = {
+        IOSchedulingPriority = 0;
+        Type = "simple";
+        User = cfg.user;
+        Group = cfg.group;
+        StateDirectory = cfg.dataDir;
+        WorkingDirectory = cfg.dataDir;
+        ExecStart = "${cfg.package}/bin/audiobookshelf --host ${cfg.host} --port ${toString cfg.port}";
+        Restart = "on-failure";
+
+        # Security
+        ProtectHome = true;
+        PrivateTmp = true;
+        PrivateDevices = true;
+        ProtectHostname = true;
+        ProtectClock = true;
+        ProtectKernelTunables = true;
+        ProtectKernelModules = true;
+        ProtectKernelLogs = true;
+        ProtectControlGroups = true;
+        NoNewPrivileges = true;
+        RestrictRealtime = true;
+        RestrictSUIDSGID = true;
+        RemoveIPC = true;
+        PrivateMounts = true;
+        ProtectSystem = "strict";
+        ReadWritePaths = [cfg.configDir];
+      };
     };
+
+    users.users.audiobookshelf = {
+      isSystemUser = true;
+      group = cfg.group;
+      home = cfg.stateDir;
+    };
+    users.groups.audiobookshelf = { };
 
     networking.firewall = mkIf cfg.expose.https.enable {
       allowedTCPPorts = [80 443];

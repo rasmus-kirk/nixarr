@@ -7,12 +7,8 @@
 with lib; let
   cfg = config.nixarr.jellyseerr;
   nixarr = config.nixarr;
-  defaultPort = 5055;
+  port = 5055;
 in {
-  imports = [
-    ./jellyseerr-module
-  ];
-
   options.nixarr.jellyseerr = {
     enable = mkOption {
       type = types.bool;
@@ -46,7 +42,7 @@ in {
 
     port = mkOption {
       type = types.port;
-      default = defaultPort;
+      default = port;
       example = 12345;
       description = "Jellyseerr web-UI port.";
     };
@@ -146,12 +142,58 @@ in {
       }
     ];
 
-    util-nixarr.services.jellyseerr = {
-      enable = true;
-      package = cfg.package;
-      openFirewall = cfg.openFirewall;
-      port = cfg.port;
-      configDir = cfg.stateDir;
+    systemd.tmpfiles.rules = [
+      "d '${cfg.configDir}' 0700 ${cfg.user} ${cfg.group} - -"
+    ];
+
+    systemd.services.jellyseerr = {
+      description = "Jellyseerr, a requests manager for Jellyfin";
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
+      environment = {
+        PORT = toString cfg.port;
+        CONFIG_DIRECTORY = cfg.configDir;
+      };
+
+      serviceConfig = {
+        Type = "exec";
+        StateDirectory = "jellyseerr";
+        DynamicUser = false;
+        User = cfg.user;
+        Group = cfg.group;
+        ExecStart = lib.getExe cfg.package;
+        Restart = "on-failure";
+
+        # Security
+        ProtectHome = true;
+        PrivateTmp = true;
+        PrivateDevices = true;
+        ProtectHostname = true;
+        ProtectClock = true;
+        ProtectKernelTunables = true;
+        ProtectKernelModules = true;
+        ProtectKernelLogs = true;
+        ProtectControlGroups = true;
+        NoNewPrivileges = true;
+        RestrictRealtime = true;
+        RestrictSUIDSGID = true;
+        RemoveIPC = true;
+        PrivateMounts = true;
+        ProtectSystem = "strict";
+        ReadWritePaths = [cfg.configDir];
+      };
+    };
+
+    users.users = mkIf (cfg.user == "jellyseerr") {
+      jellyseerr = {
+        group = cfg.group;
+        home = cfg.configDir;
+        uid = 294;
+      };
+    };
+
+    users.groups = mkIf (cfg.group == "jellyseerr") {
+      jellyseerr = {};
     };
 
     networking.firewall = mkIf cfg.expose.https.enable {
@@ -178,22 +220,22 @@ in {
           locations."/" = {
             recommendedProxySettings = true;
             proxyWebsockets = true;
-            proxyPass = "http://127.0.0.1:${builtins.toString defaultPort}";
+            proxyPass = "http://127.0.0.1:${builtins.toString cfg.port}";
           };
         };
       })
       (mkIf cfg.vpn.enable {
-        virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+        virtualHosts."127.0.0.1:${builtins.toString cfg.port}" = {
           listen = [
             {
               addr = "0.0.0.0";
-              port = defaultPort;
+              port = cfg.port;
             }
           ];
           locations."/" = {
             recommendedProxySettings = true;
             proxyWebsockets = true;
-            proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+            proxyPass = "http://192.168.15.1:${builtins.toString cfg.port}";
           };
         };
       })
@@ -214,8 +256,8 @@ in {
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = defaultPort;
-          to = defaultPort;
+          from = cfg.port;
+          to = cfg.port;
         }
       ];
     };
