@@ -6,10 +6,8 @@
 }:
 with lib; let
   cfg = config.nixarr.prowlarr;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
-  uid = 293;
-  user = "prowlarr";
-  group = "prowlarr";
   port = 9696;
 in {
   options.nixarr.prowlarr = {
@@ -83,7 +81,7 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 ${user} ${group} - -"
+      "d '${cfg.stateDir}' 0700 ${globals.prowlarr.user} root - -"
     ];
 
     systemd.services.prowlarr = {
@@ -94,8 +92,8 @@ in {
 
       serviceConfig = {
         Type = "simple";
-        User = user;
-        Group = group;
+        User = globals.prowlarr.user;
+        Group = globals.prowlarr.group;
         ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
         Restart = "on-failure";
       };
@@ -106,11 +104,11 @@ in {
     };
 
     users = {
-      groups."${group}" = {};
-      users."${user}" = {
-        group = "prowlarr";
-        home = cfg.stateDir;
-        uid = uid;
+      groups.${globals.prowlarr.group}.gid = globals.gids.${globals.prowlarr.group};
+      users.${globals.prowlarr.user} = {
+        isSystemUser = true;
+        group = globals.prowlarr.group;
+        uid = globals.uids.${globals.prowlarr.user};
       };
     };
 

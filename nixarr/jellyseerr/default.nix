@@ -6,11 +6,9 @@
 }:
 with lib; let
   cfg = config.nixarr.jellyseerr;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   port = 5055;
-  uid = 294;
-  user = "jellyseerr";
-  group = "jellyseerr";
 in {
   options.nixarr.jellyseerr = {
     enable = mkOption {
@@ -146,7 +144,7 @@ in {
     ];
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.configDir}' 0700 ${cfg.user} ${cfg.group} - -"
+      "d '${cfg.stateDir}' 0700 ${globals.jellyseerr.user} root - -"
     ];
 
     systemd.services.jellyseerr = {
@@ -155,15 +153,15 @@ in {
       wantedBy = ["multi-user.target"];
       environment = {
         PORT = toString cfg.port;
-        CONFIG_DIRECTORY = cfg.configDir;
+        CONFIG_DIRECTORY = cfg.stateDir;
       };
 
       serviceConfig = {
         Type = "exec";
         StateDirectory = "jellyseerr";
         DynamicUser = false;
-        User = cfg.user;
-        Group = cfg.group;
+        User = globals.jellyseerr.user;
+        Group = globals.jellyseerr.group;
         ExecStart = lib.getExe cfg.package;
         Restart = "on-failure";
 
@@ -183,17 +181,17 @@ in {
         RemoveIPC = true;
         PrivateMounts = true;
         ProtectSystem = "strict";
-        ReadWritePaths = [cfg.configDir];
+        ReadWritePaths = [cfg.stateDir];
       };
     };
 
     users = {
-      users."${user}" = {
+      groups.${globals.jellyseerr.group}.gid = globals.gids.${globals.jellyseerr.group};
+      users.${globals.jellyseerr.user} = {
         isSystemUser = true;
-        group = group;
-        uid = uid;
+        group = globals.jellyseerr.group;
+        uid = globals.uids.${globals.jellyseerr.user};
       };
-      groups."${group}" = {};
     };
 
     networking.firewall = mkIf cfg.expose.https.enable {

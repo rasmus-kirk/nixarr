@@ -6,7 +6,9 @@
 }:
 with lib; let
   cfg = config.nixarr.transmission;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
+
   cfg-cross-seed = config.nixarr.transmission.privateTrackers.cross-seed;
   downloadDir = "${nixarr.mediaDir}/torrents";
   transmissionCrossSeedScript = with builtins;
@@ -284,37 +286,37 @@ in {
     ];
 
     users = {
-      groups = {
-        torrenter = {};
-        cross-seed = {};
-      };
-      users.torrenter = {
+      groups.${globals.transmission.group}.gid = globals.gids.${globals.transmission.group};
+      groups.${globals.cross-seed.group}.gid = globals.gids.${globals.cross-seed.group};
+      users.${globals.transmission.user} = {
         isSystemUser = true;
-        group = "torrenter";
+        group = globals.transmission.group;
+        uid = globals.uids.${globals.transmission.user};
       };
     };
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0750 torrenter cross-seed - -"
+      "d '${cfg.stateDir}' 0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
-      "d '${cfg.stateDir}/.config' 0750 torrenter cross-seed - -"
-      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 torrenter cross-seed - -"
+      "d '${cfg.stateDir}/.config' 0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
+      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
 
       # Media Dirs
-      "d '${nixarr.mediaDir}/torrents'             0755 torrenter media - -"
-      "d '${nixarr.mediaDir}/torrents/.incomplete' 0755 torrenter media - -"
-      "d '${nixarr.mediaDir}/torrents/.watch'      0755 torrenter media - -"
-      "d '${nixarr.mediaDir}/torrents/manual'      0755 torrenter media - -"
-      "d '${nixarr.mediaDir}/torrents/lidarr'      0755 torrenter media - -"
-      "d '${nixarr.mediaDir}/torrents/radarr'      0755 torrenter media - -"
-      "d '${nixarr.mediaDir}/torrents/sonarr'      0755 torrenter media - -"
-      "d '${nixarr.mediaDir}/torrents/readarr'     0755 torrenter media - -"
+      "d '${nixarr.mediaDir}/torrents'             0755 ${globals.transmission.user} ${globals.transmission.group} - -"
+      "d '${nixarr.mediaDir}/torrents/.incomplete' 0755 ${globals.transmission.user} ${globals.transmission.group} - -"
+      "d '${nixarr.mediaDir}/torrents/.watch'      0755 ${globals.transmission.user} ${globals.transmission.group} - -"
+      "d '${nixarr.mediaDir}/torrents/manual'      0755 ${globals.transmission.user} ${globals.transmission.group} - -"
+      "d '${nixarr.mediaDir}/torrents/lidarr'      0755 ${globals.transmission.user} ${globals.transmission.group} - -"
+      "d '${nixarr.mediaDir}/torrents/radarr'      0755 ${globals.transmission.user} ${globals.transmission.group} - -"
+      "d '${nixarr.mediaDir}/torrents/sonarr'      0755 ${globals.transmission.user} ${globals.transmission.group} - -"
+      "d '${nixarr.mediaDir}/torrents/readarr'     0755 ${globals.transmission.user} ${globals.transmission.group} - -"
     ];
 
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
       dataDir = cfg-cross-seed.stateDir;
-      group = "cross-seed";
+      user = globals.cross-seed.user;
+      group = globals.cross-seed.group;
       settings =
         {
           torrentDir = "${cfg.stateDir}/.config/transmission-daemon/torrents";
@@ -352,8 +354,8 @@ in {
 
     services.transmission = {
       enable = true;
-      user = "torrenter";
-      group = "media";
+      user = globals.transmission.user;
+      group = globals.transmission.group;
       home = cfg.stateDir;
       webHome =
         if cfg.flood.enable

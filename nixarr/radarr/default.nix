@@ -6,9 +6,8 @@
 }:
 with lib; let
   cfg = config.nixarr.radarr;
+  globals = config.util-nixarr.globals;
   port = 7878;
-  user = "radarr";
-  group = "media";
   nixarr = config.nixarr;
 in {
   options.nixarr.radarr = {
@@ -79,11 +78,25 @@ in {
       }
     ];
 
+    systemd.tmpfiles.rules = [
+      "d '${nixarr.mediaDir}/library'        0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/movies' 0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+    ];
+
+    users = {
+      groups.${globals.radarr.group}.gid = globals.gids.${globals.radarr.group};
+      users.${globals.radarr.user} = {
+        isSystemUser = true;
+        group = globals.radarr.group;
+        uid = globals.uids.${globals.radarr.user};
+      };
+    };
+
     services.radarr = {
       enable = cfg.enable;
       package = cfg.package;
-      user = "radarr";
-      group = "media";
+      user = globals.radarr.user;
+      group = globals.radarr.group;
       settings.server.port = cfg.port;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;

@@ -6,6 +6,7 @@
 }:
 with lib; let
   cfg = config.nixarr.sonarr;
+  globals = config.util-nixarr.globals;
   defaultPort = 8989;
   nixarr = config.nixarr;
 in {
@@ -71,11 +72,25 @@ in {
       }
     ];
 
+    users = {
+      groups.${globals.sonarr.group}.gid = globals.gids.${globals.sonarr.group};
+      users.${globals.sonarr.user} = {
+        isSystemUser = true;
+        group = globals.sonarr.group;
+        uid = globals.uids.${globals.sonarr.user};
+      };
+    };
+
+    systemd.tmpfiles.rules = [
+      "d '${nixarr.mediaDir}/library'        0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/shows'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+    ];
+
     services.sonarr = {
       enable = cfg.enable;
       package = cfg.package;
-      user = "sonarr";
-      group = "media";
+      user = globals.sonarr.user;
+      group = globals.sonarr.group;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };

@@ -6,10 +6,8 @@
 }:
 with lib; let
   cfg = config.nixarr.autobrr;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
-  # Externalize username and group
-  user = "autobrr";
-  group = "autobrr";
 
   # Define config format and template
   configFormat = pkgs.formats.toml {};
@@ -97,16 +95,17 @@ in {
     ];
 
     users = {
-      groups.${group} = {};
-      users.${user} = {
+      groups.${globals.autobrr.group}.gid = globals.gids.${globals.autobrr.group};
+      users.${globals.autobrr.user} = {
         isSystemUser = true;
-        group = group;
+        group = globals.autobrr.group;
+        uid = globals.uids.${globals.autobrr.user};
       };
     };
 
     # Create state directory with proper permissions
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 ${user} ${group} - -"
+      "d '${cfg.stateDir}' 0700 ${globals.autobrr.user} root - -"
     ];
 
     # Configure the autobrr service
@@ -134,8 +133,8 @@ in {
 
       serviceConfig = {
         Type = "simple";
-        User = user;
-        Group = "root";
+        User = globals.autobrr.user;
+        Group = globals.autobrr.group;
         UMask = 066;
         DynamicUser = lib.mkForce false;
         # disable SecretFilec

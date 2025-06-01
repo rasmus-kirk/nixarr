@@ -6,6 +6,7 @@
 }:
 with lib; let
   cfg = config.nixarr.sabnzbd;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
 in {
   options.nixarr.sabnzbd = {
@@ -185,33 +186,34 @@ in {
       ];
 
       users = {
-        groups.usenet = {};
-        users.usenet = {
+        groups.${globals.sabnzbd.group}.gid = globals.gids.${globals.sabnzbd.group};
+        users.${globals.sabnzbd.user} = {
           isSystemUser = true;
-          group = "usenet";
+          group = group;
+          uid = globals.uids.${globals.sabnzbd.user};
         };
       };
 
       systemd.tmpfiles.rules = [
-        "d '${cfg.stateDir}' 0700 usenet root - -"
+        "d '${cfg.stateDir}' 0700 ${globals.sabnzbd.user} root - -"
         "C ${cfg.stateDir}/sabnzbd.ini - - - - ${ini-base-config-file}"
 
         # Media dirs
-        "d '${nixarr.mediaDir}/usenet'             0755 usenet media - -"
-        "d '${nixarr.mediaDir}/usenet/.incomplete' 0755 usenet media - -"
-        "d '${nixarr.mediaDir}/usenet/.watch'      0755 usenet media - -"
-        "d '${nixarr.mediaDir}/usenet/manual'      0775 usenet media - -"
-        "d '${nixarr.mediaDir}/usenet/lidarr'      0775 usenet media - -"
-        "d '${nixarr.mediaDir}/usenet/radarr'      0775 usenet media - -"
-        "d '${nixarr.mediaDir}/usenet/sonarr'      0775 usenet media - -"
-        "d '${nixarr.mediaDir}/usenet/readarr'     0775 usenet media - -"
+        "d '${nixarr.mediaDir}/usenet'             0755 ${globals.sabnzbd.user} ${globals.sabnzbd.group} - -"
+        "d '${nixarr.mediaDir}/usenet/.incomplete' 0755 ${globals.sabnzbd.user} ${globals.sabnzbd.group} - -"
+        "d '${nixarr.mediaDir}/usenet/.watch'      0755 ${globals.sabnzbd.user} ${globals.sabnzbd.group} - -"
+        "d '${nixarr.mediaDir}/usenet/manual'      0775 ${globals.sabnzbd.user} ${globals.sabnzbd.group} - -"
+        "d '${nixarr.mediaDir}/usenet/lidarr'      0775 ${globals.sabnzbd.user} ${globals.sabnzbd.group} - -"
+        "d '${nixarr.mediaDir}/usenet/radarr'      0775 ${globals.sabnzbd.user} ${globals.sabnzbd.group} - -"
+        "d '${nixarr.mediaDir}/usenet/sonarr'      0775 ${globals.sabnzbd.user} ${globals.sabnzbd.group} - -"
+        "d '${nixarr.mediaDir}/usenet/readarr'     0775 ${globals.sabnzbd.user} ${globals.sabnzbd.group} - -"
       ];
 
       services.sabnzbd = {
         enable = true;
         package = cfg.package;
-        user = "usenet";
-        group = "media";
+        user = globals.sabnzbd.user;
+        group = globals.sabnzbd.group;
         configFile = "${cfg.stateDir}/sabnzbd.ini";
       };
 

@@ -6,10 +6,9 @@
 }:
 with lib; let
   cfg = config.nixarr.lidarr;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   port = 8686;
-  user = "lidarr";
-  group = "media";
 in {
   options.nixarr.lidarr = {
     enable = mkOption {
@@ -79,11 +78,25 @@ in {
       }
     ];
 
+    users = {
+      groups.${globals.lidarr.group}.gid = globals.gids.${globals.lidarr.group};
+      users.${globals.lidarr.user} = {
+        isSystemUser = true;
+        group = globals.lidarr.group;
+        uid = globals.uids.${globals.lidarr.user};
+      };
+    };
+
+    systemd.tmpfiles.rules = [
+      "d '${nixarr.mediaDir}/library'        0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/music'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+    ];
+
     services.lidarr = {
       enable = cfg.enable;
       package = cfg.package;
-      user = user;
-      group = group;
+      user = globals.lidarr.user;
+      group = globals.lidarr.group;
       settings.server.port = cfg.port;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;

@@ -6,9 +6,7 @@
 }:
 with lib; let
   cfg = config.nixarr.audiobookshelf;
-  uid = 242;
-  user = "streamer";
-  group = "streamer";
+  globals = config.util-nixarr.globals;
   port = 9292;
   nixarr = config.nixarr;
 in {
@@ -153,21 +151,20 @@ in {
     ];
 
     users = {
-      groups."${group}" = {};
-      users."${user}" = {
+      groups.${globals.audiobookshelf.group}.gid = globals.gids.${globals.audiobookshelf.group};
+      users.${globals.audiobookshelf.user} = {
         isSystemUser = true;
-        group = group;
-        uid = uid;
+        group = globals.audiobookshelf.group;
+        uid = globals.uids.${globals.audiobookshelf.user};
       };
     };
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 ${user} root - -"
+      "d '${cfg.stateDir}' 0700 ${globals.audiobookshelf.user} root - -"
 
       # Media Dirs
-      "d '${nixarr.mediaDir}/library/books'       0775 ${user} ${group} - -"
-      "d '${nixarr.mediaDir}/library/audio-books' 0775 ${user} ${group} - -"
-      "d '${nixarr.mediaDir}/library/podcasts'    0775 ${user} ${group} - -"
+      "d '${nixarr.mediaDir}/library/audiobooks'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/podcasts'    0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
     systemd.services.audiobookshelf = {
@@ -179,8 +176,8 @@ in {
       serviceConfig = {
         IOSchedulingPriority = 0;
         Type = "simple";
-        User = user;
-        Group = group;
+        User = globals.audiobookshelf.user;
+        Group = globals.audiobookshelf.group;
         StateDirectory = cfg.stateDir;
         WorkingDirectory = cfg.stateDir;
         ExecStart = "${cfg.package}/bin/audiobookshelf --host ${host} --port ${toString cfg.port}";

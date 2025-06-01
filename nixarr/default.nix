@@ -6,6 +6,7 @@
 }:
 with lib; let
   cfg = config.nixarr;
+  globals = config.util-nixarr.globals;
   list-unlinked = pkgs.writeShellApplication {
     name = "list-unlinked";
     runtimeInputs = with pkgs; [util-linux];
@@ -30,72 +31,72 @@ with lib; let
         find "${cfg.mediaDir}" \( -type d -exec chmod 0775 {} + -true \) -o \( -exec chmod 0664 {} + \)
       ''
       + strings.optionalString cfg.jellyfin.enable ''
-        chown -R streamer:media "${cfg.mediaDir}/library"
-        chown -R streamer:root "${cfg.jellyfin.stateDir}"
+        chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${cfg.mediaDir}/library"
+        chown -R ${globals.jellyfin.user}:root "${cfg.jellyfin.stateDir}"
         find "${cfg.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.plex.enable ''
-        chown -R streamer:media "${cfg.mediaDir}/library"
-        chown -R streamer:root "${cfg.plex.stateDir}"
+        chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${cfg.mediaDir}/library"
+        chown -R ${globals.plex.user}:root "${cfg.plex.stateDir}"
         find "${cfg.plex.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.audiobookshelf.enable ''
-        chown -R streamer:media "${cfg.mediaDir}/library"
-        chown -R streamer:root "${cfg.audiobookshelf.stateDir}"
+        chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${cfg.mediaDir}/library"
+        chown -R ${globals.audiobookshelf.user}:root "${cfg.audiobookshelf.stateDir}"
         find "${cfg.audiobookshelf.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.transmission.enable ''
-        chown -R torrenter:media "${cfg.mediaDir}/torrents"
-        chown -R torrenter:cross-seed "${cfg.transmission.stateDir}"
+        chown -R ${globals.transmission.user}:${globals.transmission.group} "${cfg.mediaDir}/torrents"
+        chown -R ${globals.transmission.user}:${globals.transmission.group} "${cfg.transmission.stateDir}"
         find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
       ''
       + strings.optionalString cfg.sabnzbd.enable ''
-        chown -R usenet:media "${cfg.mediaDir}/usenet"
-        chown -R usenet:root "${cfg.sabnzbd.stateDir}"
+        chown -R ${globals.sabnzbd.user}:${globals.sabnzbd.group} "${cfg.mediaDir}/usenet"
+        chown -R ${globals.sabnzbd.user}:root "${cfg.sabnzbd.stateDir}"
         find "${cfg.sabnzbd.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.transmission.privateTrackers.cross-seed.enable ''
-        chown -R cross-seed:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
+        chown -R ${globals.cross-seed.user}:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
         find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.prowlarr.enable ''
-        chown -R prowlarr:root "${cfg.prowlarr.stateDir}"
+        chown -R ${globals.prowlarr.user}:root "${cfg.prowlarr.stateDir}"
         find "${cfg.prowlarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.sonarr.enable ''
-        chown -R sonarr:root "${cfg.sonarr.stateDir}"
+        chown -R ${globals.sonarr.user}:root "${cfg.sonarr.stateDir}"
         find "${cfg.sonarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.radarr.enable ''
-        chown -R radarr:root "${cfg.radarr.stateDir}"
+        chown -R ${globals.radarr.user}:root "${cfg.radarr.stateDir}"
         find "${cfg.radarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.lidarr.enable ''
-        chown -R lidarr:root "${cfg.lidarr.stateDir}"
+        chown -R ${globals.lidarr.user}:root "${cfg.lidarr.stateDir}"
         find "${cfg.lidarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.bazarr.enable ''
-        chown -R bazarr:root "${cfg.bazarr.stateDir}"
+        chown -R ${globals.bazarr.user}:root "${cfg.bazarr.stateDir}"
         find "${cfg.bazarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.readarr.enable ''
-        chown -R readarr:root "${cfg.readarr.stateDir}"
+        chown -R ${globals.readarr.user}:root "${cfg.readarr.stateDir}"
         find "${cfg.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.readarr-audiobook.enable ''
-        chown -R readarr:root "${cfg.readarr-audiobook.stateDir}"
+        chown -R ${globals.readarr.user}:root "${cfg.readarr-audiobook.stateDir}"
         find "${cfg.readarr-audiobook.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.jellyseerr.enable ''
-        chown -R jellyseerr:root "${cfg.jellyseerr.stateDir}"
+        chown -R ${globals.jellyseerr.user}:root "${cfg.jellyseerr.stateDir}"
         find "${cfg.jellyseerr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.autobrr.enable ''
-        chown -R autobrr:root "${cfg.autobrr.stateDir}"
+        chown -R ${globals.autobrr.user}:root "${cfg.autobrr.stateDir}"
         find "${cfg.autobrr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''
       + strings.optionalString cfg.recyclarr.enable ''
-        chown -R recyclarr:root "${cfg.recyclarr.stateDir}"
+        chown -R ${globals.recyclarr.user}:root "${cfg.recyclarr.stateDir}"
         find "${cfg.recyclarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       '';
   };

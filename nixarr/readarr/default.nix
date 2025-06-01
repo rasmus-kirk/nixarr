@@ -6,10 +6,8 @@
 }:
 with lib; let
   cfg = config.nixarr.readarr;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
-  uid = 250;
-  user = "readarr";
-  group = "readarr";
   port = 8787;
 in {
   options.nixarr.readarr = {
@@ -80,8 +78,20 @@ in {
       }
     ];
 
+    users = {
+      groups.${globals.readarr.group}.gid = globals.gids.${globals.readarr.group};
+      users.${globals.readarr.user} = {
+        isSystemUser = true;
+        group = globals.readarr.group;
+        uid = globals.uids.${globals.readarr.user};
+      };
+    };
+
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 ${user} ${group} - -"
+      "d '${cfg.stateDir}' 0700 ${globals.readarr.user} root - -"
+
+      "d '${nixarr.mediaDir}/library'       0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/books' 0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
     systemd.services.readarr = {
@@ -92,8 +102,8 @@ in {
 
       serviceConfig = {
         Type = "simple";
-        User = user;
-        Group = group;
+        User = globals.readarr.user;
+        Group = globals.readarr.group;
         ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
         Restart = "on-failure";
       };
@@ -102,13 +112,6 @@ in {
     networking.firewall = mkIf cfg.openFirewall {
       allowedTCPPorts = [cfg.port];
     };
-
-    users.users.readarr = {
-      group = group;
-      home = cfg.stateDir;
-      uid = uid;
-    };
-    users.groups.readarr = {};
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.readarr.vpnConfinement = mkIf cfg.vpn.enable {
