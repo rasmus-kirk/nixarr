@@ -296,9 +296,9 @@ in {
     };
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
+      "d '${cfg.stateDir}'                             0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
-      "d '${cfg.stateDir}/.config' 0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
+      "d '${cfg.stateDir}/.config'                     0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
       "d '${cfg.stateDir}/.config/transmission-daemon' 0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
 
       # Media Dirs

@@ -7,99 +7,6 @@
 with lib; let
   cfg = config.nixarr;
   globals = config.util-nixarr.globals;
-  list-unlinked = pkgs.writeShellApplication {
-    name = "list-unlinked";
-    runtimeInputs = with pkgs; [util-linux];
-    text = ''
-      if [ "$#" -ne 1 ]; then
-          echo "Illegal number of parameters. Must be one file path"
-      fi
-
-      find "$1" -type f -links 1 -exec du -h {} + | sort -h
-    '';
-  };
-  fix-permissions = pkgs.writeShellApplication {
-    name = "fix-permissions";
-    runtimeInputs = with pkgs; [util-linux];
-    text =
-      ''
-        if [ "$EUID" -ne 0 ]; then
-          echo "Please run as root"
-          exit
-        fi
-
-        find "${cfg.mediaDir}" \( -type d -exec chmod 0775 {} + -true \) -o \( -exec chmod 0664 {} + \)
-      ''
-      + strings.optionalString cfg.jellyfin.enable ''
-        chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${cfg.mediaDir}/library"
-        chown -R ${globals.jellyfin.user}:root "${cfg.jellyfin.stateDir}"
-        find "${cfg.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.plex.enable ''
-        chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${cfg.mediaDir}/library"
-        chown -R ${globals.plex.user}:root "${cfg.plex.stateDir}"
-        find "${cfg.plex.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.audiobookshelf.enable ''
-        chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${cfg.mediaDir}/library"
-        chown -R ${globals.audiobookshelf.user}:root "${cfg.audiobookshelf.stateDir}"
-        find "${cfg.audiobookshelf.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.transmission.enable ''
-        chown -R ${globals.transmission.user}:${globals.transmission.group} "${cfg.mediaDir}/torrents"
-        chown -R ${globals.transmission.user}:${globals.transmission.group} "${cfg.transmission.stateDir}"
-        find "${cfg.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
-      ''
-      + strings.optionalString cfg.sabnzbd.enable ''
-        chown -R ${globals.sabnzbd.user}:${globals.sabnzbd.group} "${cfg.mediaDir}/usenet"
-        chown -R ${globals.sabnzbd.user}:root "${cfg.sabnzbd.stateDir}"
-        find "${cfg.sabnzbd.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.transmission.privateTrackers.cross-seed.enable ''
-        chown -R ${globals.cross-seed.user}:root "${cfg.transmission.privateTrackers.cross-seed.stateDir}"
-        find "${cfg.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.prowlarr.enable ''
-        chown -R ${globals.prowlarr.user}:root "${cfg.prowlarr.stateDir}"
-        find "${cfg.prowlarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.sonarr.enable ''
-        chown -R ${globals.sonarr.user}:root "${cfg.sonarr.stateDir}"
-        find "${cfg.sonarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.radarr.enable ''
-        chown -R ${globals.radarr.user}:root "${cfg.radarr.stateDir}"
-        find "${cfg.radarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.lidarr.enable ''
-        chown -R ${globals.lidarr.user}:root "${cfg.lidarr.stateDir}"
-        find "${cfg.lidarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.bazarr.enable ''
-        chown -R ${globals.bazarr.user}:root "${cfg.bazarr.stateDir}"
-        find "${cfg.bazarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.readarr.enable ''
-        chown -R ${globals.readarr.user}:root "${cfg.readarr.stateDir}"
-        find "${cfg.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.readarr-audiobook.enable ''
-        chown -R ${globals.readarr.user}:root "${cfg.readarr-audiobook.stateDir}"
-        find "${cfg.readarr-audiobook.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.jellyseerr.enable ''
-        chown -R ${globals.jellyseerr.user}:root "${cfg.jellyseerr.stateDir}"
-        find "${cfg.jellyseerr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.autobrr.enable ''
-        chown -R ${globals.autobrr.user}:root "${cfg.autobrr.stateDir}"
-        find "${cfg.autobrr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      ''
-      + strings.optionalString cfg.recyclarr.enable ''
-        chown -R ${globals.recyclarr.user}:root "${cfg.recyclarr.stateDir}"
-        find "${cfg.recyclarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
-      '';
-  };
 in {
   imports = [
     ./audiobookshelf
@@ -109,6 +16,7 @@ in {
     ./jellyfin
     ./jellyseerr
     ./lidarr
+    ./nixarr-command
     ./openssh
     ./plex
     ./prowlarr
@@ -139,6 +47,8 @@ in {
           that they manage is located by default in `/data/.state/nixarr/*`
         - **Optional Automatic Port Forwarding:** This module has a UPNP support that
           lets services request ports from your router automatically, if you enable it.
+
+        Also comes with the `nixarr` command that helps you manage your library.
 
         It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
         because it can cause rate limiting issues. Generally, you should use
@@ -304,13 +214,11 @@ in {
     users.groups.media.members = cfg.mediaUsers;
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.mediaDir}'  0775 root media - -"
+      "d '${cfg.mediaDir}'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
     environment.systemPackages = with pkgs; [
       jdupes
-      list-unlinked
-      fix-permissions
     ];
 
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
