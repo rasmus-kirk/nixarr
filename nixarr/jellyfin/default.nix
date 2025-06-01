@@ -6,10 +6,8 @@
 }:
 with lib; let
   cfg = config.nixarr.jellyfin;
+  globals = config.util-nixarr.globals;
   defaultPort = 8096;
-  uid = 242;
-  user = "streamer";
-  group = "streamer";
   nixarr = config.nixarr;
 in {
   options.nixarr.jellyfin = {
@@ -141,23 +139,28 @@ in {
     ];
 
     users = {
-      groups."${group}" = {};
-      users."${user}" = {
+      groups.${globals.jellyfin.group}.gid = globals.gids.${globals.jellyfin.group};
+      users.${globals.jellyfin.user} = {
         isSystemUser = true;
-        group = group;
-        uid = uid;
+        group = globals.jellyfin.group;
+        uid = globals.uids.${globals.jellyfin.user};
       };
     };
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 ${user} root - -"
+      "d '${cfg.stateDir}'        0700 ${globals.jellyfin.user} root - -"
+      "d '${cfg.stateDir}/log'    0700 ${globals.jellyfin.user} root - -"
+      "d '${cfg.stateDir}/cache'  0700 ${globals.jellyfin.user} root - -"
+      "d '${cfg.stateDir}/data'   0700 ${globals.jellyfin.user} root - -"
+      "d '${cfg.stateDir}/config' 0700 ${globals.jellyfin.user} root - -"
 
       # Media Dirs
-      "d '${nixarr.mediaDir}/library'        0775 ${user} ${group} - -"
-      "d '${nixarr.mediaDir}/library/shows'  0775 ${user} ${group} - -"
-      "d '${nixarr.mediaDir}/library/movies' 0775 ${user} ${group} - -"
-      "d '${nixarr.mediaDir}/library/music'  0775 ${user} ${group} - -"
-      "d '${nixarr.mediaDir}/library/books'  0775 ${user} ${group} - -"
+      "d '${nixarr.mediaDir}/library'             0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/shows'       0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/movies'      0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/music'       0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/books'       0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/audiobooks'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
     # Always prioritise Jellyfin IO
@@ -166,8 +169,8 @@ in {
     services.jellyfin = {
       enable = cfg.enable;
       package = cfg.package;
-      user = user;
-      group = group;
+      user = globals.jellyfin.user;
+      group = globals.jellyfin.group;
       openFirewall = cfg.openFirewall;
       logDir = "${cfg.stateDir}/log";
       cacheDir = "${cfg.stateDir}/cache";

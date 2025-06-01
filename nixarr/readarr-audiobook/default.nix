@@ -6,10 +6,8 @@
 }:
 with lib; let
   cfg = config.nixarr.readarr-audiobook;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
-  uid = 269;
-  user = "readarr";
-  group = "readarr";
   port = 9494;
 in {
   options.nixarr.readarr-audiobook = {
@@ -82,8 +80,20 @@ in {
       }
     ];
 
+    users = {
+      groups.${globals.readarr-audiobook.group}.gid = globals.gids.${globals.readarr-audiobook.group};
+      users.${globals.readarr-audiobook.user} = {
+        isSystemUser = true;
+        group = globals.readarr-audiobook.group;
+        uid = globals.uids.${globals.readarr-audiobook.user};
+      };
+    };
+
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 ${user} ${group} - -"
+      "d '${cfg.stateDir}' 0700 ${globals.readarr-audiobook.user} root - -"
+
+      "d '${nixarr.mediaDir}/library'             0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/audiobooks'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
     systemd.services.readarr-audiobook = {
@@ -94,8 +104,8 @@ in {
 
       serviceConfig = {
         Type = "simple";
-        User = user;
-        Group = group;
+        User = globals.readarr-audiobook.user;
+        Group = globals.readarr-audiobook.group;
         ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
         Restart = "on-failure";
       };
@@ -104,13 +114,6 @@ in {
     networking.firewall = mkIf cfg.openFirewall {
       allowedTCPPorts = [cfg.port];
     };
-
-    users.users."${user}" = {
-      group = group;
-      home = cfg.stateDir;
-      uid = uid;
-    };
-    users.groups."${group}" = {};
 
     # Enable and specify VPN namespace to confine service in.
     systemd.services.readarr-audiobook.vpnConfinement = mkIf cfg.vpn.enable {

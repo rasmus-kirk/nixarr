@@ -6,10 +6,8 @@
 }:
 with lib; let
   cfg = config.nixarr.plex;
+  globals = config.util-nixarr.globals;
   defaultPort = 32400;
-  uid = 242;
-  user = "streamer";
-  group = "media";
   nixarr = config.nixarr;
 in {
   options.nixarr.plex = {
@@ -141,23 +139,21 @@ in {
     ];
 
     users = {
-      groups."${group}" = {};
-      users."${user}" = {
+      groups.${globals.plex.group}.gid = globals.gids.${globals.plex.group};
+      users.${globals.plex.user} = {
         isSystemUser = true;
         group = group;
-        uid = uid;
+        uid = globals.uids.${globals.plex.user};
       };
     };
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}' 0700 ${user} root - -"
-
-      # Media Dirs
-      "d '${nixarr.mediaDir}/library'              0775 ${user}  ${group} - -"
-      "d '${nixarr.mediaDir}/library/shows'        0775 ${user}  ${group} - -"
-      "d '${nixarr.mediaDir}/library/movies'       0775 ${user}  ${group} - -"
-      "d '${nixarr.mediaDir}/library/music'        0775 ${user}  ${group} - -"
-      "d '${nixarr.mediaDir}/library/books'        0775 ${user}  ${group} - -"
+      "d '${nixarr.mediaDir}/library'             0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/shows'       0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/movies'      0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/music'       0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/books'       0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      "d '${nixarr.mediaDir}/library/audiobooks'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
     # Always prioritise Plex IO
@@ -166,8 +162,8 @@ in {
     services.plex = {
       enable = cfg.enable;
       package = cfg.package;
-      user = user;
-      group = group;
+      user = globals.plex.user;
+      group = globals.plex.group;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };

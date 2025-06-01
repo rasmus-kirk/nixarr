@@ -7,6 +7,7 @@
 }:
 with lib; let
   cfg = config.nixarr.recyclarr;
+  globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   format = pkgs.formats.yaml {};
 
@@ -185,6 +186,15 @@ in {
         '';
       }
     ];
+
+    users = {
+      groups.${globals.recyclarr.group}.gid = globals.gids.${globals.recyclarr.group};
+      users.${globals.recyclarr.user} = {
+        isSystemUser = true;
+        group = globals.recyclarr.group;
+        uid = globals.uids.${globals.recyclarr.user};
+      };
+    };
 
     services.recyclarr = {
       enable = true;

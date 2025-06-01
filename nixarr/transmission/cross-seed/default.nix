@@ -85,7 +85,7 @@ in {
     systemd.tmpfiles.rules =
       [
         "L+ '${cfg.dataDir}'/config.js - - - - ${configJs}"
-        "d '${cfg.dataDir}' 0700 ${cfg.user} ${cfg.group} - -"
+        "d '${cfg.dataDir}' 0700 ${cfg.user} root - -"
       ]
       ++ (
         if cfg.settings.outputDir != null
@@ -119,15 +119,13 @@ in {
       };
     };
 
-    users.users = mkIf (cfg.user == "cross-seed") {
-      cross-seed = {
+    users = {
+      groups.${cfg.group}.gid = globals.gids.${cfg.group};
+      users.${cfg.user} = {
         isSystemUser = true;
         group = cfg.group;
+        uid = globals.uids.${cfg.user};
       };
-    };
-
-    users.groups = mkIf (cfg.group == "cross-seed") {
-      cross-seed = {};
     };
   };
 }

@@ -1,0 +1,112 @@
+# TODO: Dir creation and file permissions in nix
+{
+  pkgs,
+  config,
+  lib,
+  ...
+}:
+with lib; let
+  globals = config.util-nixarr.globals;
+in {
+  options.util-nixarr.globals = mkOption {
+    type = types.attrs;
+    default = {};
+  };
+
+  config.util-nixarr.globals = {
+    libraryOwner.user = "root";
+    libraryOwner.group = "media";
+
+    uids = {
+      plex = 193;
+      jellyfin = 146;
+      audiobookshelf = 156;
+      autobrr = 188;
+      bazarr = 232;
+      lidarr = 306;
+      prowlarr = 293;
+      jellyseerr = 250;
+      sonarr = 274;
+      radarr = 275;
+      readarr = 250;
+      readarr-audiobook = 211;
+      recyclarr = 269;
+      sabnzbd = 38;
+      transmission = 70;
+      cross-seed = 183;
+    };
+    gids = {
+      autobrr = 188;
+      prowlarr = 287;
+      cross-seed = 183;
+      jellyseerr = 250;
+      media = 169;
+      recyclarr = 269;
+    };
+
+    audiobookshelf = {
+      user = "audiobookshelf";
+      group = globals.libraryOwner.group;
+    };
+    autobrr = {
+      user = "autobrr";
+      group = "autobrr";
+    };
+    bazarr = {
+      user = "bazarr";
+      group = globals.libraryOwner.group;
+    };
+    jellyfin = {
+      user = "jellyfin";
+      group = globals.libraryOwner.group;
+    };
+    jellyseerr = {
+      user = "jellyseerr";
+      group = "jellyseerr";
+    };
+    lidarr = {
+      user = "lidarr";
+      group = globals.libraryOwner.group;
+    };
+    plex = {
+      user = "plex";
+      group = globals.libraryOwner.group;
+    };
+    prowlarr = {
+      user = "prowlarr";
+      group = "prowlarr";
+    };
+    radarr = {
+      user = "radarr";
+      group = globals.libraryOwner.group;
+    };
+    readarr = {
+      user = "readarr";
+      group = globals.libraryOwner.group;
+    };
+    readarr-audiobook = {
+      user = "readarr-audiobook";
+      readarr-group = globals.libraryOwner.group;
+    };
+    recyclarr = {
+      user = "recyclarr";
+      group = "recyclarr";
+    };
+    sabnzbd = {
+      user = "sabnzbd";
+      group = globals.libraryOwner.group;
+    };
+    sonarr = {
+      user = "sonarr";
+      group = globals.libraryOwner.group;
+    };
+    transmission = {
+      user = "transmission";
+      group = globals.libraryOwner.group;
+    };
+    cross-seed = {
+      user = "cross-seed";
+      group = "cross-seed";
+    };
+  };
+}
