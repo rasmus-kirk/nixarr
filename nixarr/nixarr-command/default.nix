@@ -26,6 +26,9 @@ with lib; let
         echo "  list-api-keys       Lists API keys of supported enabled services."
         echo "  list-unlinked       Lists unlinked directories and files, in the given directory."
         echo "                      Use the jdupes command to hardlink duplicates from there."
+        echo "  wipe-uids-gids      The update on 2025-06-07 causes issues with UID/GIDs,"
+        echo "                      run this command, then rebuild and finally run"
+        echo "                      nixarr fix-permissions, to fix these issues."
         exit 1
       fi
 
@@ -161,14 +164,26 @@ with lib; let
         ''}
       }
 
-      migrate() {
-        echo "Backing up /etc/passwd and /etc/group"
+      wipe-uids-gids() {
+        if [ "$EUID" -ne 0 ]; then
+          echo "Please run as root"
+          exit
+        fi
+
+        echo "Backing up /etc/passwd and /etc/group..."
 
         mkdir "${nixarr.stateDir}/migration-backup"
         cp /etc/passwd "${nixarr.stateDir}/migration-backup/passwd.bak"
         cp /etc/group "${nixarr.stateDir}/migration-backup/group.bak"
 
+        echo "Wiping all nixarr users and groups from /etc/passwd and /etc/group..."
+
         sed -iE '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet)/d' /etc/passwd        
+        sed -iE '/^(autobrr|cross-seed|jellyseerr|media|prowlarr|recyclarr|sabnzbd|streamer|torrenter|transmission|usenet)/d' /etc/group
+
+        echo ""
+        echo "Done, please rebuild your configuration to get back the users and groups. This time, they will have the correct permissions."
+        echo "After rebuilding, make sure to run: nixarr fix-permissions"
       }
 
       COMMAND="$1"
@@ -182,6 +197,9 @@ with lib; let
           ;;
         list-api-keys)
           list-api-keys
+          ;;
+        wipe-uids-gids)
+          wipe-uids-gids
           ;;
       esac
     '';

@@ -37,10 +37,10 @@ in {
     };
     gids = {
       autobrr = 188;
-      prowlarr = 287;
       cross-seed = 183;
       jellyseerr = 250;
       media = 169;
+      prowlarr = 287;
       recyclarr = 269;
     };
 
