@@ -161,6 +161,16 @@ with lib; let
         ''}
       }
 
+      migrate() {
+        echo "Backing up /etc/passwd and /etc/group"
+
+        mkdir "${nixarr.stateDir}/migration-backup"
+        cp /etc/passwd "${nixarr.stateDir}/migration-backup/passwd.bak"
+        cp /etc/group "${nixarr.stateDir}/migration-backup/group.bak"
+
+        sed -iE '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet)/d' /etc/passwd        
+      }
+
       COMMAND="$1"
       shift
       case "$COMMAND" in
