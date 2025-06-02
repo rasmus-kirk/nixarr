@@ -10,7 +10,10 @@ with lib; let
   globals = config.util-nixarr.globals;
   nixarr-command = pkgs.writeShellApplication {
     name = "nixarr";
-    runtimeInputs = with pkgs; [util-linux];
+    runtimeInputs = with pkgs; [
+      util-linux
+      yq
+    ];
     text = ''
       command="''${1:-}"
 
@@ -20,8 +23,9 @@ with lib; let
         echo ""
         echo "Commands:"
         echo "  fix-permissions     Sets correct permissions for any directory managed by Nixarr."
+        echo "  list-api-keys       Lists API keys of supported enabled services."
         echo "  list-unlinked       Lists unlinked directories and files, in the given directory."
-        echo "                      Use on the media directory to diagnose harddrive space issues."
+        echo "                      Use the jdupes command to hardlink duplicates from there."
         exit 1
       fi
 
@@ -105,23 +109,69 @@ with lib; let
 
       list-unlinked() {
         if [ "$#" -ne 1 ]; then
-            echo "Illegal number of parameters. Must be one file path"
+            echo "Illegal number of parameters. Usage: nixarr <command> <path>"
         fi
 
         find "$1" -type f -links 1 -exec du -h {} + | sort -h
       }
 
-      # Handle the command
-      case "$1" in
+      list-api-keys() {
+        if [ "$EUID" -ne 0 ]; then
+          echo "Please run as root"
+          exit
+        fi
+
+        ${strings.optionalString nixarr.bazarr.enable ''
+          BAZARR=$(yq '.auth.apikey' "${nixarr.bazarr.stateDir}/config/config.yaml")
+          echo "Bazarr api-key: $BAZARR"
+        ''}
+        ${strings.optionalString nixarr.jellyseerr.enable ''
+          JELLYSEERR=$(yq '.main.apiKey' "${nixarr.jellyseerr.stateDir}/settings.json")
+          echo "Jellyseerr api-key: $JELLYSEERR"
+        ''}
+        ${strings.optionalString nixarr.lidarr.enable ''
+          LIDARR=$(xq '.Config.ApiKey' "${nixarr.lidarr.stateDir}/config.xml")
+          echo "Lidarr api-key: $LIDARR"
+        ''}
+        ${strings.optionalString nixarr.prowlarr.enable ''
+          PROWLARR=$(xq '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
+          echo "Prowlarr api-key: $PROWLARR"
+        ''}
+        ${strings.optionalString nixarr.radarr.enable ''
+          RADARR=$(xq '.Config.ApiKey' "${nixarr.radarr.stateDir}/config.xml")
+          echo "Radarr api-key: $RADARR"
+        ''}
+        ${strings.optionalString nixarr.readarr.enable ''
+          READARR=$(xq '.Config.ApiKey' "${nixarr.readarr.stateDir}/config.xml")
+          echo "Readarr api-key: $READARR"
+        ''}
+        ${strings.optionalString nixarr.readarr-audiobook.enable ''
+          READARR_AUDIOBOOK=$(xq -r '.Config.ApiKey' "${nixarr.readarr-audiobook.stateDir}/config.xml")
+          echo "Readarr Audiobook api-key: $READARR_AUDIOBOOK"
+        ''}
+        ${strings.optionalString nixarr.sonarr.enable ''
+          SONARR=$(xq '.Config.ApiKey' "${nixarr.sonarr.stateDir}/config.xml")
+          echo "Sonarr api-key: $SONARR"
+        ''}
+        ${strings.optionalString nixarr.sonarr.enable ''
+          TRANSMISSION_RPC_USER=$(yq '.["rpc-username"]' "${nixarr.transmission.stateDir}/.config/transmission-daemon/settings.json")
+          TRANSMISSION_RPC_PASS=$(yq '.["rpc-password"]' "${nixarr.transmission.stateDir}/.config/transmission-daemon/settings.json")
+          echo "Transmission rpc-username: $TRANSMISSION_RPC_USER"
+          echo "Transmission rpc-password: $TRANSMISSION_RPC_PASS"
+        ''}
+      }
+
+      COMMAND="$1"
+      shift
+      case "$COMMAND" in
         fix-permissions)
           fix-permissions
           ;;
         list-unlinked)
-          if [ "$#" -ne 1 ]; then
-              echo "Illegal number of parameters. Must be one file path"
-          fi
-
-          find "$1" -type f -links 1 -exec du -h {} + | sort -h
+          list-unlinked "$@"
+          ;;
+        list-api-keys)
+          list-api-keys
           ;;
       esac
     '';
