@@ -22,13 +22,13 @@ with lib; let
         echo "Usage: nixarr <command>"
         echo ""
         echo "Commands:"
-        echo "  fix-permissions     Sets correct permissions for any directory managed by Nixarr."
-        echo "  list-api-keys       Lists API keys of supported enabled services."
-        echo "  list-unlinked       Lists unlinked directories and files, in the given directory."
-        echo "                      Use the jdupes command to hardlink duplicates from there."
-        echo "  wipe-uids-gids      The update on 2025-06-07 causes issues with UID/GIDs,"
-        echo "                      run this command, then rebuild and finally run"
-        echo "                      nixarr fix-permissions, to fix these issues."
+        echo "  fix-permissions       Sets correct permissions for any directory managed by Nixarr."
+        echo "  list-api-keys         Lists API keys of supported enabled services."
+        echo "  list-unlinked <path>  Lists unlinked directories and files, in the given directory."
+        echo "                        Use the jdupes command to hardlink duplicates from there."
+        echo "  wipe-uids-gids        The update on 2025-06-03 causes issues with UID/GIDs,"
+        echo "                        run this command, then rebuild and finally run"
+        echo "                        nixarr fix-permissions, to fix these issues."
         exit 1
       fi
 
@@ -112,7 +112,7 @@ with lib; let
 
       list-unlinked() {
         if [ "$#" -ne 1 ]; then
-            echo "Illegal number of parameters. Usage: nixarr <command> <path>"
+            echo "Illegal number of parameters. Usage: nixarr list-unlinked <path>"
         fi
 
         find "$1" -type f -links 1 -exec du -h {} + | sort -h

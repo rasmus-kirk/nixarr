@@ -1,9 +1,21 @@
 # Changelog
 
-## Unreleased
+## 2025-06-03
 
 Added:
-- Added Readarr Audiobook for running two readarr instances (one for audiobooks, one for regular books)
+- `nixarr` command
+  - `nixarr fix-permissions`
+    - Sets correct permissions for any directory managed by Nixarr.
+  - `nixarr list-api-keys`
+    - Lists API keys of supported enabled services.
+  - `nixarr list-unlinked <path>`
+    - Lists unlinked directories and files, in the given directory. Use the
+      jdupes command to hardlink duplicates from there.
+  - `wipe-uids-gids`
+    - The update on 2025-06-03 causes issues with UID/GIDs, see the below
+      migration section.
+- Added Readarr Audiobook for running two readarr instances (one intended
+  for audiobooks, one intended for regular books)
 - Audiobookshelf service, with expose options
 - Port configurations on:
   - Radarr
@@ -11,6 +23,15 @@ Added:
   - Prowlarr
   - Readarr
   - Lidarr
+
+Migration:
+- Due to how UID/GID's are handled in this new version, certain services
+  may break. To ammend this, run:
+  ```bash
+    sudo nixarr wipe-uids-gids
+    sudo nixos-rebuild ...
+    sudo nixarr fix-permissions
+  ```
 
 ## 2025-05-28
 
