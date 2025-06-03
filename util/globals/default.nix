@@ -10,6 +10,7 @@ with lib; let
 in {
   options.util-nixarr.globals = mkOption {
     type = types.attrs;
+    description = "Global values to be used by Nixarr, change at your own risk.";
     default = {};
   };
 
