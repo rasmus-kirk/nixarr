@@ -178,8 +178,8 @@ with lib; let
 
         echo "Wiping all nixarr users and groups from /etc/passwd and /etc/group..."
 
-        sed -iE '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet)/d' /etc/passwd
-        sed -iE '/^(autobrr|cross-seed|jellyseerr|media|prowlarr|recyclarr|sabnzbd|streamer|torrenter|transmission|usenet)/d' /etc/group
+        sed -i -E '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet)/d' /etc/passwd
+        sed -i -E '/^(autobrr|cross-seed|jellyseerr|media|prowlarr|recyclarr|sabnzbd|streamer|torrenter|transmission|usenet)/d' /etc/group
 
         echo ""
         echo "Done, please rebuild your configuration to get back the users and groups. This time, they will have the correct permissions."
