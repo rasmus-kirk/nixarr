@@ -138,7 +138,7 @@ in {
         fi
 
         chmod 600 ${ini-file-target}
-        chown usenet:media ${ini-file-target}
+        chown ${globals.sabnzbd.user}:${globals.sabnzbd.group} ${ini-file-target}
       '';
     };
 
@@ -189,7 +189,7 @@ in {
         groups.${globals.sabnzbd.group}.gid = globals.gids.${globals.sabnzbd.group};
         users.${globals.sabnzbd.user} = {
           isSystemUser = true;
-          group = group;
+          group = globals.sabnzbd.group;
           uid = globals.uids.${globals.sabnzbd.user};
         };
       };

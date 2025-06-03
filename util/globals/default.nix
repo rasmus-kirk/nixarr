@@ -25,7 +25,7 @@ in {
       bazarr = 232;
       lidarr = 306;
       prowlarr = 293;
-      jellyseerr = 250;
+      jellyseerr = 262;
       sonarr = 274;
       radarr = 275;
       readarr = 250;

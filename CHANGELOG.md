@@ -23,6 +23,7 @@ Added:
   - Prowlarr
   - Readarr
   - Lidarr
+- UID/GID's are now static, this should make future backups and migrations more predictable.
 
 Migration:
 - Due to how UID/GID's are handled in this new version, certain services

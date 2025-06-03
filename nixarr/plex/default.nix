@@ -142,7 +142,7 @@ in {
       groups.${globals.plex.group}.gid = globals.gids.${globals.plex.group};
       users.${globals.plex.user} = {
         isSystemUser = true;
-        group = group;
+        group = globals.plex.group;
         uid = globals.uids.${globals.plex.user};
       };
     };
