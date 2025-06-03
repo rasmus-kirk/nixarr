@@ -81,11 +81,11 @@ in {
     ];
 
     users = {
-      groups.${globals.readarr-audiobook.group}.gid = globals.gids.${globals.readarr-audiobook.group};
+      groups.${globals.readarr-audiobook.group}.gid = lib.mkForce globals.gids.${globals.readarr-audiobook.group};
       users.${globals.readarr-audiobook.user} = {
         isSystemUser = true;
         group = globals.readarr-audiobook.group;
-        uid = globals.uids.${globals.readarr-audiobook.user};
+        uid = lib.mkForce globals.uids.${globals.readarr-audiobook.user};
       };
     };
 

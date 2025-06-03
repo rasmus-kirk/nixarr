@@ -120,11 +120,11 @@ in {
     };
 
     users = {
-      groups.${cfg.group}.gid = globals.gids.${cfg.group};
+      groups.${cfg.group}.gid = lib.mkForce globals.gids.${cfg.group};
       users.${cfg.user} = {
         isSystemUser = true;
         group = cfg.group;
-        uid = globals.uids.${cfg.user};
+        uid = lib.mkForce globals.uids.${cfg.user};
       };
     };
   };

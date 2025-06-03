@@ -188,11 +188,11 @@ in {
     ];
 
     users = {
-      groups.${globals.recyclarr.group}.gid = globals.gids.${globals.recyclarr.group};
+      groups.${globals.recyclarr.group}.gid = lib.mkForce globals.gids.${globals.recyclarr.group};
       users.${globals.recyclarr.user} = {
         isSystemUser = true;
         group = globals.recyclarr.group;
-        uid = globals.uids.${globals.recyclarr.user};
+        uid = lib.mkForce globals.uids.${globals.recyclarr.user};
       };
     };
 

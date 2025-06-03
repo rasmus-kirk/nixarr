@@ -172,13 +172,13 @@ with lib; let
 
         echo "Backing up /etc/passwd and /etc/group..."
 
-        mkdir "${nixarr.stateDir}/migration-backup"
+        mkdir -p "${nixarr.stateDir}/migration-backup"
         cp /etc/passwd "${nixarr.stateDir}/migration-backup/passwd.bak"
         cp /etc/group "${nixarr.stateDir}/migration-backup/group.bak"
 
         echo "Wiping all nixarr users and groups from /etc/passwd and /etc/group..."
 
-        sed -iE '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet)/d' /etc/passwd        
+        sed -iE '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet)/d' /etc/passwd
         sed -iE '/^(autobrr|cross-seed|jellyseerr|media|prowlarr|recyclarr|sabnzbd|streamer|torrenter|transmission|usenet)/d' /etc/group
 
         echo ""

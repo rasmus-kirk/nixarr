@@ -84,11 +84,11 @@ in {
     ];
 
     users = {
-      groups.${globals.radarr.group}.gid = globals.gids.${globals.radarr.group};
+      groups.${globals.radarr.group}.gid = lib.mkForce globals.gids.${globals.radarr.group};
       users.${globals.radarr.user} = {
         isSystemUser = true;
         group = globals.radarr.group;
-        uid = globals.uids.${globals.radarr.user};
+        uid = lib.mkForce globals.uids.${globals.radarr.user};
       };
     };
 
