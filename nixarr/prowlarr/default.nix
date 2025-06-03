@@ -104,11 +104,11 @@ in {
     };
 
     users = {
-      groups.${globals.prowlarr.group}.gid = globals.gids.${globals.prowlarr.group};
+      groups.${globals.prowlarr.group}.gid = lib.mkForce globals.gids.${globals.prowlarr.group};
       users.${globals.prowlarr.user} = {
         isSystemUser = true;
         group = globals.prowlarr.group;
-        uid = globals.uids.${globals.prowlarr.user};
+        uid = lib.mkForce globals.uids.${globals.prowlarr.user};
       };
     };
 

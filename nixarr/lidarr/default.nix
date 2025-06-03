@@ -79,11 +79,11 @@ in {
     ];
 
     users = {
-      groups.${globals.lidarr.group}.gid = globals.gids.${globals.lidarr.group};
+      groups.${globals.lidarr.group}.gid = lib.mkForce globals.gids.${globals.lidarr.group};
       users.${globals.lidarr.user} = {
         isSystemUser = true;
         group = globals.lidarr.group;
-        uid = globals.uids.${globals.lidarr.user};
+        uid = lib.mkForce globals.uids.${globals.lidarr.user};
       };
     };
 

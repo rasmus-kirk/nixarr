@@ -95,11 +95,11 @@ in {
     ];
 
     users = {
-      groups.${globals.autobrr.group}.gid = globals.gids.${globals.autobrr.group};
+      groups.${globals.autobrr.group}.gid = lib.mkForce globals.gids.${globals.autobrr.group};
       users.${globals.autobrr.user} = {
         isSystemUser = true;
         group = globals.autobrr.group;
-        uid = globals.uids.${globals.autobrr.user};
+        uid = lib.mkForce globals.uids.${globals.autobrr.user};
       };
     };
 
