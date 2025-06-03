@@ -107,11 +107,11 @@ in {
     };
 
     users = {
-      groups.${globals.bazarr.group}.gid = lib.mkForce globals.gids.${globals.bazarr.group};
+      groups.${globals.bazarr.group}.gid = globals.gids.${globals.bazarr.group};
       users.${globals.bazarr.user} = {
         isSystemUser = true;
         group = globals.bazarr.group;
-        uid = lib.mkForce globals.uids.${globals.bazarr.user};
+        uid = globals.uids.${globals.bazarr.user};
       };
     };
 

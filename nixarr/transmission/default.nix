@@ -286,12 +286,12 @@ in {
     ];
 
     users = {
-      groups.${globals.transmission.group}.gid = lib.mkForce globals.gids.${globals.transmission.group};
-      groups.${globals.cross-seed.group}.gid = lib.mkForce globals.gids.${globals.cross-seed.group};
+      groups.${globals.transmission.group}.gid = globals.gids.${globals.transmission.group};
+      groups.${globals.cross-seed.group}.gid = globals.gids.${globals.cross-seed.group};
       users.${globals.transmission.user} = {
         isSystemUser = true;
         group = globals.transmission.group;
-        uid = lib.mkForce globals.uids.${globals.transmission.user};
+        uid = globals.uids.${globals.transmission.user};
       };
     };
 

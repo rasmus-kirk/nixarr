@@ -155,11 +155,11 @@ in {
       ];
 
       users = {
-        groups.${globals.audiobookshelf.group}.gid = lib.mkForce globals.gids.${globals.audiobookshelf.group};
+        groups.${globals.audiobookshelf.group}.gid = globals.gids.${globals.audiobookshelf.group};
         users.${globals.audiobookshelf.user} = {
           isSystemUser = true;
           group = globals.audiobookshelf.group;
-          uid = lib.mkForce globals.uids.${globals.audiobookshelf.user};
+          uid = globals.uids.${globals.audiobookshelf.user};
         };
       };
 

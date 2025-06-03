@@ -139,11 +139,11 @@ in {
     ];
 
     users = {
-      groups.${globals.plex.group}.gid = lib.mkForce globals.gids.${globals.plex.group};
+      groups.${globals.plex.group}.gid = globals.gids.${globals.plex.group};
       users.${globals.plex.user} = {
         isSystemUser = true;
         group = globals.plex.group;
-        uid = lib.mkForce globals.uids.${globals.plex.user};
+        uid = globals.uids.${globals.plex.user};
       };
     };
 

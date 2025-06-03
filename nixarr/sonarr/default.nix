@@ -73,11 +73,11 @@ in {
     ];
 
     users = {
-      groups.${globals.sonarr.group}.gid = lib.mkForce globals.gids.${globals.sonarr.group};
+      groups.${globals.sonarr.group}.gid = globals.gids.${globals.sonarr.group};
       users.${globals.sonarr.user} = {
         isSystemUser = true;
         group = globals.sonarr.group;
-        uid = lib.mkForce globals.uids.${globals.sonarr.user};
+        uid = globals.uids.${globals.sonarr.user};
       };
     };
 

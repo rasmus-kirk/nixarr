@@ -186,11 +186,11 @@ in {
     };
 
     users = {
-      groups.${globals.jellyseerr.group}.gid = lib.mkForce globals.gids.${globals.jellyseerr.group};
+      groups.${globals.jellyseerr.group}.gid = globals.gids.${globals.jellyseerr.group};
       users.${globals.jellyseerr.user} = {
         isSystemUser = true;
         group = globals.jellyseerr.group;
-        uid = lib.mkForce globals.uids.${globals.jellyseerr.user};
+        uid = globals.uids.${globals.jellyseerr.user};
       };
     };
 

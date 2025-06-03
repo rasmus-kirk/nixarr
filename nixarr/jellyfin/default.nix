@@ -139,11 +139,11 @@ in {
     ];
 
     users = {
-      groups.${globals.jellyfin.group}.gid = lib.mkForce globals.gids.${globals.jellyfin.group};
+      groups.${globals.jellyfin.group}.gid = globals.gids.${globals.jellyfin.group};
       users.${globals.jellyfin.user} = {
         isSystemUser = true;
         group = globals.jellyfin.group;
-        uid = lib.mkForce globals.uids.${globals.jellyfin.user};
+        uid = globals.uids.${globals.jellyfin.user};
       };
     };
 

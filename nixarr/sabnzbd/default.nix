@@ -186,11 +186,11 @@ in {
       ];
 
       users = {
-        groups.${globals.sabnzbd.group}.gid = lib.mkForce globals.gids.${globals.sabnzbd.group};
+        groups.${globals.sabnzbd.group}.gid = globals.gids.${globals.sabnzbd.group};
         users.${globals.sabnzbd.user} = {
           isSystemUser = true;
           group = globals.sabnzbd.group;
-          uid = lib.mkForce globals.uids.${globals.sabnzbd.user};
+          uid = globals.uids.${globals.sabnzbd.user};
         };
       };
 
