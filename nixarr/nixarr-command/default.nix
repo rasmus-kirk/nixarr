@@ -13,6 +13,8 @@ with lib; let
     runtimeInputs = with pkgs; [
       util-linux
       yq
+      gnugrep
+      gnused
     ];
     text = ''
       command="''${1:-}"
@@ -151,6 +153,10 @@ with lib; let
         ${strings.optionalString nixarr.readarr-audiobook.enable ''
         READARR_AUDIOBOOK=$(xq -r '.Config.ApiKey' "${nixarr.readarr-audiobook.stateDir}/config.xml")
         echo "Readarr Audiobook api-key: $READARR_AUDIOBOOK"
+      ''}
+        ${strings.optionalString nixarr.sabnzbd.enable ''
+        SABNZBD=$(grep api_key ${nixarr.sabnzbd.stateDir}/sabnzbd.ini | sed 's/^api_key.*= *//g')
+        echo "Sabnzbd api-key: \"$SABNZBD\""
       ''}
         ${strings.optionalString nixarr.sonarr.enable ''
         SONARR=$(xq '.Config.ApiKey' "${nixarr.sonarr.stateDir}/config.xml")
