@@ -112,7 +112,7 @@ in {
         host =
           if cfg.openFirewall
           then "0.0.0.0"
-          else "127.0.0.1";
+          else if cfg.vpn.enable then "192.168.15.1" else "127.0.0.1";
         port = cfg.guiPort;
         download_dir = "${nixarr.mediaDir}/usenet/.incomplete";
         complete_dir = "${nixarr.mediaDir}/usenet/manual";
