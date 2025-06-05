@@ -35,7 +35,7 @@ in {
 
     guiPort = mkOption {
       type = types.port;
-      default = 8080;
+      default = 6336;
       example = 9999;
       description = ''
         The port that SABnzbd's GUI will listen on for incomming connections.
