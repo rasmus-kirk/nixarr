@@ -27,6 +27,16 @@ Then you can set that port for a service, for example
   };
 ```
 
+Or with qBittorrent:
+
+```nix {.numberLines}
+  nixarr.qbittorrent = {
+    enable = true;
+    vpn.enable = true;
+    peerPort = 12345;
+  };
+```
+
 ## Debugging Ports
 
 > **Note:** See [this GH issue](https://github.com/rasmus-kirk/nixarr/issues/27)
