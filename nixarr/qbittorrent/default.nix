@@ -118,8 +118,8 @@ in {
 
     systemd.services.qbittorrent = {
       description = "qBittorrent BitTorrent client";
-      after = [ "network.target" ];
-      wantedBy = [ "multi-user.target" ];
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
 
       serviceConfig = {
         Type = "simple";
@@ -128,12 +128,12 @@ in {
         ExecStart = "${cfg.package}/bin/qbittorrent-nox";
         Restart = "on-failure";
         RestartSec = "5s";
-        
+
         NoNewPrivileges = true;
         PrivateTmp = true;
         ProtectSystem = "off";
         ProtectHome = false;
-        
+
         # Always prioritize all other services wrt. IO
         IOSchedulingPriority = 7;
       };
@@ -191,8 +191,8 @@ in {
     };
 
     networking.firewall = mkIf cfg.openFirewall {
-      allowedTCPPorts = [ cfg.uiPort cfg.peerPort ];
-      allowedUDPPorts = [ cfg.peerPort ];
+      allowedTCPPorts = [cfg.uiPort cfg.peerPort];
+      allowedUDPPorts = [cfg.peerPort];
     };
   };
 }
