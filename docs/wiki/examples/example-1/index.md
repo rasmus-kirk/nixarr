@@ -41,6 +41,13 @@ This example does the following:
       peerPort = 50000; # Set this to the port forwarded by your VPN
     };
 
+    # Alternatively, you can use qBittorrent instead of transmission:
+    # qbittorrent = {
+    #   enable = true;
+    #   vpn.enable = true;
+    #   peerPort = 50000; # Set this to the port forwarded by your VPN
+    # };
+
     # It is possible for this module to run the *Arrs through a VPN, but it
     # is generally not recommended, as it can cause rate-limiting issues.
     bazarr.enable = true;
