@@ -10,6 +10,7 @@ This is an index of existing articles:
 - **Examples**
   - **[Basic Example](/wiki/examples/example-1)**
   - **[Example Configuration Where Port Forwarding Is Not an Option](/wiki/examples/example-2)**
+- **[Setup the applications](/wiki/setup)**
 - **[Exposing Services Safely](/wiki/expose)**
 - **VPN**
   - **[Running Services Not Covered by Nixarr Through a VPN](/wiki/vpn/uncovered-services)**
