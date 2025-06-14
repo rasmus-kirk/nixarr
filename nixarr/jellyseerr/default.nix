@@ -194,9 +194,14 @@ in {
       };
     };
 
-    networking.firewall = mkIf cfg.expose.https.enable {
-      allowedTCPPorts = [80 443];
-    };
+    networking.firewall = mkMerge [
+      (mkIf cfg.expose.https.enable {
+        allowedTCPPorts = [80 443];
+      })
+      (mkIf cfg.openFirewall {
+        allowedTCPPorts = [cfg.port];
+      })
+    ];
 
     util-nixarr.upnp = mkIf cfg.expose.https.upnp.enable {
       enable = true;
