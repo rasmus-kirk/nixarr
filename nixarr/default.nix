@@ -142,7 +142,7 @@ in {
       };
 
       accessibleFrom = mkOption {
-        type = with types; listOf port;
+        type = with types; listOf str;
         default = [];
         description = ''
           What IP's the VPN submodule should be accessible from. By default
