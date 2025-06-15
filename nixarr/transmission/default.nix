@@ -362,6 +362,7 @@ in {
         then pkgs.flood-for-transmission
         else null;
       package = cfg.package;
+      openFirewall = cfg.openFirewall;
       openRPCPort = cfg.openFirewall;
       openPeerPorts = cfg.openFirewall;
       credentialsFile = cfg.credentialsFile;
