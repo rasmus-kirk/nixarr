@@ -210,6 +210,6 @@ with lib; let
       esac
     '';
   };
-in {
+in mkIf nixarr.enable {
   config.environment.systemPackages = [nixarr-command];
 }
