@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1748662220,
-        "narHash": "sha256-7gGa49iB9nCnFk4h/g9zwjlQAyjtpgcFkODjcOQS0Es=",
+        "lastModified": 1750183894,
+        "narHash": "sha256-ZtOgEt70keBVB4YJc+z7m0h7J1BOlv/GjHE1YC6KxeA=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "59138c7667b7970d205d6a05a8bfa2d78caa3643",
+        "rev": "f45e75fc63fc8a7ffc3da382b2f6b681c5b71875",
         "type": "github"
       },
       "original": {
@@ -25,11 +25,11 @@
     },
     "vpnconfinement": {
       "locked": {
-        "lastModified": 1743810720,
-        "narHash": "sha256-kbv/W4gizUSa6qH2rUQdgPj9AJaeN9k2XSWUYqj7IMU=",
+        "lastModified": 1749672087,
+        "narHash": "sha256-j8LG0s0QcvNkZZLcItl78lvTZemvsScir0dG3Ii4B1c=",
         "owner": "Maroka-chan",
         "repo": "VPN-Confinement",
-        "rev": "74ae51e6d18b972ecc918ab43e8bde60c21a65d8",
+        "rev": "880b3bd2c864dce4f6afc79f6580ca699294c011",
         "type": "github"
       },
       "original": {

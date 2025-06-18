@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+Added:
+- `whisparr` service
+- `komgarr` service
+
 ## 2025-06-03
 
 Added:
