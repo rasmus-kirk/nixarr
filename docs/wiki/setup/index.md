@@ -12,7 +12,7 @@ configuration. Replace {URL} in this document with your server IP or domain.
 ## Jellyfin
 
 - Open your browser and go to `{URL}:8096`.
-- Click "Add Server" and put your server address (e.g. `{URL}:8096`).
+- Click `Add Server` and put your server address
 - Follow the setup wizard:
   - Create your administrator account.
   - Setup two libraries:
@@ -24,42 +24,44 @@ configuration. Replace {URL} in this document with your server IP or domain.
 
 **Optimisation**:
 
-- Reduce the "Scan Media Library" interval for small libraries: See "Scheduled
-  Tasks": {URL}:8096/web/index.html#/dashboard/tasks/
+- Reduce the scan media library interval for small libraries: See
+  `Scheduled Tasks`: {URL}:8096/web/index.html#/dashboard/tasks/
 
 ## Transmission
 
-(Instructions missing)
+- ... ?
 
 ## Radarr
 
 - Open your browser and go to `{URL}:7878`.
 - You will be asked to set up a new account.
-  - Choose "Forms" as the auth method and choose a username & password.
+  - Choose `Forms` as the auth method and choose a username & password.
   - You can now log in.
-- Go to "Settings" > Media Management > Root Folders and click "Add Root
-  Folder". Add `/data/media/library/movies/`, then Save Changes.
+- Go to "Settings" > "Media Management" > "Root Folders" and click
+  `Add Root Folder`. Add `/data/media/library/movies/`, then click
+  `Save Changes`.
 - Go to "Settings" > "Download Clients" and add Transmission.
 
 **Optimisation**:
 
-- Go to {URL}:7878/settings/mediamanagement and set "Unmonitor Deleted Movies"
+- Go to {URL}:7878/settings/mediamanagement and set `Unmonitor Deleted Movies`
   to true.
 
 ## Sonarr
 
 - Open your browser and go to `{URL}:8989`.
 - You will be asked to set up a new account.
-  - Choose "Forms" as the auth method and choose a username & password.
+  - Choose `Forms` as the auth method and choose a username & password.
   - You can now log in.
-- Go to "Settings" > Media Management > Root Folders and click "Add Root
-  Folder". Add `/data/media/library/shows/`, then Save Changes.
+- Go to "Settings" > "Media Management" > "Root Folders" and click
+  `Add Root Folder`. Add `/data/media/library/shows/`, then click
+  `Save Changes`.
 - Go to "Settings" > "Download Clients" and add Transmission. Change the
-  category to "sonarr".
+  category to `sonarr`.
 
 **Optimisation**:
 
-- Go to {URL}:8989/settings/mediamanagement and set "Unmonitor Deleted Episodes"
+- Go to {URL}:8989/settings/mediamanagement and set `Unmonitor Deleted Episodes`
   to true.
 
 ## Jellyseerr
@@ -69,9 +71,9 @@ configuration. Replace {URL} in this document with your server IP or domain.
   - Choose Jellyfin (or Plex).
   - Add your Jellyfin URL, username & password (you can leave the path empty and
     use a dummy email).
-  - Click on "Sync Libraries" and toggle "Movies" and "Shows", click Next.
+  - Click on `Sync Libraries` and toggle `Movies` and `Shows`, click `Next`.
   - Add your Radarr and Sonarr apps.
-  - To show your API keys, run `sudo nixarr list-api-keys`.
+  - Get the API key by typing `sudo nixarr list-api-keys` in your terminal.
 
 ## Bazarr
 
@@ -79,16 +81,16 @@ configuration. Replace {URL} in this document with your server IP or domain.
 - Go to "Settings" > "Languages":
   - select your preferred languages for subtitles in "Languages Filter", then
     add a languages profile
-  - Add a default Language profiles for series and movies
+  - Add a "Default Language Profile" for "Series" and "Movies"
 - Go to "Settings" > "Sonarr" and "Settings" > "Radarr" to add your respective
   Sonarr and Radarr instances.
-  - Get the API key by typing sudo nixarr list-api-keys in your terminal.
-  - Click "Test" to ensure the connection works, then "Save".
+  - Get the API key by typing `sudo nixarr list-api-keys` in your terminal.
+  - Click `Test` to ensure the connection works, then `Save`.
 - Go to "Settings" > "Providers" and enable the subtitle providers you want.
 
 **Optimisation**:
 
-- Go to {URL}:6767/settings/general and set "Unmonitor Deleted Subtitles" to
+- Go to {URL}:6767/settings/general and set `Unmonitor Deleted Subtitles` to
   true.
 
 ## Prowlarr
@@ -97,10 +99,10 @@ configuration. Replace {URL} in this document with your server IP or domain.
 
 - Open your browser and go to `{URL}:9696`.
 - You will be asked to set up a new account.
-  - Choose "Forms" as the auth method and choose a username & password.
+  - Choose `Forms` as the auth method and choose a username & password.
   - You can now log in.
-- Go to Settings > Apps and add your \*Arrs. To get the API keys, run
-  `sudo nixarr list-api-keys`.
+- Go to "Settings" > "Apps" and add your _Arrs_.
+  - Get the API key by typing `sudo nixarr list-api-keys` in your terminal.
 
 **Add indexers**:
 
