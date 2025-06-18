@@ -36,6 +36,7 @@ in {
       sabnzbd = 38;
       transmission = 70;
       cross-seed = 183;
+      whisparr = 272;
     };
     gids = {
       autobrr = 188;
@@ -113,6 +114,10 @@ in {
     cross-seed = {
       user = "cross-seed";
       group = "cross-seed";
+    };
+    whisparr = {
+      user = "whisparr";
+      group = globals.libraryOwner.group;
     };
   };
 }
