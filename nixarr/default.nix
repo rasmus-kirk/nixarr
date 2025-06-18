@@ -27,6 +27,7 @@ in {
     ./sabnzbd
     ./sonarr
     ./transmission
+    ./whisparr
     ../util
   ];
 
