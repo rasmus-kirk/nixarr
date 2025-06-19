@@ -6,6 +6,7 @@
 }:
 with lib; let
   cfg = config.util-nixarr.services.cross-seed;
+  globals = config.util-nixarr.globals;
   settingsFormat = pkgs.formats.json {};
   settingsFile = settingsFormat.generate "settings.json" cfg.settings;
   configJs = pkgs.writeText "config.js" ''

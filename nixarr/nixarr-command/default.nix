@@ -95,7 +95,7 @@ with lib; let
         find "${nixarr.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
         ${strings.optionalString nixarr.readarr-audiobook.enable ''
-        chown -R ${globals.readarr.user}:root "${nixarr.readarr-audiobook.stateDir}"
+        chown -R ${globals.readarr-audiobook.user}:root "${nixarr.readarr-audiobook.stateDir}"
         find "${nixarr.readarr-audiobook.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
         ${strings.optionalString nixarr.jellyseerr.enable ''
