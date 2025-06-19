@@ -87,7 +87,7 @@ in {
     };
     readarr-audiobook = {
       user = "readarr-audiobook";
-      readarr-group = globals.libraryOwner.group;
+      group = globals.libraryOwner.group;
     };
     recyclarr = {
       user = "recyclarr";
