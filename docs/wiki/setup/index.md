@@ -67,7 +67,7 @@ with JSON, and can therefore be configured with nix. The most basic settings are
   - Click on `Show Advanced`
   - Under `Importing`, enable `Use Hardlinks instead of Copy`
   - Under `Root Folders`, click `Add Root Folder`. Add
-  `/data/media/library/movies/`, then click `Save Changes`.
+  `/data/media/library/shows/`, then click `Save Changes`.
 - Go to "Settings" > "Download Clients" and add Transmission. Change the
   category to `sonarr`.
 
