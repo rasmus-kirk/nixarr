@@ -39,6 +39,9 @@
       permissions-test = pkgs.callPackage ./tests/permissions-test.nix {
         inherit (self) nixosModules;
       };
+      vpn-confinement-test = pkgs.callPackage ./tests/vpn-confinement-test.nix {
+        inherit (self) nixosModules;
+      };
     });
 
     devShells = forAllSystems ({pkgs}: {
