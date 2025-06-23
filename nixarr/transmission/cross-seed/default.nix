@@ -85,7 +85,6 @@ in {
 
     systemd.tmpfiles.rules =
       [
-        "L+ '${cfg.dataDir}'/config.js - - - - ${configJs}"
         "d '${cfg.dataDir}' 0700 ${cfg.user} root - -"
       ]
       ++ (
@@ -109,6 +108,10 @@ in {
             + pkgs.writeShellScript "transmission-prestart" ''
               ${pkgs.jq}/bin/jq --slurp add ${settingsFile} '${cfg.credentialsFile}' |
               install -D -m 600 -o '${cfg.user}' /dev/stdin '${cfg.dataDir}/config.json'
+
+              cp "${configJs}" "${cfg.dataDir}/config.js"
+              chmod 600 "${cfg.dataDir}/config.js"
+              chown "${cfg.user}:${cfg.group}" "${cfg.dataDir}/config.js"
             ''
           )
         ];

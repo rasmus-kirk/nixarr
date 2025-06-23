@@ -29,7 +29,7 @@
     forAllSystems = f:
       nixpkgs.lib.genAttrs supportedSystems (system:
         f {
-          pkgs = import nixpkgs {inherit system;};
+          pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
         });
   in {
     nixosModules.default.imports = [./nixarr vpnconfinement.nixosModules.default];
@@ -39,9 +39,12 @@
       permissions-test = pkgs.callPackage ./tests/permissions-test.nix {
         inherit (self) nixosModules;
       };
-      vpn-confinement-test = pkgs.callPackage ./tests/vpn-confinement-test.nix {
+      simple-test = pkgs.callPackage ./tests/simple-test.nix {
         inherit (self) nixosModules;
       };
+      # vpn-confinement-test = pkgs.callPackage ./tests/vpn-confinement-test.nix {
+      #   inherit (self) nixosModules;
+      # };
     });
 
     devShells = forAllSystems ({pkgs}: {
