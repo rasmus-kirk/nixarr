@@ -31,7 +31,7 @@ with lib; let
       text = ''
         touch ${cfg.stateDir}/prowlarr-api-key
         chmod 400 ${cfg.stateDir}/prowlarr-api-key
-        chown torrenter ${cfg.stateDir}/prowlarr-api-key
+        chown ${globals.transmission.user} ${cfg.stateDir}/prowlarr-api-key
         xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml" > "${cfg.stateDir}/prowlarr-api-key"
       '';
     };
