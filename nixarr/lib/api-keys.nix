@@ -58,7 +58,7 @@ in {
     users.users = mkMerge [
       # Static users
       (mkIf cfg.transmission.enable {
-        torrenter.extraGroups = optional cfg.prowlarr.enable "prowlarr-api";
+        transmission.extraGroups = optional cfg.prowlarr.enable "prowlarr-api";
       })
       (mkIf cfg.transmission.privateTrackers.cross-seed.enable {
         cross-seed.extraGroups = optional cfg.prowlarr.enable "prowlarr-api";

@@ -14,6 +14,11 @@ with lib; let
   shouldEnableExporter = service:
     cfg.${service}.enable
     && (cfg.${service}.exporter.enable == null || cfg.${service}.exporter.enable);
+
+  # Helper to determine if wireguard exporter should be enabled
+  shouldEnableWireguardExporter =
+    cfg.vpn.enable
+    && (cfg.wireguard.exporter.enable == null || cfg.wireguard.exporter.enable);
 in {
   imports = [../lib/api-keys.nix];
 
@@ -24,6 +29,16 @@ in {
       };
 
       wireguard.exporter = {
+        enable = mkOption {
+          type = types.nullOr types.bool;
+          default = null;
+          description = ''
+            Whether to enable the Wireguard Prometheus exporter.
+            - null: enable if exporters.enable is true and VPN is enabled (default)
+            - true: force enable if exporters.enable is true
+            - false: always disable
+          '';
+        };
         port = mkOption {
           type = types.port;
           default = 9586;
@@ -232,7 +247,7 @@ in {
         systemd.enable = true;
 
         # Configure wireguard exporter
-        wireguard = mkIf cfg.vpn.enable {
+        wireguard = mkIf shouldEnableWireguardExporter {
           enable = true;
           openFirewall = false;
           port = cfg.wireguard.exporter.port;
@@ -338,12 +353,10 @@ in {
           from = cfg.prowlarr.exporter.port;
           to = cfg.prowlarr.exporter.port;
         })
-        ++ [
-          {
-            from = cfg.wireguard.exporter.port;
-            to = cfg.wireguard.exporter.port;
-          }
-        ];
+        ++ (optional shouldEnableWireguardExporter {
+          from = cfg.wireguard.exporter.port;
+          to = cfg.wireguard.exporter.port;
+        });
     };
 
     # Open firewall ports for non-VPN exporters
@@ -353,21 +366,11 @@ in {
       ++ (optional (shouldEnableExporter "lidarr" && !isVpnConfined "lidarr") cfg.lidarr.exporter.port)
       ++ (optional (shouldEnableExporter "readarr" && !isVpnConfined "readarr") cfg.readarr.exporter.port)
       ++ (optional (shouldEnableExporter "prowlarr" && !isVpnConfined "prowlarr") cfg.prowlarr.exporter.port)
-      ++ [cfg.wireguard.exporter.port]
+      ++ (optional shouldEnableWireguardExporter cfg.wireguard.exporter.port)
     );
 
-    # Add port mapping for the Wireguard exporter
-    vpnNamespaces.wg = mkIf cfg.vpn.enable {
-      portMappings = lib.mkIf cfg.wireguard.exporter.enable [
-        {
-          from = cfg.wireguard.exporter.port;
-          to = cfg.wireguard.exporter.port;
-        }
-      ];
-    };
-
     # Optionally add Nginx proxy for the Wireguard exporter
-    services.nginx = mkIf cfg.vpn.enable {
+    services.nginx = mkIf shouldEnableWireguardExporter {
       enable = true;
       virtualHosts."127.0.0.1:${toString cfg.wireguard.exporter.port}" = {
         listen = [
