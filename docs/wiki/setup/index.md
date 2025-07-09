@@ -106,7 +106,7 @@ with JSON, and can therefore be configured with nix. The most basic settings are
 
 - Go to {URL}:6767/settings/general and set `Unmonitor Deleted Subtitles` to
   true.
-- Go to "Settings" > "Subtitles" > "Audio Synchronization / Alignment" > "Automatic
+- Go to "Settings" > "Subtitles" > "Audio Synchronization / Alignment" and enable "Automatic
   Subtitles Audio Synchronization"
 
 ## Prowlarr
