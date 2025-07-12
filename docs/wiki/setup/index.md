@@ -9,7 +9,7 @@ you are using the [first example](/wiki/examples/example-1) in your Nix
 configuration. Replace {URL} in this document with your server IP or domain.
 
 In the below setup, we assume you also didn't set the `nixarr.mediaDir`
-option, which by defuault is set to `/data/media`.
+option, which by default is set to `/data/media`.
 
 ## Jellyfin
 
@@ -31,7 +31,7 @@ option, which by defuault is set to `/data/media`.
 
 ## Transmission
 
-Transmission should already be setupup and running since it's configured
+Transmission should already be setup and running since it's configured
 with JSON, and can therefore be configured with nix. The most basic settings are already set. See the following links for more info:
 
 - [The configured Nixarr defaults for transmission](https://github.com/rasmus-kirk/nixarr/blob/28d1be070deb1a064c1967889c11c8921752fa09/nixarr/transmission/default.nix#L355)
@@ -106,7 +106,7 @@ with JSON, and can therefore be configured with nix. The most basic settings are
 
 - Go to {URL}:6767/settings/general and set `Unmonitor Deleted Subtitles` to
   true.
-- Go to "Settings" > "Audio Synchronization / Alignment" > "Automatic
+- Go to "Settings" > "Subtitles" > "Audio Synchronization / Alignment" and enable "Automatic
   Subtitles Audio Synchronization"
 
 ## Prowlarr
