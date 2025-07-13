@@ -33,6 +33,13 @@ example does the following:
       peerPort = 50000; # Set this to the port forwarded by your VPN
     };
 
+    # Alternatively, you can use qBittorrent instead of transmission:
+    # qbittorrent = {
+    #   enable = true;
+    #   vpn.enable = true;
+    #   peerPort = 50000; # Set this to the port forwarded by your VPN
+    # };
+
     bazarr.enable = true;
     sonarr.enable = true;
     radarr.enable = true;
