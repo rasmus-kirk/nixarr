@@ -323,14 +323,11 @@ in {
           torrentDir = "${cfg.stateDir}/.config/transmission-daemon/torrents";
           outputDir = "${nixarr.mediaDir}/torrents/.cross-seed";
           transmissionRpcUrl = "http://localhost:${builtins.toString cfg.uiPort}/transmission/rpc";
-          rssCadence = "20 minutes";
-
           action = "inject";
-
-          # Enable infrequent periodic searches
-          searchCadence = "1 week";
-          excludeRecentSearch = "1 year";
-          excludeOlder = "1 year";
+          rssCadence = "30 minutes";
+          searchCadence = "1 day";
+          excludeOlder = "2 weeks";
+          excludeRecentSearch = "3 days";
         }
         // cfg-cross-seed.extraSettings;
     };
