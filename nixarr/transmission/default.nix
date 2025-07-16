@@ -291,7 +291,7 @@ in {
       groups.${globals.cross-seed.group}.gid = globals.gids.${globals.cross-seed.group};
       users.${globals.transmission.user} = {
         isSystemUser = true;
-        group = globals.transmission.group;
+        group = lib.mkForce globals.transmission.group;
         uid = globals.uids.${globals.transmission.user};
       };
     };
@@ -356,7 +356,10 @@ in {
     services.transmission = {
       enable = true;
       user = globals.transmission.user;
-      group = globals.transmission.group;
+      group =
+        if cfg-cross-seed.enable
+        then globals.cross-seed.group
+        else globals.transmission.group;
       home = cfg.stateDir;
       webHome =
         if cfg.flood.enable
