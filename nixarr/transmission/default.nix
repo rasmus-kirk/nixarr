@@ -18,7 +18,6 @@ with lib; let
       runtimeInputs = with pkgs; [curl];
 
       text = ''
-        chown :${globals.cross-seed.group} "$TR_TORRENT_DIR"/"$TR_TORRENT_NAME"
         PROWLARR_API_KEY=$(cat ${cfg.stateDir}/prowlarr-api-key)
         curl -XPOST http://localhost:2468/api/webhook?apikey="$PROWLARR_API_KEY" --data-urlencode "infoHash=$TR_TORRENT_HASH"
       '';
