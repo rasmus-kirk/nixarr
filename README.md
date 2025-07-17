@@ -30,12 +30,12 @@ To run services through a VPN, you must provide a wg-quick config file,
 that is provided by most VPN providers:
 
 ```nix {.numberLines}
-  nixarr.vpn = {
-    enable = true;
-    # WARNING: This file must _not_ be in the config git directory
-    # You can usually get this wireguard file from your VPN provider
-    wgConf = "/data/.secret/wg.conf";
-  }
+nixarr.vpn = {
+  enable = true;
+  # WARNING: This file must _not_ be in the config git directory
+  # You can usually get this wireguard file from your VPN provider
+  wgConf = "/data/.secret/wg.conf";
+}
 ```
 
 It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
@@ -61,33 +61,33 @@ To use this module, add it to your flake inputs in your nix flake file,
 like shown in this example flake:
 
 ```nix {.numberLines}
-  {
-    description = "Your nix flake";
+{
+  description = "Your nix flake";
 
-    inputs = {
-      nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-      nixarr.url = "github:rasmus-kirk/nixarr";
-    };
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixarr.url = "github:rasmus-kirk/nixarr";
+  };
 
-    outputs = { 
-      nixpkgs,
-      nixarr,
-      ...
-    }@inputs: {
-      nixosConfigurations = {
-        servarr = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
+  outputs = { 
+    nixpkgs,
+    nixarr,
+    ...
+  }@inputs: {
+    nixosConfigurations = {
+      servarr = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
 
-          modules = [
-            ./nixos/servarr/configuration.nix
-            nixarr.nixosModules.default
-          ];
+        modules = [
+          ./nixos/servarr/configuration.nix
+          nixarr.nixosModules.default
+        ];
 
-          specialArgs = { inherit inputs; };
-        };
+        specialArgs = { inherit inputs; };
       };
     };
-  }
+  };
+}
 ```
 
 ## VPN Providers
