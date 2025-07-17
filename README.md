@@ -61,33 +61,33 @@ To use this module, add it to your flake inputs in your nix flake file,
 like shown in this example flake:
 
 ```nix {.numberLines}
-  {
-    description = "Your nix flake";
+{
+  description = "Your nix flake";
 
-    inputs = {
-      nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
-      nixarr.url = "github:rasmus-kirk/nixarr";
-    };
+  inputs = {
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
+    nixarr.url = "github:rasmus-kirk/nixarr";
+  };
 
-    outputs = { 
-      nixpkgs,
-      nixarr,
-      ...
-    }@inputs: {
-      nixosConfigurations = {
-        servarr = nixpkgs.lib.nixosSystem {
-          system = "x86_64-linux";
+  outputs = { 
+    nixpkgs,
+    nixarr,
+    ...
+  }@inputs: {
+    nixosConfigurations = {
+      servarr = nixpkgs.lib.nixosSystem {
+        system = "x86_64-linux";
 
-          modules = [
-            ./nixos/servarr/configuration.nix
-            nixarr.nixosModules.default
-          ];
+        modules = [
+          ./nixos/servarr/configuration.nix
+          nixarr.nixosModules.default
+        ];
 
-          specialArgs = { inherit inputs; };
-        };
+        specialArgs = { inherit inputs; };
       };
     };
-  }
+  };
+}
 ```
 
 ## VPN Providers
