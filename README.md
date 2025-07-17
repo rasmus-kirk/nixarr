@@ -30,12 +30,12 @@ To run services through a VPN, you must provide a wg-quick config file,
 that is provided by most VPN providers:
 
 ```nix {.numberLines}
-  nixarr.vpn = {
-    enable = true;
-    # WARNING: This file must _not_ be in the config git directory
-    # You can usually get this wireguard file from your VPN provider
-    wgConf = "/data/.secret/wg.conf";
-  }
+nixarr.vpn = {
+  enable = true;
+  # WARNING: This file must _not_ be in the config git directory
+  # You can usually get this wireguard file from your VPN provider
+  wgConf = "/data/.secret/wg.conf";
+}
 ```
 
 It is possible, _but not recommended_, to run the "*Arrs" behind a VPN,
