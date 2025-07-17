@@ -67,6 +67,7 @@ with lib; let
         find "${nixarr.sabnzbd.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
         ${strings.optionalString nixarr.transmission.privateTrackers.cross-seed.enable ''
+        chown -R ${globals.transmission.user}:${globals.cross-seed.group} "${nixarr.mediaDir}/torrents/.cross-seed"
         chown -R ${globals.cross-seed.user}:root "${nixarr.transmission.privateTrackers.cross-seed.stateDir}"
         find "${nixarr.transmission.privateTrackers.cross-seed.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}

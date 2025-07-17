@@ -290,7 +290,7 @@ in {
       groups.${globals.cross-seed.group}.gid = globals.gids.${globals.cross-seed.group};
       users.${globals.transmission.user} = {
         isSystemUser = true;
-        group = globals.transmission.group;
+        group = lib.mkForce globals.transmission.group;
         uid = globals.uids.${globals.transmission.user};
       };
     };
@@ -322,14 +322,11 @@ in {
           torrentDir = "${cfg.stateDir}/.config/transmission-daemon/torrents";
           outputDir = "${nixarr.mediaDir}/torrents/.cross-seed";
           transmissionRpcUrl = "http://localhost:${builtins.toString cfg.uiPort}/transmission/rpc";
-          rssCadence = "20 minutes";
-
           action = "inject";
-
-          # Enable infrequent periodic searches
-          searchCadence = "1 week";
-          excludeRecentSearch = "1 year";
-          excludeOlder = "1 year";
+          rssCadence = "30 minutes";
+          searchCadence = "1 day";
+          excludeOlder = "2 weeks";
+          excludeRecentSearch = "3 days";
         }
         // cfg-cross-seed.extraSettings;
     };
@@ -355,7 +352,10 @@ in {
     services.transmission = {
       enable = true;
       user = globals.transmission.user;
-      group = globals.transmission.group;
+      group =
+        if cfg-cross-seed.enable
+        then globals.cross-seed.group
+        else globals.transmission.group;
       home = cfg.stateDir;
       webHome =
         if cfg.flood.enable
