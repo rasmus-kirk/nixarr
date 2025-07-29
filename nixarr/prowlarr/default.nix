@@ -84,21 +84,6 @@ in {
       "d '${cfg.stateDir}' 0700 ${globals.prowlarr.user} root - -"
     ];
 
-    systemd.services.prowlarr = {
-      description = "prowlarr";
-      after = ["network.target"];
-      wantedBy = ["multi-user.target"];
-      environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
-
-      serviceConfig = {
-        Type = "simple";
-        User = globals.prowlarr.user;
-        Group = globals.prowlarr.group;
-        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
-        Restart = "on-failure";
-      };
-    };
-
     networking.firewall = mkIf cfg.openFirewall {
       allowedTCPPorts = [cfg.port];
     };
@@ -111,11 +96,103 @@ in {
         uid = globals.uids.${globals.prowlarr.user};
       };
     };
+    systemd.services.prowlarr = {
+      description = "prowlarr";
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
+      environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
 
-    # Enable and specify VPN namespace to confine service in.
-    systemd.services.prowlarr.vpnConfinement = mkIf cfg.vpn.enable {
-      enable = true;
-      vpnNamespace = "wg";
+      postStart = mkIf nixarr.autosync (
+        let
+          configure-prowlarr =
+            pkgs.writers.writePython3Bin "configure-prowlarr" {
+              libraries = [];
+              flakeIgnore = ["E501" "E121" "E122"];
+            } ''
+              import sqlite3
+              import json
+              import os.path
+              import time
+
+              db_path = "${cfg.stateDir}/prowlarr.db"
+              while not os.path.exists(db_path):
+                  time.sleep(1)
+
+              con = sqlite3.connect(db_path)
+              api_key = open("${nixarr.stateDir}/api-key", "r").read()
+              sonarr = {
+                "prowlarrUrl": "http://localhost:9696",
+                "baseUrl": "http://localhost:8989",
+                "apiKey": api_key,
+                "syncCategories": [
+                    5000,
+                    5010,
+                    5020,
+                    5030,
+                    5040,
+                    5045,
+                    5050,
+                    5090
+                ],
+                "animeSyncCategories": [5070],
+                "syncAnimeStandardFormatSearch": True,
+                "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
+              }
+              radarr = {
+                "prowlarrUrl": "http://localhost:9696",
+                "baseUrl": "http://localhost:7878",
+                "apiKey": api_key,
+                "syncCategories": [
+                    2000,
+                    2010,
+                    2020,
+                    2030,
+                    2040,
+                    2045,
+                    2050,
+                    2060,
+                    2070,
+                    2080,
+                    2090
+                ],
+                "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
+              }
+              cur = con.cursor()
+              data = [
+              ${
+                if nixarr.sonarr.enable
+                then ''
+                  ("nixarr_autosync_sonarr", "Sonarr", json.dumps(sonarr), "SonarrSettings", 2, "[]"),
+                ''
+                else ""
+              }
+              ${
+                if nixarr.radarr.enable
+                then ''
+                  ("nixarr_autosync_radarr", "Radarr", json.dumps(radarr), "RadarrSettings", 2, "[]"),
+                ''
+                else ""
+              }
+              ]
+              cur.executemany("INSERT INTO Applications VALUES(NULL, ?, ?, ?, ?, ?, ?) ON CONFLICT(Name) DO UPDATE SET Settings=excluded.Settings", data)
+              con.commit()
+            '';
+        in "${configure-prowlarr}/bin/configure-prowlarr"
+      );
+
+      serviceConfig = {
+        Type = "simple";
+        User = globals.prowlarr.user;
+        Group = globals.prowlarr.group;
+        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
+        Restart = "on-failure";
+      };
+
+      # Enable and specify VPN namespace to confine service in.
+      vpnConfinement = mkIf cfg.vpn.enable {
+        enable = true;
+        vpnNamespace = "wg";
+      };
     };
 
     vpnNamespaces.wg = mkIf cfg.vpn.enable {

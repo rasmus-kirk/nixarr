@@ -101,11 +101,31 @@ in {
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
+    systemd.services.radarr = {
+      preStart = mkIf nixarr.autosync (
+        let
+          configure-radarr = pkgs.writeShellApplication {
+            name = "configure-radarr";
 
-    # Enable and specify VPN namespace to confine service in.
-    systemd.services.radarr.vpnConfinement = mkIf cfg.vpn.enable {
-      enable = true;
-      vpnNamespace = "wg";
+            runtimeInputs = with pkgs; [util-linux coreutils bash yq];
+
+            text = ''
+              cd ${cfg.stateDir}
+              API_KEY=$(cat ${nixarr.stateDir}/api-key)
+              if [ ! -f ./config.xml ]; then
+                echo "<Config></Config>" > config.xml
+              fi
+              xq ".Config.ApiKey=\"$API_KEY\"" --in-place -x ./config.xml
+            '';
+          };
+        in "${configure-radarr}/bin/configure-radarr"
+      );
+
+      # Enable and specify VPN namespace to confine service in.
+      vpnConfinement = mkIf cfg.vpn.enable {
+        enable = true;
+        vpnNamespace = "wg";
+      };
     };
 
     # Port mappings

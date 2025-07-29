@@ -103,6 +103,15 @@ in {
       '';
     };
 
+    autosync = mkOption {
+      type = types.bool;
+      default = false;
+      example = true;
+      description = ''
+        automatically generate api keys for all services and link them together with integrations
+      '';
+    };
+
     stateDir = mkOption {
       type = types.path;
       default = "/data/.state/nixarr";
@@ -213,10 +222,6 @@ in {
 
     users.groups.media.members = cfg.mediaUsers;
 
-    systemd.tmpfiles.rules = [
-      "d '${cfg.mediaDir}'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
-    ];
-
     environment.systemPackages = with pkgs; [
       jdupes
     ];
@@ -236,56 +241,87 @@ in {
         ++ cfg.vpn.accessibleFrom;
       wireguardConfigFile = cfg.vpn.wgConf;
     };
+    systemd = {
+      tmpfiles.rules = [
+        "d '${cfg.mediaDir}'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
+      ];
 
-    systemd.services.vpn-test-service = mkIf cfg.vpn.vpnTestService.enable {
-      enable = true;
-
-      vpnConfinement = {
+      services.nixarr-api-key = mkIf cfg.autosync {
         enable = true;
-        vpnNamespace = "wg";
+
+        serviceConfig = {
+          Group = "media";
+          Type = "oneshot";
+        };
+
+        script = let
+          nixarr-api-key = pkgs.writeShellApplication {
+            name = "nixarr-api-key";
+
+            runtimeInputs = with pkgs; [util-linux coreutils bash openssl];
+
+            text = ''
+              mkdir -p ${cfg.stateDir}
+              cd ${cfg.stateDir}
+              if [ ! -f ./api-key ]; then
+                openssl rand -hex 64 > ./api-key
+              fi
+              chgrp media api-key
+            '';
+          };
+        in "${nixarr-api-key}/bin/nixarr-api-key";
       };
 
-      script = let
-        vpn-test = pkgs.writeShellApplication {
-          name = "vpn-test";
+      services.vpn-test-service = mkIf cfg.vpn.vpnTestService.enable {
+        enable = true;
 
-          runtimeInputs = with pkgs; [util-linux unixtools.ping coreutils curl bash libressl netcat-gnu openresolv dig];
-
-          text =
-            ''
-              cd "$(mktemp -d)"
-
-              # DNS information
-              dig google.com
-
-              # Print resolv.conf
-              echo "/etc/resolv.conf contains:"
-              cat /etc/resolv.conf
-
-              # Query resolvconf
-              echo "resolvconf output:"
-              resolvconf -l
-              echo ""
-
-              # Get ip
-              echo "Getting IP:"
-              curl -s ipinfo.io
-
-              echo -ne "DNS leak test:"
-              curl -s https://raw.githubusercontent.com/macvk/dnsleaktest/b03ab54d574adbe322ca48cbcb0523be720ad38d/dnsleaktest.sh -o dnsleaktest.sh
-              chmod +x dnsleaktest.sh
-              ./dnsleaktest.sh
-            ''
-            + (
-              if cfg.vpn.vpnTestService.port != null
-              then ''
-                echo "starting netcat on port ${builtins.toString cfg.vpn.vpnTestService.port}:"
-                nc -vnlp ${builtins.toString cfg.vpn.vpnTestService.port}
-              ''
-              else ""
-            );
+        vpnConfinement = {
+          enable = true;
+          vpnNamespace = "wg";
         };
-      in "${vpn-test}/bin/vpn-test";
+
+        script = let
+          vpn-test = pkgs.writeShellApplication {
+            name = "vpn-test";
+
+            runtimeInputs = with pkgs; [util-linux unixtools.ping coreutils curl bash libressl netcat-gnu openresolv dig];
+
+            text =
+              ''
+                cd "$(mktemp -d)"
+
+                # DNS information
+                dig google.com
+
+                # Print resolv.conf
+                echo "/etc/resolv.conf contains:"
+                cat /etc/resolv.conf
+
+                # Query resolvconf
+                echo "resolvconf output:"
+                resolvconf -l
+                echo ""
+
+                # Get ip
+                echo "Getting IP:"
+                curl -s ipinfo.io
+
+                echo -ne "DNS leak test:"
+                curl -s https://raw.githubusercontent.com/macvk/dnsleaktest/b03ab54d574adbe322ca48cbcb0523be720ad38d/dnsleaktest.sh -o dnsleaktest.sh
+                chmod +x dnsleaktest.sh
+                ./dnsleaktest.sh
+              ''
+              + (
+                if cfg.vpn.vpnTestService.port != null
+                then ''
+                  echo "starting netcat on port ${builtins.toString cfg.vpn.vpnTestService.port}:"
+                  nc -vnlp ${builtins.toString cfg.vpn.vpnTestService.port}
+                ''
+                else ""
+              );
+          };
+        in "${vpn-test}/bin/vpn-test";
+      };
     };
   };
 }
