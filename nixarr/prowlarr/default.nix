@@ -122,7 +122,7 @@ in {
               con = sqlite3.connect(db_path)
               api_key = open("${nixarr.stateDir}/api-key", "r").read()
               sonarr = {
-                "prowlarrUrl": "http://localhost:${cfg.port}",
+                "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
                 "baseUrl": "http://localhost:8989",
                 "apiKey": api_key,
                 "syncCategories": [
@@ -140,8 +140,8 @@ in {
                 "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
               }
               radarr = {
-                "prowlarrUrl": "http://localhost:${cfg.port}",
-                "baseUrl": "http://localhost:7878",
+                "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+                "baseUrl": "http://localhost:${builtins.toString nixarr.radarr.port}",
                 "apiKey": api_key,
                 "syncCategories": [
                     2000,

@@ -107,7 +107,7 @@ in {
                 then ''
                   yq ".radarr.apikey=\"$API_KEY\"" --in-place -Y ./config/config.yaml
                   yq ".radarr.ip=\"localhost\"" --in-place -Y ./config/config.yaml
-                  yq ".radarr.port=\"7878\"" --in-place -Y ./config/config.yaml
+                  yq ".radarr.port=\"${builtins.toString nixarr.radarr.port}\"" --in-place -Y ./config/config.yaml
                   yq ".general.use_radarr=\"true\"" --in-place -Y ./config/config.yaml
                 ''
                 else ""
