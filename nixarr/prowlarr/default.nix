@@ -100,6 +100,7 @@ in {
       description = "prowlarr";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
+      wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
       environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
 
       postStart = mkIf nixarr.autosync (
@@ -121,7 +122,7 @@ in {
               con = sqlite3.connect(db_path)
               api_key = open("${nixarr.stateDir}/api-key", "r").read()
               sonarr = {
-                "prowlarrUrl": "http://localhost:9696",
+                "prowlarrUrl": "http://localhost:${cfg.port}",
                 "baseUrl": "http://localhost:8989",
                 "apiKey": api_key,
                 "syncCategories": [
@@ -139,7 +140,7 @@ in {
                 "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
               }
               radarr = {
-                "prowlarrUrl": "http://localhost:9696",
+                "prowlarrUrl": "http://localhost:${cfg.port}",
                 "baseUrl": "http://localhost:7878",
                 "apiKey": api_key,
                 "syncCategories": [

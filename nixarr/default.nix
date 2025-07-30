@@ -108,7 +108,11 @@ in {
       default = false;
       example = true;
       description = ''
-        automatically generate api keys for all services and link them together with integrations
+        Automatically create integrations between enabled services.
+
+        Currently this includes
+        - Sonarr and Radarr integrations for Prowlarr
+        - Sonarr and Radarr integrations for Bazarr
       '';
     };
 

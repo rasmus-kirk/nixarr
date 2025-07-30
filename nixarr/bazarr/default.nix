@@ -85,6 +85,7 @@ in {
     systemd.services.bazarr = {
       description = "bazarr";
       after = ["network.target"];
+      wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
       wantedBy = ["multi-user.target"];
 
       preStart = mkIf nixarr.autosync (
