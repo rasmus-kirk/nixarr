@@ -95,10 +95,32 @@ in {
       dataDir = cfg.stateDir;
     };
 
-    # Enable and specify VPN namespace to confine service in.
-    systemd.services.sonarr.vpnConfinement = mkIf cfg.vpn.enable {
-      enable = true;
-      vpnNamespace = "wg";
+    systemd.services.sonarr = {
+      preStart = mkIf nixarr.autosync (
+        let
+          configure-sonarr = pkgs.writeShellApplication {
+            name = "configure-sonarr";
+
+            runtimeInputs = with pkgs; [util-linux coreutils bash yq];
+
+            text = ''
+              cd ${cfg.stateDir}
+              API_KEY=$(cat ${nixarr.stateDir}/api-key)
+              if [ ! -f ./config.xml ]; then
+                echo "<Config></Config>" > config.xml
+              fi
+              xq ".Config.ApiKey=\"$API_KEY\"" --in-place -x ./config.xml
+            '';
+          };
+        in "${configure-sonarr}/bin/configure-sonarr"
+      );
+
+      wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
+      # Enable and specify VPN namespace to confine service in.
+      vpnConfinement = mkIf cfg.vpn.enable {
+        enable = true;
+        vpnNamespace = "wg";
+      };
     };
 
     # Port mappings
