@@ -116,6 +116,14 @@ in {
       '';
     };
 
+    api-key-location = mkOption {
+      type = types.str;
+      default =
+        if cfg.autosync
+        then "${cfg.stateDir}/api-key"
+        else null;
+    };
+
     stateDir = mkOption {
       type = types.path;
       default = "/data/.state/nixarr";
@@ -265,12 +273,11 @@ in {
             runtimeInputs = with pkgs; [util-linux coreutils bash openssl];
 
             text = ''
-              mkdir -p ${cfg.stateDir}
-              cd ${cfg.stateDir}
-              if [ ! -f ./api-key ]; then
-                openssl rand -hex 64 > ./api-key
+              mkdir -p "$(dirname ${cfg.stateDir})"
+              if [ ! -f ${cfg.api-key-location} ]; then
+                openssl rand -hex 64 > ${cfg.api-key-location}
               fi
-              chgrp media api-key
+              chgrp media ${cfg.api-key-location}
             '';
           };
         in "${nixarr-api-key}/bin/nixarr-api-key";
