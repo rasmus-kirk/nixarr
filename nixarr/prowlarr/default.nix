@@ -67,6 +67,21 @@ in {
         Route Prowlarr traffic through the VPN.
       '';
     };
+
+    integrations = mkOption {
+      type = types.submodule {
+        options = {
+          sonarr = mkOption {
+            type = types.bool;
+            default = nixarr.autosync && nixarr.sonarr.enable;
+          };
+          radarr = mkOption {
+            type = types.bool;
+            default = nixarr.autosync && nixarr.sonarr.radarr;
+          };
+        };
+      };
+    };
   };
 
   config = mkIf (nixarr.enable && cfg.enable) {
@@ -76,6 +91,20 @@ in {
         message = ''
           The nixarr.prowlarr.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.integrations.radarr -> nixarr.api-key-location != null;
+        message = ''
+          the nixarr.prowlarr.integrations.radarr requires
+          the nixarr.api-key-location to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.integrations.sonarr -> nixarr.api-key-location != null;
+        message = ''
+          the nixarr.prowlarr.integrations.sonarr requires
+          the nixarr.api-key-location to be set, but it was not.
         '';
       }
     ];
@@ -163,14 +192,14 @@ in {
                 cur = con.cursor()
                 data = [
                 ${
-                  if nixarr.sonarr.enable
+                  if cfg.integrations.sonarr
                   then ''
                     ("nixarr_autosync_sonarr", "Sonarr", json.dumps(sonarr), "SonarrSettings", 2, "[]"),
                   ''
                   else ""
                 }
                 ${
-                  if nixarr.radarr.enable
+                  if cfg.integrations.radarr
                   then ''
                     ("nixarr_autosync_radarr", "Radarr", json.dumps(radarr), "RadarrSettings", 2, "[]"),
                   ''

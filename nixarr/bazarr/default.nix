@@ -65,6 +65,21 @@ in {
         Route Bazarr traffic through the VPN.
       '';
     };
+
+    integrations = mkOption {
+      type = types.submodule {
+        options = {
+          sonarr = mkOption {
+            type = types.bool;
+            default = nixarr.autosync && nixarr.sonarr.enable;
+          };
+          radarr = mkOption {
+            type = types.bool;
+            default = nixarr.autosync && nixarr.sonarr.radarr;
+          };
+        };
+      };
+    };
   };
 
   config = mkIf (nixarr.enable && cfg.enable) {
@@ -74,6 +89,20 @@ in {
         message = ''
           The nixarr.bazarr.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.integrations.radarr -> nixarr.api-key-location != null;
+        message = ''
+          the nixarr.bazarr.integrations.radarr requires
+          the nixarr.api-key-location to be set, but it was not.
+        '';
+      }
+      {
+        assertion = cfg.integrations.sonarr -> nixarr.api-key-location != null;
+        message = ''
+          the nixarr.bazarr.integrations.sonarr requires
+          the nixarr.api-key-location to be set, but it was not.
         '';
       }
     ];
@@ -105,7 +134,7 @@ in {
                   echo "---" > ./config/config.yaml
                 fi
                 ${
-                  if nixarr.radarr.enable
+                  if cfg.integrations.radarr
                   then ''
                     yq ".radarr.apikey=\"$API_KEY\"" --in-place -Y ./config/config.yaml
                     yq ".radarr.ip=\"localhost\"" --in-place -Y ./config/config.yaml
@@ -115,7 +144,7 @@ in {
                   else ""
                 }
                 ${
-                  if nixarr.sonarr.enable
+                  if cfg.integrations.sonarr
                   then ''
                     yq ".sonarr.apikey=\"$API_KEY\"" --in-place -Y ./config/config.yaml
                     yq ".sonarr.ip=\"localhost\"" --in-place -Y ./config/config.yaml
