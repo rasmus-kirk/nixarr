@@ -96,26 +96,24 @@ in {
     };
 
     systemd.services.sonarr = {
-      preStart =
-        mkIf nixarr.api-key-location
-        != null (
-          let
-            configure-sonarr = pkgs.writeShellApplication {
-              name = "configure-sonarr";
+      preStart = mkIf (nixarr.api-key-location != null) (
+        let
+          configure-sonarr = pkgs.writeShellApplication {
+            name = "configure-sonarr";
 
-              runtimeInputs = with pkgs; [util-linux coreutils bash yq];
+            runtimeInputs = with pkgs; [util-linux coreutils bash yq];
 
-              text = ''
-                cd ${cfg.stateDir}
-                API_KEY=$(cat ${nixarr.api-key-location})
-                if [ ! -f ./config.xml ]; then
-                  echo "<Config></Config>" > config.xml
-                fi
-                xq ".Config.ApiKey=\"$API_KEY\"" --in-place -x ./config.xml
-              '';
-            };
-          in "${configure-sonarr}/bin/configure-sonarr"
-        );
+            text = ''
+              cd ${cfg.stateDir}
+              API_KEY=$(cat ${nixarr.api-key-location})
+              if [ ! -f ./config.xml ]; then
+                echo "<Config></Config>" > config.xml
+              fi
+              xq ".Config.ApiKey=\"$API_KEY\"" --in-place -x ./config.xml
+            '';
+          };
+        in "${configure-sonarr}/bin/configure-sonarr"
+      );
 
       wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
       # Enable and specify VPN namespace to confine service in.

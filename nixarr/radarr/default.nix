@@ -102,26 +102,24 @@ in {
       dataDir = cfg.stateDir;
     };
     systemd.services.radarr = {
-      preStart =
-        mkIf nixarr.api-key-location
-        != null (
-          let
-            configure-radarr = pkgs.writeShellApplication {
-              name = "configure-radarr";
+      preStart = mkIf (nixarr.api-key-location != null) (
+        let
+          configure-radarr = pkgs.writeShellApplication {
+            name = "configure-radarr";
 
-              runtimeInputs = with pkgs; [util-linux coreutils bash yq];
+            runtimeInputs = with pkgs; [util-linux coreutils bash yq];
 
-              text = ''
-                cd ${cfg.stateDir}
-                API_KEY=$(cat ${nixarr.api-key-location})
-                if [ ! -f ./config.xml ]; then
-                  echo "<Config></Config>" > config.xml
-                fi
-                xq ".Config.ApiKey=\"$API_KEY\"" --in-place -x ./config.xml
-              '';
-            };
-          in "${configure-radarr}/bin/configure-radarr"
-        );
+            text = ''
+              cd ${cfg.stateDir}
+              API_KEY=$(cat ${nixarr.api-key-location})
+              if [ ! -f ./config.xml ]; then
+                echo "<Config></Config>" > config.xml
+              fi
+              xq ".Config.ApiKey=\"$API_KEY\"" --in-place -x ./config.xml
+            '';
+          };
+        in "${configure-radarr}/bin/configure-radarr"
+      );
 
       wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
 
