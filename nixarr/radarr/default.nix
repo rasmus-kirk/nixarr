@@ -55,6 +55,12 @@ in {
       description = "Open firewall for Radarr";
     };
 
+    set-api-key = mkOption {
+      type = types.bool;
+      internal = true;
+      default = false;
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -102,7 +108,7 @@ in {
       dataDir = cfg.stateDir;
     };
     systemd.services.radarr = {
-      preStart = mkIf (nixarr.api-key-location != null) (
+      preStart = mkIf cfg.set-api-key (
         let
           configure-radarr = pkgs.writeShellApplication {
             name = "configure-radarr";
@@ -111,7 +117,7 @@ in {
 
             text = ''
               cd ${cfg.stateDir}
-              API_KEY=$(cat ${nixarr.api-key-location})
+              API_KEY=$(cat ${nixarr.api-key-location-internal})
               if [ ! -f ./config.xml ]; then
                 echo "<Config></Config>" > config.xml
               fi

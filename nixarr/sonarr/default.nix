@@ -49,6 +49,12 @@ in {
       description = "Open firewall for Sonarr";
     };
 
+    set-api-key = mkOption {
+      type = types.bool;
+      internal = true;
+      default = false;
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -96,7 +102,7 @@ in {
     };
 
     systemd.services.sonarr = {
-      preStart = mkIf (nixarr.api-key-location != null) (
+      preStart = mkIf cfg.set-api-key (
         let
           configure-sonarr = pkgs.writeShellApplication {
             name = "configure-sonarr";
@@ -105,7 +111,7 @@ in {
 
             text = ''
               cd ${cfg.stateDir}
-              API_KEY=$(cat ${nixarr.api-key-location})
+              API_KEY=$(cat ${nixarr.api-key-location-internal})
               if [ ! -f ./config.xml ]; then
                 echo "<Config></Config>" > config.xml
               fi

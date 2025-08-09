@@ -89,21 +89,10 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
-      {
-        assertion = cfg.integrations.radarr -> nixarr.api-key-location != null;
-        message = ''
-          the nixarr.prowlarr.integrations.radarr requires
-          the nixarr.api-key-location to be set, but it was not.
-        '';
-      }
-      {
-        assertion = cfg.integrations.sonarr -> nixarr.api-key-location != null;
-        message = ''
-          the nixarr.prowlarr.integrations.sonarr requires
-          the nixarr.api-key-location to be set, but it was not.
-        '';
-      }
     ];
+
+    nixarr.sonarr.set-api-key = mkIf cfg.integrations.sonarr true;
+    nixarr.radarr.set-api-key = mkIf cfg.integrations.radarr true;
 
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0700 ${globals.prowlarr.user} root - -"
@@ -128,83 +117,81 @@ in {
       wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
       environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
 
-      postStart = mkIf (nixarr.api-key-location != null) (
-        let
-          configure-prowlarr =
-            pkgs.writers.writePython3Bin "configure-prowlarr" {
-              libraries = [];
-              flakeIgnore = ["E501" "E121" "E122"];
-            } ''
-              import sqlite3
-              import json
-              import os.path
-              import time
+      postStart = let
+        configure-prowlarr =
+          pkgs.writers.writePython3Bin "configure-prowlarr" {
+            libraries = [];
+            flakeIgnore = ["E501" "E121" "E122"];
+          } ''
+            import sqlite3
+            import json
+            import os.path
+            import time
 
-              db_path = "${cfg.stateDir}/prowlarr.db"
-              while not os.path.exists(db_path):
-                  time.sleep(1)
+            db_path = "${cfg.stateDir}/prowlarr.db"
+            while not os.path.exists(db_path):
+                time.sleep(1)
 
-              con = sqlite3.connect(db_path)
-              api_key = open("${nixarr.api-key-location}", "r").read()
-              sonarr = {
-                "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
-                "baseUrl": "http://localhost:8989",
-                "apiKey": api_key,
-                "syncCategories": [
-                    5000,
-                    5010,
-                    5020,
-                    5030,
-                    5040,
-                    5045,
-                    5050,
-                    5090
-                ],
-                "animeSyncCategories": [5070],
-                "syncAnimeStandardFormatSearch": True,
-                "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
-              }
-              radarr = {
-                "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
-                "baseUrl": "http://localhost:${builtins.toString nixarr.radarr.port}",
-                "apiKey": api_key,
-                "syncCategories": [
-                    2000,
-                    2010,
-                    2020,
-                    2030,
-                    2040,
-                    2045,
-                    2050,
-                    2060,
-                    2070,
-                    2080,
-                    2090
-                ],
-                "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
-              }
-              cur = con.cursor()
-              data = [
-              ${
-                if cfg.integrations.sonarr
-                then ''
-                  ("nixarr_autosync_sonarr", "Sonarr", json.dumps(sonarr), "SonarrSettings", 2, "[]"),
-                ''
-                else ""
-              }
-              ${
-                if cfg.integrations.radarr
-                then ''
-                  ("nixarr_autosync_radarr", "Radarr", json.dumps(radarr), "RadarrSettings", 2, "[]"),
-                ''
-                else ""
-              }
-              ]
-              cur.executemany("INSERT INTO Applications VALUES(NULL, ?, ?, ?, ?, ?, ?) ON CONFLICT(Name) DO UPDATE SET Settings=excluded.Settings", data)
-              con.commit()
-            '';
-        in "${configure-prowlarr}/bin/configure-prowlarr"
-      );
+            con = sqlite3.connect(db_path)
+            api_key = open("${nixarr.api-key-location-internal}", "r").read()
+            sonarr = {
+              "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+              "baseUrl": "http://localhost:8989",
+              "apiKey": api_key,
+              "syncCategories": [
+                  5000,
+                  5010,
+                  5020,
+                  5030,
+                  5040,
+                  5045,
+                  5050,
+                  5090
+              ],
+              "animeSyncCategories": [5070],
+              "syncAnimeStandardFormatSearch": True,
+              "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
+            }
+            radarr = {
+              "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+              "baseUrl": "http://localhost:${builtins.toString nixarr.radarr.port}",
+              "apiKey": api_key,
+              "syncCategories": [
+                  2000,
+                  2010,
+                  2020,
+                  2030,
+                  2040,
+                  2045,
+                  2050,
+                  2060,
+                  2070,
+                  2080,
+                  2090
+              ],
+              "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
+            }
+            cur = con.cursor()
+            data = [
+            ${
+              if cfg.integrations.sonarr
+              then ''
+                ("nixarr_autosync_sonarr", "Sonarr", json.dumps(sonarr), "SonarrSettings", 2, "[]"),
+              ''
+              else ""
+            }
+            ${
+              if cfg.integrations.radarr
+              then ''
+                ("nixarr_autosync_radarr", "Radarr", json.dumps(radarr), "RadarrSettings", 2, "[]"),
+              ''
+              else ""
+            }
+            ]
+            cur.executemany("INSERT INTO Applications VALUES(NULL, ?, ?, ?, ?, ?, ?) ON CONFLICT(Name) DO UPDATE SET Settings=excluded.Settings", data)
+            con.commit()
+          '';
+      in "${configure-prowlarr}/bin/configure-prowlarr";
 
       serviceConfig = {
         Type = "simple";

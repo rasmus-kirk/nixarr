@@ -117,11 +117,24 @@ in {
     };
 
     api-key-location = mkOption {
+      type = types.nullOr types.str;
+      default = null;
+      description = ''
+        User provided api key to set as the api key for various services
+
+        Currently includes:
+        - Sonarr
+        - Radarr
+      '';
+    };
+
+    api-key-location-internal = mkOption {
+      internal = true;
       type = types.str;
       default =
-        if cfg.autosync
+        if cfg.api-key-location == null
         then "${cfg.stateDir}/api-key"
-        else null;
+        else cfg.api-key-location;
     };
 
     stateDir = mkOption {
@@ -258,7 +271,7 @@ in {
         "d '${cfg.mediaDir}'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
       ];
 
-      services.nixarr-api-key = mkIf cfg.autosync {
+      services.nixarr-api-key = mkIf (cfg.api-key-location == null) {
         enable = true;
 
         serviceConfig = {
@@ -274,10 +287,10 @@ in {
 
             text = ''
               mkdir -p "$(dirname ${cfg.stateDir})"
-              if [ ! -f ${cfg.api-key-location} ]; then
-                openssl rand -hex 64 > ${cfg.api-key-location}
+              if [ ! -f ${cfg.api-key-location-internal} ]; then
+                openssl rand -hex 64 > ${cfg.api-key-location-internal}
               fi
-              chgrp media ${cfg.api-key-location}
+              chgrp media ${cfg.api-key-location-internal}
             '';
           };
         in "${nixarr-api-key}/bin/nixarr-api-key";
