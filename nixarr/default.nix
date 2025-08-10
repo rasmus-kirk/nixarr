@@ -289,8 +289,8 @@ in {
               mkdir -p "$(dirname ${cfg.stateDir})"
               if [ ! -f ${cfg.api-key-location-internal} ]; then
                 openssl rand -hex 64 > ${cfg.api-key-location-internal}
+                chgrp media ${cfg.api-key-location-internal}
               fi
-              chgrp media ${cfg.api-key-location-internal}
             '';
           };
         in "${nixarr-api-key}/bin/nixarr-api-key";
