@@ -35,6 +35,7 @@ in {
       sabnzbd = 38;
       transmission = 70;
       cross-seed = 183;
+      qbittorrent = 71;
     };
     gids = {
       autobrr = 188;
@@ -108,6 +109,10 @@ in {
     cross-seed = {
       user = "cross-seed";
       group = "cross-seed";
+    };
+    qbittorrent = {
+      user = "qbittorrent";
+      group = globals.libraryOwner.group;
     };
   };
 }
