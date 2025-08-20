@@ -150,6 +150,7 @@ in {
             --port ${toString cfg.port} \
             --no-update True
         '';
+        KillSignal = "SIGINT";
         Restart = "on-failure";
       };
     };
