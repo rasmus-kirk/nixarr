@@ -67,6 +67,17 @@ in {
         Route Prowlarr traffic through the VPN.
       '';
     };
+
+    integrations = {
+      sonarr = mkOption {
+        type = types.bool;
+        default = nixarr.autosync && nixarr.sonarr.enable;
+      };
+      radarr = mkOption {
+        type = types.bool;
+        default = nixarr.autosync && nixarr.sonarr.enable;
+      };
+    };
   };
 
   config = mkIf (nixarr.enable && cfg.enable) {
@@ -80,24 +91,12 @@ in {
       }
     ];
 
+    nixarr.sonarr.set-api-key = mkIf cfg.integrations.sonarr true;
+    nixarr.radarr.set-api-key = mkIf cfg.integrations.radarr true;
+
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0700 ${globals.prowlarr.user} root - -"
     ];
-
-    systemd.services.prowlarr = {
-      description = "prowlarr";
-      after = ["network.target"];
-      wantedBy = ["multi-user.target"];
-      environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
-
-      serviceConfig = {
-        Type = "simple";
-        User = globals.prowlarr.user;
-        Group = globals.prowlarr.group;
-        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
-        Restart = "on-failure";
-      };
-    };
 
     networking.firewall = mkIf cfg.openFirewall {
       allowedTCPPorts = [cfg.port];
@@ -111,11 +110,102 @@ in {
         uid = globals.uids.${globals.prowlarr.user};
       };
     };
+    systemd.services.prowlarr = {
+      description = "prowlarr";
+      after = ["network.target"];
+      wantedBy = ["multi-user.target"];
+      wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
+      environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
 
-    # Enable and specify VPN namespace to confine service in.
-    systemd.services.prowlarr.vpnConfinement = mkIf cfg.vpn.enable {
-      enable = true;
-      vpnNamespace = "wg";
+      postStart = let
+        configure-prowlarr =
+          pkgs.writers.writePython3Bin "configure-prowlarr" {
+            libraries = [];
+            flakeIgnore = ["E501" "E121" "E122"];
+          } ''
+            import sqlite3
+            import json
+            import os.path
+            import time
+
+            db_path = "${cfg.stateDir}/prowlarr.db"
+            while not os.path.exists(db_path):
+                time.sleep(1)
+
+            con = sqlite3.connect(db_path)
+            api_key = open("${nixarr.api-key-location-internal}", "r").read()
+            sonarr = {
+              "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+              "baseUrl": "http://localhost:8989",
+              "apiKey": api_key,
+              "syncCategories": [
+                  5000,
+                  5010,
+                  5020,
+                  5030,
+                  5040,
+                  5045,
+                  5050,
+                  5090
+              ],
+              "animeSyncCategories": [5070],
+              "syncAnimeStandardFormatSearch": True,
+              "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
+            }
+            radarr = {
+              "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+              "baseUrl": "http://localhost:${builtins.toString nixarr.radarr.port}",
+              "apiKey": api_key,
+              "syncCategories": [
+                  2000,
+                  2010,
+                  2020,
+                  2030,
+                  2040,
+                  2045,
+                  2050,
+                  2060,
+                  2070,
+                  2080,
+                  2090
+              ],
+              "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
+            }
+            cur = con.cursor()
+            data = [
+            ${
+              if cfg.integrations.sonarr
+              then ''
+                ("nixarr_autosync_sonarr", "Sonarr", json.dumps(sonarr), "SonarrSettings", 2, "[]"),
+              ''
+              else ""
+            }
+            ${
+              if cfg.integrations.radarr
+              then ''
+                ("nixarr_autosync_radarr", "Radarr", json.dumps(radarr), "RadarrSettings", 2, "[]"),
+              ''
+              else ""
+            }
+            ]
+            cur.executemany("INSERT INTO Applications VALUES(NULL, ?, ?, ?, ?, ?, ?) ON CONFLICT(Name) DO UPDATE SET Settings=excluded.Settings", data)
+            con.commit()
+          '';
+      in "${configure-prowlarr}/bin/configure-prowlarr";
+
+      serviceConfig = {
+        Type = "simple";
+        User = globals.prowlarr.user;
+        Group = globals.prowlarr.group;
+        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
+        Restart = "on-failure";
+      };
+
+      # Enable and specify VPN namespace to confine service in.
+      vpnConfinement = mkIf cfg.vpn.enable {
+        enable = true;
+        vpnNamespace = "wg";
+      };
     };
 
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
