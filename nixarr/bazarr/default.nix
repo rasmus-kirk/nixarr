@@ -73,7 +73,7 @@ in {
       };
       radarr = mkOption {
         type = types.bool;
-        default = nixarr.autosync && nixarr.sonarr.enable;
+        default = nixarr.autosync && nixarr.radarr.enable;
       };
     };
   };
