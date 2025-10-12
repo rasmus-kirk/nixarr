@@ -121,7 +121,8 @@ in {
         in "${configure-sonarr}/bin/configure-sonarr"
       );
 
-      wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
+      wants = mkIf cfg.set-api-key ["nixarr-api-key.service"];
+      after = mkIf cfg.set-api-key ["nixarr-api-key.service"];
       # Enable and specify VPN namespace to confine service in.
       vpnConfinement = mkIf cfg.vpn.enable {
         enable = true;
