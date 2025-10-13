@@ -9,6 +9,7 @@ with lib; let
   globals = config.util-nixarr.globals;
   port = 6767;
   nixarr = config.nixarr;
+  needs-api-key = cfg.integrations.sonarr || cfg.integrations.radarr;
 in {
   options.nixarr.bazarr = {
     enable = mkOption {
@@ -65,6 +66,17 @@ in {
         Route Bazarr traffic through the VPN.
       '';
     };
+
+    integrations = {
+      sonarr = mkOption {
+        type = types.bool;
+        default = nixarr.autosync && nixarr.sonarr.enable;
+      };
+      radarr = mkOption {
+        type = types.bool;
+        default = nixarr.autosync && nixarr.radarr.enable;
+      };
+    };
   };
 
   config = mkIf (nixarr.enable && cfg.enable) {
@@ -78,14 +90,61 @@ in {
       }
     ];
 
+    nixarr.sonarr.set-api-key = mkIf cfg.integrations.sonarr true;
+    nixarr.radarr.set-api-key = mkIf cfg.integrations.radarr true;
+
     systemd.tmpfiles.rules = [
       "d '${cfg.stateDir}' 0700 ${globals.bazarr.user} root - -"
     ];
 
     systemd.services.bazarr = {
       description = "bazarr";
-      after = ["network.target"];
+      after = ["network.target"] ++ optional needs-api-key "nixarr-api-key.service";
+      wants = mkIf needs-api-key ["nixarr-api-key.service"];
       wantedBy = ["multi-user.target"];
+
+      preStart = let
+        configure-bazarr = pkgs.writeShellApplication {
+          name = "configure-bazarr";
+
+          runtimeInputs = with pkgs; [util-linux coreutils bash yq];
+
+          text = ''
+            cd ${cfg.stateDir}
+            mkdir -p config
+            ${
+              if needs-api-key
+              then ''
+                API_KEY=$(cat ${nixarr.api-key-location-internal})
+              ''
+              else ""
+            }
+            if [ ! -f ./config/config.yaml ]; then
+              echo "---" > ./config/config.yaml
+            fi
+            ${
+              if cfg.integrations.radarr
+              then ''
+                yq ".radarr.apikey=\"$API_KEY\"" --in-place -Y ./config/config.yaml
+                yq ".radarr.ip=\"localhost\"" --in-place -Y ./config/config.yaml
+                yq ".radarr.port=\"${builtins.toString nixarr.radarr.port}\"" --in-place -Y ./config/config.yaml
+                yq ".general.use_radarr=\"true\"" --in-place -Y ./config/config.yaml
+              ''
+              else ""
+            }
+            ${
+              if cfg.integrations.sonarr
+              then ''
+                yq ".sonarr.apikey=\"$API_KEY\"" --in-place -Y ./config/config.yaml
+                yq ".sonarr.ip=\"localhost\"" --in-place -Y ./config/config.yaml
+                yq ".sonarr.port=\"8989\"" --in-place -Y ./config/config.yaml
+                yq ".general.use_sonarr=\"true\"" --in-place -Y ./config/config.yaml
+              ''
+              else ""
+            }
+          '';
+        };
+      in "${configure-bazarr}/bin/configure-bazarr";
 
       serviceConfig = {
         Type = "simple";

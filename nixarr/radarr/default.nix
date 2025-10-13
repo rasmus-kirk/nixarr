@@ -55,6 +55,12 @@ in {
       description = "Open firewall for Radarr";
     };
 
+    set-api-key = mkOption {
+      type = types.bool;
+      internal = true;
+      default = false;
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -101,11 +107,34 @@ in {
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
+    systemd.services.radarr = {
+      preStart = mkIf cfg.set-api-key (
+        let
+          configure-radarr = pkgs.writeShellApplication {
+            name = "configure-radarr";
 
-    # Enable and specify VPN namespace to confine service in.
-    systemd.services.radarr.vpnConfinement = mkIf cfg.vpn.enable {
-      enable = true;
-      vpnNamespace = "wg";
+            runtimeInputs = with pkgs; [util-linux coreutils bash yq];
+
+            text = ''
+              cd ${cfg.stateDir}
+              API_KEY=$(cat ${nixarr.api-key-location-internal})
+              if [ ! -f ./config.xml ]; then
+                echo "<Config></Config>" > config.xml
+              fi
+              xq ".Config.ApiKey=\"$API_KEY\"" --in-place -x ./config.xml
+            '';
+          };
+        in "${configure-radarr}/bin/configure-radarr"
+      );
+
+      wants = mkIf cfg.set-api-key ["nixarr-api-key.service"];
+      after = mkIf cfg.set-api-key ["nixarr-api-key.service"];
+
+      # Enable and specify VPN namespace to confine service in.
+      vpnConfinement = mkIf cfg.vpn.enable {
+        enable = true;
+        vpnNamespace = "wg";
+      };
     };
 
     # Port mappings

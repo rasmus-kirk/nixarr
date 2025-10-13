@@ -49,6 +49,12 @@ in {
       description = "Open firewall for Sonarr";
     };
 
+    set-api-key = mkOption {
+      type = types.bool;
+      internal = true;
+      default = false;
+    };
+
     vpn.enable = mkOption {
       type = types.bool;
       default = false;
@@ -95,10 +101,33 @@ in {
       dataDir = cfg.stateDir;
     };
 
-    # Enable and specify VPN namespace to confine service in.
-    systemd.services.sonarr.vpnConfinement = mkIf cfg.vpn.enable {
-      enable = true;
-      vpnNamespace = "wg";
+    systemd.services.sonarr = {
+      preStart = mkIf cfg.set-api-key (
+        let
+          configure-sonarr = pkgs.writeShellApplication {
+            name = "configure-sonarr";
+
+            runtimeInputs = with pkgs; [util-linux coreutils bash yq];
+
+            text = ''
+              cd ${cfg.stateDir}
+              API_KEY=$(cat ${nixarr.api-key-location-internal})
+              if [ ! -f ./config.xml ]; then
+                echo "<Config></Config>" > config.xml
+              fi
+              xq ".Config.ApiKey=\"$API_KEY\"" --in-place -x ./config.xml
+            '';
+          };
+        in "${configure-sonarr}/bin/configure-sonarr"
+      );
+
+      wants = mkIf cfg.set-api-key ["nixarr-api-key.service"];
+      after = mkIf cfg.set-api-key ["nixarr-api-key.service"];
+      # Enable and specify VPN namespace to confine service in.
+      vpnConfinement = mkIf cfg.vpn.enable {
+        enable = true;
+        vpnNamespace = "wg";
+      };
     };
 
     # Port mappings
