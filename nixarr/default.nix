@@ -271,9 +271,7 @@ in {
         "d '${cfg.mediaDir}'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
       ];
 
-      services.nixarr-api-key = mkIf (cfg.api-key-location == null) {
-        enable = true;
-
+      services.nixarr-api-key = {
         serviceConfig = {
           Group = "media";
           Type = "oneshot";
@@ -285,13 +283,21 @@ in {
 
             runtimeInputs = with pkgs; [util-linux coreutils bash openssl];
 
-            text = ''
-              mkdir -p "$(dirname ${cfg.stateDir})"
-              if [ ! -f ${cfg.api-key-location-internal} ]; then
-                openssl rand -hex 64 > ${cfg.api-key-location-internal}
-                chgrp media ${cfg.api-key-location-internal}
-              fi
-            '';
+            text =
+              if (cfg.api-key-location == null)
+              then ''
+                mkdir -p "$(dirname ${cfg.stateDir})"
+                if [ ! -f ${cfg.api-key-location-internal} ]; then
+                  openssl rand -hex 64 > ${cfg.api-key-location-internal}
+                  chgrp media ${cfg.api-key-location-internal}
+                fi
+              ''
+              else ''
+                if [ ! -f ${cfg.api-key-location-internal} ]; then
+                  echo "The user-specified Nixarr API key file ${cfg.api-key-location-internal} does not exist!" >&2
+                  exit 1
+                fi
+              '';
           };
         in "${nixarr-api-key}/bin/nixarr-api-key";
       };

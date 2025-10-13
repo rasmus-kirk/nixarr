@@ -9,6 +9,7 @@ with lib; let
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   port = 9696;
+  needs-api-key = cfg.integrations.sonarr || cfg.integrations.radarr;
 in {
   options.nixarr.prowlarr = {
     enable = mkOption {
@@ -112,16 +113,16 @@ in {
     };
     systemd.services.prowlarr = {
       description = "prowlarr";
-      after = ["network.target"];
+      after = ["network.target"] ++ optional needs-api-key "nixarr-api-key.service";
       wantedBy = ["multi-user.target"];
-      wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
+      wants = mkIf needs-api-key ["nixarr-api-key.service"];
       environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
 
       postStart = let
         configure-prowlarr =
           pkgs.writers.writePython3Bin "configure-prowlarr" {
             libraries = [];
-            flakeIgnore = ["E501" "E121" "E122"];
+            flakeIgnore = ["E501" "E121" "E122" "F401" "E303"];
           } ''
             import sqlite3
             import json
@@ -133,61 +134,66 @@ in {
                 time.sleep(1)
 
             con = sqlite3.connect(db_path)
-            api_key = open("${nixarr.api-key-location-internal}", "r").read()
-            sonarr = {
-              "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
-              "baseUrl": "http://localhost:8989",
-              "apiKey": api_key,
-              "syncCategories": [
-                  5000,
-                  5010,
-                  5020,
-                  5030,
-                  5040,
-                  5045,
-                  5050,
-                  5090
-              ],
-              "animeSyncCategories": [5070],
-              "syncAnimeStandardFormatSearch": True,
-              "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
-            }
-            radarr = {
-              "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
-              "baseUrl": "http://localhost:${builtins.toString nixarr.radarr.port}",
-              "apiKey": api_key,
-              "syncCategories": [
-                  2000,
-                  2010,
-                  2020,
-                  2030,
-                  2040,
-                  2045,
-                  2050,
-                  2060,
-                  2070,
-                  2080,
-                  2090
-              ],
-              "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
-            }
             cur = con.cursor()
-            data = [
+            data = []
+            ${
+              if needs-api-key
+              then ''
+                api_key = open("${nixarr.api-key-location-internal}", "r").read()
+              ''
+              else ""
+            }
             ${
               if cfg.integrations.sonarr
               then ''
-                ("nixarr_autosync_sonarr", "Sonarr", json.dumps(sonarr), "SonarrSettings", 2, "[]"),
+                sonarr = {
+                  "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+                  "baseUrl": "http://localhost:8989",
+                  "apiKey": api_key,
+                  "syncCategories": [
+                      5000,
+                      5010,
+                      5020,
+                      5030,
+                      5040,
+                      5045,
+                      5050,
+                      5090
+                  ],
+                  "animeSyncCategories": [5070],
+                  "syncAnimeStandardFormatSearch": True,
+                  "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
+                }
+                data.append(("nixarr_autosync_sonarr", "Sonarr", json.dumps(sonarr), "SonarrSettings", 2, "[]"))
               ''
               else ""
             }
             ${
               if cfg.integrations.radarr
               then ''
-                ("nixarr_autosync_radarr", "Radarr", json.dumps(radarr), "RadarrSettings", 2, "[]"),
+                radarr = {
+                  "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+                  "baseUrl": "http://localhost:${builtins.toString nixarr.radarr.port}",
+                  "apiKey": api_key,
+                  "syncCategories": [
+                      2000,
+                      2010,
+                      2020,
+                      2030,
+                      2040,
+                      2045,
+                      2050,
+                      2060,
+                      2070,
+                      2080,
+                      2090
+                  ],
+                  "syncRejectBlocklistedTorrentHashesWhileGrabbing": False
+                }
+                data.append(("nixarr_autosync_radarr", "Radarr", json.dumps(radarr), "RadarrSettings", 2, "[]"))
               ''
               else ""
             }
-            ]
             cur.executemany("INSERT INTO Applications VALUES(NULL, ?, ?, ?, ?, ?, ?) ON CONFLICT(Name) DO UPDATE SET Settings=excluded.Settings", data)
             con.commit()
           '';

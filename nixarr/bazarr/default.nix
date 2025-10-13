@@ -9,6 +9,7 @@ with lib; let
   globals = config.util-nixarr.globals;
   port = 6767;
   nixarr = config.nixarr;
+  needs-api-key = cfg.integrations.sonarr || cfg.integrations.radarr;
 in {
   options.nixarr.bazarr = {
     enable = mkOption {
@@ -98,8 +99,8 @@ in {
 
     systemd.services.bazarr = {
       description = "bazarr";
-      after = ["network.target"];
-      wants = mkIf nixarr.autosync ["nixarr-api-key.service"];
+      after = ["network.target"] ++ optional needs-api-key "nixarr-api-key.service";
+      wants = mkIf needs-api-key ["nixarr-api-key.service"];
       wantedBy = ["multi-user.target"];
 
       preStart = let
@@ -111,7 +112,13 @@ in {
           text = ''
             cd ${cfg.stateDir}
             mkdir -p config
-            API_KEY=$(cat ${nixarr.api-key-location-internal})
+            ${
+              if needs-api-key
+              then ''
+                API_KEY=$(cat ${nixarr.api-key-location-internal})
+              ''
+              else ""
+            }
             if [ ! -f ./config/config.yaml ]; then
               echo "---" > ./config/config.yaml
             fi
