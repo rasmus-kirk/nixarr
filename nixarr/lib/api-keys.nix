@@ -7,8 +7,61 @@
 with lib; let
   cfg = config.nixarr;
 
+  serviceCfgFile = {
+    bazarr = "${cfg.bazarr.stateDir}/config/config.yaml";
+    jellyseerr = "${cfg.jellyseerr.stateDir}/settings.json";
+    lidarr = "${cfg.lidarr.stateDir}/config.xml";
+    prowlarr = "${cfg.prowlarr.stateDir}/config.xml";
+    radarr = "${cfg.radarr.stateDir}/config.xml";
+    readarr-audiobook = "${cfg.readarr-audiobook.stateDir}/config.xml";
+    readarr = "${cfg.readarr.stateDir}/config.xml";
+    sabnzbd = "${cfg.sabnzbd.stateDir}/sabnzbd.ini";
+    sonarr = "${cfg.sonarr.stateDir}/config.xml";
+    transmission = "${cfg.transmission.stateDir}/.config/transmission-daemon/settings.json";
+  };
+
+  printServiceApiKey = let
+    yq = getExe' pkgs.yq "yq";
+    xq = getExe' pkgs.yq "xq";
+    grep = getExe pkgs.gnugrep;
+    sed = getExe pkgs.gnused;
+  in {
+    bazarr = pkgs.writeShellScript "print-bazarr-api-key" ''
+      ${yq} -r .auth.apiKey '${serviceCfgFile.bazarr}'
+    '';
+    jellyseerr = pkgs.writeShellScript "print-jellyseerr-api-key" ''
+      ${yq} -r .main.apiKey '${serviceCfgFile.jellyseerr}'
+    '';
+    lidarr = pkgs.writeShellScript "print-lidarr-api-key" ''
+      ${xq} -r .Config.ApiKey '${serviceCfgFile.lidarr}'
+    '';
+    prowlarr = pkgs.writeShellScript "print-prowlarr-api-key" ''
+      ${xq} -r .Config.ApiKey '${serviceCfgFile.prowlarr}'
+    '';
+    radarr = pkgs.writeShellScript "print-radarr-api-key" ''
+      ${xq} -r .Config.ApiKey '${serviceCfgFile.radarr}'
+    '';
+    readarr-audiobook = pkgs.writeShellScript "print-readarr-audiobook-api-key" ''
+      ${xq} -r .Config.ApiKey '${serviceCfgFile.readarr-audiobook}'
+    '';
+    readarr = pkgs.writeShellScript "print-readarr-api-key" ''
+      ${xq} -r .Config.ApiKey '${serviceCfgFile.readarr}'
+    '';
+    sabnzbd = pkgs.writeShellScript "print-sabnzbd-api-key" ''
+      ${grep} api_key '${serviceCfgFile.sabnzbd}' | ${sed} 's/^api_key.*= *//g'
+    '';
+    sonarr = pkgs.writeShellScript "print-sonarr-api-key" ''
+      ${xq} -r .Config.ApiKey '${serviceCfgFile.sonarr}'
+    '';
+    transmission = pkgs.writeShellScript "print-transmission-api-key" ''
+      ${yq} -r .["rpc-password"] '${serviceCfgFile.transmission}'
+    '';
+  };
+
+  servicesWithApiKeys = builtins.attrNames printServiceApiKey;
+
   # Helper to create API key extraction for a service
-  mkApiKeyExtractor = serviceName: serviceConfig: {
+  mkApiKeyExtractor = serviceName: {
     description = "Extract ${serviceName} API key";
     after = ["${serviceName}.service"];
     requires = ["${serviceName}.service"];
@@ -16,79 +69,41 @@ with lib; let
     serviceConfig = {
       Type = "oneshot";
       RemainAfterExit = true;
-      # Use DynamicUser if the parent service does
-      DynamicUser = serviceConfig.serviceConfig.DynamicUser or false;
-      # Only set User if not using DynamicUser
-      ${
-        if !(serviceConfig.serviceConfig.DynamicUser or false)
-        then "User"
-        else null
-      } =
-        serviceConfig.user or null;
       Group = "${serviceName}-api";
       UMask = "0027"; # Results in 0640 permissions
 
       ExecStartPre = [
-        "${pkgs.coreutils}/bin/mkdir -p ${cfg.stateDir}/api-keys"
-        "${pkgs.coreutils}/bin/chown root:${serviceName}-api ${cfg.stateDir}/api-keys"
-        "${pkgs.coreutils}/bin/chmod 750 ${cfg.stateDir}/api-keys"
-        # Wait for config file to exist
-        "${pkgs.bash}/bin/bash -c 'while [ ! -f ${serviceConfig.stateDir}/config.xml ]; do sleep 1; done'"
+        (pkgs.writeShellScript "wait-for-${serviceName}-config" ''
+          while [ ! -f '${serviceCfgFile.${serviceName}}' ]; do sleep 1; done
+        '')
       ];
 
       ExecStart = pkgs.writeShellScript "extract-${serviceName}-api-key" ''
-        ${pkgs.dasel}/bin/dasel -f "${serviceConfig.stateDir}/config.xml" \
-          -s ".Config.ApiKey" | tr -d '\n\r' > "${cfg.stateDir}/api-keys/${serviceName}.key"
-        chown $USER:${serviceName}-api "${cfg.stateDir}/api-keys/${serviceName}.key"
+        ${printServiceApiKey.${serviceName}} > '${cfg.stateDir}/api-keys/${serviceName}.key'
       '';
     };
   };
 in {
   config = mkIf cfg.enable {
     # Create per-service API key groups
-    users.groups = mkMerge [
-      (mkIf cfg.sonarr.enable {sonarr-api = {};})
-      (mkIf cfg.radarr.enable {radarr-api = {};})
-      (mkIf cfg.lidarr.enable {lidarr-api = {};})
-      (mkIf cfg.readarr.enable {readarr-api = {};})
-      (mkIf cfg.prowlarr.enable {prowlarr-api = {};})
-    ];
+    users.groups = mkMerge (
+      builtins.map
+      (serviceName: mkIf cfg.${serviceName}.enable {"${serviceName}-api" = {};})
+      servicesWithApiKeys
+    );
 
-    # Add services that need API keys to their respective groups
-    users.users = mkMerge [
-      # Static users
-      (mkIf cfg.transmission.enable {
-        transmission.extraGroups = optional cfg.prowlarr.enable "prowlarr-api";
-      })
-      (mkIf cfg.transmission.privateTrackers.cross-seed.enable {
-        cross-seed.extraGroups = optional cfg.prowlarr.enable "prowlarr-api";
-      })
-    ];
-
-    # Add api groups to services with DynamicUser
-    systemd.services = mkMerge [
-      (mkIf cfg.sonarr.enable {sonarr.serviceConfig.SupplementaryGroups = ["sonarr-api"];})
-      (mkIf cfg.radarr.enable {radarr.serviceConfig.SupplementaryGroups = ["radarr-api"];})
-      (mkIf cfg.lidarr.enable {lidarr.serviceConfig.SupplementaryGroups = ["lidarr-api"];})
-      (mkIf cfg.readarr.enable {readarr.serviceConfig.SupplementaryGroups = ["readarr-api"];})
-      (mkIf cfg.prowlarr.enable {prowlarr.serviceConfig.SupplementaryGroups = ["prowlarr-api"];})
-      (mkIf cfg.recyclarr.enable {
-        recyclarr.serviceConfig.SupplementaryGroups =
-          (optional cfg.sonarr.enable "sonarr-api")
-          ++ (optional cfg.radarr.enable "radarr-api");
-      })
-
+    systemd.services = mkMerge (
       # Create API key extractors for enabled services
-      (mkIf cfg.sonarr.enable {"sonarr-api-key" = mkApiKeyExtractor "sonarr" cfg.sonarr;})
-      (mkIf cfg.radarr.enable {"radarr-api-key" = mkApiKeyExtractor "radarr" cfg.radarr;})
-      (mkIf cfg.lidarr.enable {"lidarr-api-key" = mkApiKeyExtractor "lidarr" cfg.lidarr;})
-      (mkIf cfg.readarr.enable {"readarr-api-key" = mkApiKeyExtractor "readarr" cfg.readarr;})
-      (mkIf cfg.prowlarr.enable {"prowlarr-api-key" = mkApiKeyExtractor "prowlarr" cfg.prowlarr;})
-    ];
+      builtins.map
+      (serviceName: mkIf cfg.${serviceName}.enable {"${serviceName}-api-key" = mkApiKeyExtractor serviceName;})
+      servicesWithApiKeys
+    );
 
     # Create the api-keys directory
     systemd.tmpfiles.rules = [
-      "d ${cfg.stateDir}/api-keys 0750 root root - -"
+      # Needs to be world-executable for members of the `*-api` groups to access
+      # the files inside.
+      "d ${cfg.stateDir}/api-keys 0701 root root - -"
     ];
   };
 }
