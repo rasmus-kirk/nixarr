@@ -84,19 +84,20 @@ in {
       "d '${cfg.stateDir}' 0700 ${globals.prowlarr.user} root - -"
     ];
 
-    systemd.services.prowlarr = {
-      description = "prowlarr";
-      after = ["network.target"];
-      wantedBy = ["multi-user.target"];
-      environment.PROWLARR__SERVER__PORT = builtins.toString cfg.port;
+    services.prowlarr = {
+      enable = cfg.enable;
+      package = cfg.package;
+      settings.server.port = cfg.port;
+      openFirewall = cfg.openFirewall;
+    };
 
-      serviceConfig = {
-        Type = "simple";
-        User = globals.prowlarr.user;
-        Group = globals.prowlarr.group;
-        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
-        Restart = "on-failure";
-      };
+    systemd.services.prowlarr.serviceConfig = {
+      # `User` and `Group` override `DynamicUser = true` from the NixOS Prowlarr
+      # module (because a user and group with those names exists).
+      User = globals.prowlarr.user;
+      Group = globals.prowlarr.group;
+      ExecStart = mkForce "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
+      ReadWritePaths = [cfg.stateDir];
     };
 
     networking.firewall = mkIf cfg.openFirewall {
