@@ -2,7 +2,7 @@
   description = "The Nixarr Media Server Nixos Module";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
 
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
 

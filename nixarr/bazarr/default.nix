@@ -98,7 +98,6 @@ in {
             --port ${toString cfg.port} \
             --no-update True
         '';
-        KillSignal = "SIGINT";
         Restart = "on-failure";
         KillSignal = "SIGINT";
         SuccessExitStatus = "0 156";
