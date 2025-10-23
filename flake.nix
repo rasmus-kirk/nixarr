@@ -29,7 +29,10 @@
     forAllSystems = f:
       nixpkgs.lib.genAttrs supportedSystems (system:
         f {
-          pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
         });
   in {
     nixosModules.default.imports = [./nixarr vpnconfinement.nixosModules.default];

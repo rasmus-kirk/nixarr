@@ -1,38 +1,38 @@
 /*
-  VPN Confinement Integration Test
+VPN Confinement Integration Test
 
-  This test validates that Nixarr services are properly confined to a VPN namespace
-  and cannot leak traffic when the VPN connection fails. It uses a 3-VM topology
-  to simulate real-world network conditions.
+This test validates that Nixarr services are properly confined to a VPN namespace
+and cannot leak traffic when the VPN connection fails. It uses a 3-VM topology
+to simulate real-world network conditions.
 
-  Network Topology:
-  ┌──────────────┐    VLAN 2     ┌─────────────┐    VLAN 1     ┌─────────────┐
-  │internetClient│ ◄──────────── │   gateway   │ ◄──────────── │ nixarrHost  │
-  │  10.0.1.2    │               │ 10.0.1.1    │               │192.168.1.2  │
-  │ fd00:2::2    │               │192.168.1.1  │               │ fd00:1::2   │
-  └──────────────┘               │ fd00:2::1   │               └─────────────┘
-                                 │ fd00:1::1   │                       │
-                                 └─────────────┘                       │
-                                        │                              │
-                                   WireGuard tunnel                    │
-                                   10.100.0.1 ◄────────────────────────┘
-                                   fd00:100::1      VPN namespace
-                                                   (10.100.0.2, fd00:100::2)
+Network Topology:
+┌──────────────┐    VLAN 2     ┌─────────────┐    VLAN 1     ┌─────────────┐
+│internetClient│ ◄──────────── │   gateway   │ ◄──────────── │ nixarrHost  │
+│  10.0.1.2    │               │ 10.0.1.1    │               │192.168.1.2  │
+│ fd00:2::2    │               │192.168.1.1  │               │ fd00:1::2   │
+└──────────────┘               │ fd00:2::1   │               └─────────────┘
+                               │ fd00:1::1   │                       │
+                               └─────────────┘                       │
+                                      │                              │
+                                 WireGuard tunnel                    │
+                                 10.100.0.1 ◄────────────────────────┘
+                                 fd00:100::1      VPN namespace
+                                                 (10.100.0.2, fd00:100::2)
 
-  Test Coverage:
-  - VPN namespace isolation (transmission confined to wg namespace)
-  - IPv4 and IPv6 traffic routing through VPN tunnel
-  - Traffic leak prevention when VPN is down
-  - Port forwarding from external clients through gateway to VPN services
-  - DNS configuration in VPN namespace
-  - Service recovery after VPN reconnection
+Test Coverage:
+- VPN namespace isolation (transmission confined to wg namespace)
+- IPv4 and IPv6 traffic routing through VPN tunnel
+- Traffic leak prevention when VPN is down
+- Port forwarding from external clients through gateway to VPN services
+- DNS configuration in VPN namespace
+- Service recovery after VPN reconnection
 
-  The test ensures that:
-  1. All transmission traffic goes through the VPN tunnel
-  2. Source IP is preserved (shows VPN client IP: 10.100.0.2/fd00:100::2)
-  3. No traffic leaks to host network when VPN fails
-  4. External port forwarding works correctly
-  5. Both IPv4 and IPv6 work identically through the tunnel
+The test ensures that:
+1. All transmission traffic goes through the VPN tunnel
+2. Source IP is preserved (shows VPN client IP: 10.100.0.2/fd00:100::2)
+3. No traffic leaks to host network when VPN fails
+4. External port forwarding works correctly
+5. Both IPv4 and IPv6 work identically through the tunnel
 */
 {
   pkgs,
