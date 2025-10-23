@@ -22,6 +22,12 @@ in {
 
     package = mkPackageOption pkgs "sonarr" {};
 
+    port = mkOption {
+      type = types.port;
+      default = defaultPort;
+      description = "Port for Sonarr to use.";
+    };
+
     stateDir = mkOption {
       type = types.path;
       default = "${nixarr.stateDir}/sonarr";
@@ -91,6 +97,7 @@ in {
       package = cfg.package;
       user = globals.sonarr.user;
       group = globals.sonarr.group;
+      settings.server.port = cfg.port;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
@@ -105,8 +112,8 @@ in {
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = defaultPort;
-          to = defaultPort;
+          from = cfg.port;
+          to = cfg.port;
         }
       ];
     };
@@ -118,17 +125,17 @@ in {
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
 
-      virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = {
+      virtualHosts."127.0.0.1:${builtins.toString cfg.port}" = {
         listen = [
           {
             addr = "0.0.0.0";
-            port = defaultPort;
+            port = cfg.port;
           }
         ];
         locations."/" = {
           recommendedProxySettings = true;
           proxyWebsockets = true;
-          proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+          proxyPass = "http://192.168.15.1:${builtins.toString cfg.port}";
         };
       };
     };
