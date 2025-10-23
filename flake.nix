@@ -35,6 +35,8 @@
     nixosModules.default.imports = [./nixarr vpnconfinement.nixosModules.default];
 
     # Add tests attribute to the flake outputs
+    # To run interactively run:
+    # > nix build .#checks.x86_64-linux.monitoring-test.driver -L
     checks = forAllSystems ({pkgs}: {
       permissions-test = pkgs.callPackage ./tests/permissions-test.nix {
         inherit (self) nixosModules;

@@ -109,6 +109,7 @@ in {
               ${pkgs.jq}/bin/jq --slurp add ${settingsFile} '${cfg.credentialsFile}' |
               install -D -m 600 -o '${cfg.user}' /dev/stdin '${cfg.dataDir}/config.json'
 
+              rm -f "${cfg.dataDir}/config.js"
               cp "${configJs}" "${cfg.dataDir}/config.js"
               chmod 600 "${cfg.dataDir}/config.js"
               chown "${cfg.user}:${cfg.group}" "${cfg.dataDir}/config.js"
