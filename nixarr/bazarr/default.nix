@@ -100,6 +100,8 @@ in {
         '';
         KillSignal = "SIGINT";
         Restart = "on-failure";
+        KillSignal = "SIGINT";
+        SuccessExitStatus = "0 156";
       };
     };
 

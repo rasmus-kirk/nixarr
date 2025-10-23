@@ -27,6 +27,7 @@ in {
       lidarr = 306;
       prowlarr = 293;
       jellyseerr = 262;
+      komga = 145;
       sonarr = 274;
       radarr = 275;
       readarr = 250;
@@ -35,6 +36,7 @@ in {
       sabnzbd = 38;
       transmission = 70;
       cross-seed = 183;
+      whisparr = 272;
     };
     gids = {
       autobrr = 188;
@@ -64,6 +66,10 @@ in {
     jellyseerr = {
       user = "jellyseerr";
       group = "jellyseerr";
+    };
+    komga = {
+      user = "komga";
+      group = globals.libraryOwner.group;
     };
     lidarr = {
       user = "lidarr";
@@ -108,6 +114,10 @@ in {
     cross-seed = {
       user = "cross-seed";
       group = "cross-seed";
+    };
+    whisparr = {
+      user = "whisparr";
+      group = globals.libraryOwner.group;
     };
   };
 }

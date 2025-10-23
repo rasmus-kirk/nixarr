@@ -41,18 +41,18 @@ with lib; let
         fi
 
         find "${nixarr.mediaDir}" \( -type d -exec chmod 0775 {} + -true \) -o \( -exec chmod 0664 {} + \)
-        ${strings.optionalString nixarr.jellyfin.enable ''
+        mkdir -p "${nixarr.mediaDir}/library"
         chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${nixarr.mediaDir}/library"
+
+        ${strings.optionalString nixarr.jellyfin.enable ''
         chown -R ${globals.jellyfin.user}:root "${nixarr.jellyfin.stateDir}"
         find "${nixarr.jellyfin.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
         ${strings.optionalString nixarr.plex.enable ''
-        chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${nixarr.mediaDir}/library"
         chown -R ${globals.plex.user}:root "${nixarr.plex.stateDir}"
         find "${nixarr.plex.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
         ${strings.optionalString nixarr.audiobookshelf.enable ''
-        chown -R ${globals.libraryOwner.user}:${globals.libraryOwner.group} "${nixarr.mediaDir}/library"
         chown -R ${globals.audiobookshelf.user}:root "${nixarr.audiobookshelf.stateDir}"
         find "${nixarr.audiobookshelf.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
@@ -95,7 +95,7 @@ with lib; let
         find "${nixarr.readarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
         ${strings.optionalString nixarr.readarr-audiobook.enable ''
-        chown -R ${globals.readarr.user}:root "${nixarr.readarr-audiobook.stateDir}"
+        chown -R ${globals.readarr-audiobook.user}:root "${nixarr.readarr-audiobook.stateDir}"
         find "${nixarr.readarr-audiobook.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
         ${strings.optionalString nixarr.jellyseerr.enable ''
@@ -110,13 +110,20 @@ with lib; let
         chown -R ${globals.recyclarr.user}:root "${nixarr.recyclarr.stateDir}"
         find "${nixarr.recyclarr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
       ''}
+        ${strings.optionalString nixarr.whisparr.enable ''
+        chown -R ${globals.whisparr.user}:root "${nixarr.whisparr.stateDir}"
+        find "${nixarr.whisparr.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''}
+        ${strings.optionalString nixarr.komga.enable ''
+        chown -R ${globals.komga.user}:root "${nixarr.komga.stateDir}"
+        find "${nixarr.komga.stateDir}" \( -type d -exec chmod 0700 {} + -true \) -o \( -exec chmod 0600 {} + \)
+      ''}
       }
 
       list-unlinked() {
         if [ "$#" -ne 1 ]; then
             echo "Illegal number of parameters. Usage: nixarr list-unlinked <path>"
         fi
-
         find "$1" -type f -links 1 -exec du -h {} + | sort -h
       }
 
@@ -162,6 +169,10 @@ with lib; let
         SONARR=$(xq '.Config.ApiKey' "${nixarr.sonarr.stateDir}/config.xml")
         echo "Sonarr api-key: $SONARR"
       ''}
+        ${strings.optionalString nixarr.whisparr.enable ''
+        WHISPARR=$(xq '.Config.ApiKey' "${nixarr.whisparr.stateDir}/config.xml")
+        echo "Whisparr api-key: $WHISPARR"
+      ''}
         ${strings.optionalString nixarr.sonarr.enable ''
         TRANSMISSION_RPC_USER=$(yq '.["rpc-username"]' "${nixarr.transmission.stateDir}/.config/transmission-daemon/settings.json")
         TRANSMISSION_RPC_PASS=$(yq '.["rpc-password"]' "${nixarr.transmission.stateDir}/.config/transmission-daemon/settings.json")
@@ -184,7 +195,7 @@ with lib; let
 
         echo "Wiping all nixarr users and groups from /etc/passwd and /etc/group..."
 
-        sed -i -E '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet)/d' /etc/passwd
+        sed -i -E '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet|whisparr|komgarr)/d' /etc/passwd
         sed -i -E '/^(autobrr|cross-seed|jellyseerr|media|prowlarr|recyclarr|sabnzbd|streamer|torrenter|transmission|usenet)/d' /etc/group
 
         echo ""

@@ -16,6 +16,7 @@ in {
     ./jellyfin
     ./jellyseerr
     ./lib/api-keys.nix
+    ./komga
     ./lidarr
     ./nixarr-command
     ./openssh
@@ -28,6 +29,7 @@ in {
     ./sabnzbd
     ./sonarr
     ./transmission
+    ./whisparr
     ../util
   ];
 
