@@ -1,10 +1,16 @@
 # Changelog
 
-## Unreleased
+## 2025-10-29
 
 Added:
 - `whisparr` service
 - `komgarr` service
+- `stash` service
+
+Fixed:
+- Cross-seed now uses `transmission` user.
+- Added port options to some relevant services.
+- UPNP
 
 ## 2025-06-03
 

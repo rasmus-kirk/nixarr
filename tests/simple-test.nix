@@ -37,6 +37,10 @@ pkgs.nixosTest {
       sabnzbd.enable = true;
       lidarr.enable = true;
       prowlarr.enable = true;
+      whisparr.enable = true;
+      komgarr.enable = true;
+      stash.enable = true;
+
       # recyclarr = {
       #   enable = true;
       #   configuration = {
