@@ -1,3 +1,4 @@
+# See https://github.com/NixOS/nixpkgs/blob/master/nixos/modules/misc/ids.nix
 # TODO: Dir creation and file permissions in nix
 {
   pkgs,
@@ -37,6 +38,7 @@ in {
       transmission = 70;
       cross-seed = 183;
       whisparr = 272;
+      stash = 69;
     };
     gids = {
       autobrr = 188;
@@ -45,6 +47,7 @@ in {
       media = 169;
       prowlarr = 287;
       recyclarr = 269;
+      stash = 69;
     };
 
     audiobookshelf = {
@@ -117,6 +120,10 @@ in {
     };
     whisparr = {
       user = "whisparr";
+      group = globals.libraryOwner.group;
+    };
+    stash = {
+      user = "stash";
       group = globals.libraryOwner.group;
     };
   };

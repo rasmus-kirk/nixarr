@@ -5,36 +5,36 @@
   ...
 }:
 with lib; let
-  cfg = config.nixarr.whisparr;
+  cfg = config.nixarr.stash;
   globals = config.util-nixarr.globals;
-  defaultPort = 6969;
   nixarr = config.nixarr;
+  defaultPort = 9999;
 in {
-  options.nixarr.whisparr = {
+  options.nixarr.stash = {
     enable = mkOption {
       type = types.bool;
       default = false;
       example = true;
       description = ''
-        Whether or not to enable the whisparr service.
+        Whether or not to enable the stash service.
       '';
     };
 
-    package = mkPackageOption pkgs "whisparr" {};
+    package = mkPackageOption pkgs "stash" {};
 
     stateDir = mkOption {
       type = types.path;
-      default = "${nixarr.stateDir}/whisparr";
-      defaultText = literalExpression ''"''${nixarr.stateDir}/whisparr"'';
-      example = "/nixarr/.state/whisparr";
+      default = "${nixarr.stateDir}/stash";
+      defaultText = literalExpression ''"''${nixarr.stateDir}/stash"'';
+      example = "/nixarr/.state/stash";
       description = ''
-        The location of the state directory for the whisparr service.
+        The location of the state directory for the stash service.
 
         > **Warning:** Setting this to any path, where the subpath is not
         > owned by root, will fail! For example:
         >
         > ```nix
-        >   stateDir = /home/user/nixarr/.state/whisparr
+        >   stateDir = /home/user/nixarr/.state/stash
         > ```
         >
         > Is not supported, because `/home/user` is owned by `user`.
@@ -43,16 +43,16 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.whisparr.vpn.enable'';
+      defaultText = literalExpression ''!nixarr.stash.vpn.enable'';
       default = !cfg.vpn.enable;
       example = true;
-      description = "Open firewall for whisparr";
+      description = "Open firewall for stash";
     };
 
     port = mkOption {
       type = types.port;
       default = defaultPort;
-      description = "Port for Whisparr to use.";
+      description = "Port for Stash to use.";
     };
 
     vpn.enable = mkOption {
@@ -62,7 +62,7 @@ in {
       description = ''
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
-        Route whisparr traffic through the VPN.
+        Route stash traffic through the VPN.
       '';
     };
   };
@@ -72,38 +72,33 @@ in {
       {
         assertion = cfg.vpn.enable -> nixarr.vpn.enable;
         message = ''
-          The nixarr.whisparr.vpn.enable option requires the
+          The nixarr.stash.vpn.enable option requires the
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
     ];
 
     users = {
-      groups.${globals.whisparr.group}.gid = globals.gids.${globals.whisparr.group};
-      users.${globals.whisparr.user} = {
+      groups.${globals.stash.group}.gid = globals.gids.${globals.stash.group};
+      users.${globals.stash.user} = {
         isSystemUser = true;
-        group = globals.whisparr.group;
-        uid = globals.uids.${globals.whisparr.user};
+        group = globals.stash.group;
+        uid = globals.uids.${globals.stash.user};
       };
     };
 
-    systemd.tmpfiles.rules = [
-      "d '${nixarr.mediaDir}/library'        0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
-      "d '${nixarr.mediaDir}/library/xxx'    0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
-    ];
-
-    services.whisparr = {
+    services.stash = {
       enable = cfg.enable;
+      settings.port = cfg.port;
       package = cfg.package;
-      user = globals.whisparr.user;
-      group = globals.whisparr.group;
-      settings.server.port = cfg.port;
+      user = globals.stash.user;
+      group = globals.stash.group;
       openFirewall = cfg.openFirewall;
       dataDir = cfg.stateDir;
     };
 
     # Enable and specify VPN namespace to confine service in.
-    systemd.services.whisparr.vpnConfinement = mkIf cfg.vpn.enable {
+    systemd.services.stash.vpnConfinement = mkIf cfg.vpn.enable {
       enable = true;
       vpnNamespace = "wg";
     };
@@ -112,7 +107,7 @@ in {
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = cfg.portcfg.port
+          from = cfg.port;
           to = cfg.port;
         }
       ];
