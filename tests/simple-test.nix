@@ -18,26 +18,14 @@ pkgs.nixosTest {
     nixarr = {
       enable = true;
 
-      jellyfin = {
-        enable = true;
-        expose.https = {
-          enable = true;
-          upnp.enable = true;
-        };
-      };
-      plex = {
-        enable = true;
-        expose.https = {
-          enable = true;
-          upnp.enable = true;
-        };
-      };
+      jellyfin.enable = true;
+      plex.enable = true;
       jellyseerr.enable = true;
       audiobookshelf.enable = true;
 
       transmission = {
         enable = true;
-        # privateTrackers.cross-seed.enable = true;
+        privateTrackers.cross-seed.enable = true;
       };
 
       autobrr.enable = true;
