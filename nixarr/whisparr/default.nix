@@ -112,7 +112,7 @@ in {
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = cfg.portcfg.port
+          from = cfg.port;
           to = cfg.port;
         }
       ];
