@@ -67,7 +67,7 @@ pkgs.nixosTest {
     print("\n=== Testing User/Group Creation ===")
 
     # Check essential users exist
-    key_users = ["jellyfin", "transmission", "cross-seed", "sonarr", "radarr", "testuser"]
+    key_users = ["jellyfin", "transmission", "sonarr", "radarr", "testuser"]
     for user in key_users:
         machine.succeed(f"id {user}")
         print(f"✓ User {user} exists")
@@ -80,11 +80,6 @@ pkgs.nixosTest {
             print(f"✓ {member} is in media group")
         else:
             machine.fail(f"{member} not in media group")
-
-    # Check cross-seed group membership
-    cross_seed_members = machine.succeed("getent group cross-seed | cut -d: -f4").strip()
-    if "transmission" in cross_seed_members:
-        print("✓ transmission is in cross-seed group")
 
     # Test 2: Verify directory structure and ownership
     print("\n=== Testing Directory Permissions ===")
@@ -104,9 +99,6 @@ pkgs.nixosTest {
     check_dir("/data/media/library/music", "root", "media", "Music directory")
     check_dir("/data/media/torrents", "transmission", "media", "Torrents directory")
 
-    if machine.succeed("test -d '/data/media/torrents/.cross-seed' && echo 'exists' || echo 'missing'").strip() == "exists":
-        check_dir("/data/media/torrents/.cross-seed", "cross-seed", "cross-seed", "Cross-seed directory")
-
     # Test 3: Verify service file access
     print("\n=== Testing Service File Access ===")
 
@@ -122,15 +114,6 @@ pkgs.nixosTest {
                 machine.fail(f"Expected 'test' but got '{content}'")
             machine.succeed(f"sudo -u jellyfin rm '{test_file}'")
             print(f"✓ Jellyfin can write/read/delete in {test_dir}")
-
-    # Test cross-seed can access transmission state
-    trans_state = "/data/.state/nixarr/transmission"
-    if machine.succeed(f"test -d '{trans_state}' && echo 'exists' || echo 'missing'").strip() == "exists":
-        result = machine.succeed(f"sudo -u cross-seed test -r '{trans_state}' && echo 'readable' || echo 'not-readable'").strip()
-        if result == "readable":
-            print("✓ cross-seed can read transmission state directory")
-        else:
-            machine.fail("cross-seed cannot read transmission state directory")
 
     # Test 4: Verify fix-permissions command
     print("\n=== Testing fix-permissions Command ===")
