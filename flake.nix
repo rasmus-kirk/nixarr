@@ -2,7 +2,7 @@
   description = "The Nixarr Media Server Nixos Module";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixpkgs-unstable";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
 
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
 
@@ -29,7 +29,10 @@
     forAllSystems = f:
       nixpkgs.lib.genAttrs supportedSystems (system:
         f {
-          pkgs = import nixpkgs { inherit system; config.allowUnfree = true; };
+          pkgs = import nixpkgs {
+            inherit system;
+            config.allowUnfree = true;
+          };
         });
   in {
     nixosModules.default.imports = [./nixarr vpnconfinement.nixosModules.default];

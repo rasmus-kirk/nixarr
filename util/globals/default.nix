@@ -36,13 +36,15 @@ in {
       recyclarr = 269;
       sabnzbd = 38;
       transmission = 70;
-      cross-seed = 183;
+      # Removed 2025-10-29
+      # cross-seed = 183;
       whisparr = 272;
       stash = 69;
     };
     gids = {
       autobrr = 188;
-      cross-seed = 183;
+      # Removed 2025-10-29
+      # cross-seed = 183;
       jellyseerr = 250;
       media = 169;
       prowlarr = 287;
