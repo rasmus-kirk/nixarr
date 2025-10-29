@@ -77,7 +77,7 @@ in {
           );
         };
       in
-        mkIf cfg.upnp.enable {
+        mkIf cfg.enable {
           enable = true;
           description = "Sets port on router";
           script = "${upnp-ports}/bin/upnp-ports";
@@ -89,7 +89,7 @@ in {
         };
 
       timers = {
-        upnpc = mkIf cfg.upnp.enable {
+        upnpc = mkIf cfg.enable {
           description = "Sets port on router";
           wantedBy = ["timers.target"];
 

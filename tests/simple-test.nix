@@ -18,10 +18,22 @@ pkgs.nixosTest {
     nixarr = {
       enable = true;
 
-      jellyfin.enable = true;
+      jellyfin = {
+        enable = true;
+        expose.https = {
+          enable = true;
+          upnp.enable = true;
+        };
+      };
+      plex = {
+        enable = true;
+        expose.https = {
+          enable = true;
+          upnp.enable = true;
+        };
+      };
       jellyseerr.enable = true;
       audiobookshelf.enable = true;
-      plex.enable = true;
 
       transmission = {
         enable = true;
