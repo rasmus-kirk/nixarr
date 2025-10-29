@@ -287,7 +287,6 @@ in {
 
     users = {
       groups.${globals.transmission.group}.gid = globals.gids.${globals.transmission.group};
-      groups.${globals.cross-seed.group}.gid = globals.gids.${globals.cross-seed.group};
       users.${globals.transmission.user} = {
         isSystemUser = true;
         group = globals.transmission.group;
@@ -296,10 +295,10 @@ in {
     };
 
     systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}'                             0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
+      "d '${cfg.stateDir}'                             0750 ${globals.transmission.user} ${globals.transmission.group} - -"
       # This is fixes a bug in nixpks (https://github.com/NixOS/nixpkgs/issues/291883)
-      "d '${cfg.stateDir}/.config'                     0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
-      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 ${globals.transmission.user} ${globals.cross-seed.group} - -"
+      "d '${cfg.stateDir}/.config'                     0750 ${globals.transmission.user} ${globals.transmission.group} - -"
+      "d '${cfg.stateDir}/.config/transmission-daemon' 0750 ${globals.transmission.user} ${globals.transmission.group} - -"
 
       # Media Dirs
       "d '${nixarr.mediaDir}/torrents'             0755 ${globals.transmission.user} ${globals.transmission.group} - -"
@@ -315,8 +314,8 @@ in {
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
       dataDir = cfg-cross-seed.stateDir;
-      user = globals.cross-seed.user;
-      group = globals.cross-seed.group;
+      user = globals.transmission.user;
+      group = globals.transmission.group;
       settings =
         {
           torrentDir = "${cfg.stateDir}/.config/transmission-daemon/torrents";

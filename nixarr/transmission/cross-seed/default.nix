@@ -54,14 +54,14 @@ in {
       };
 
       user = mkOption {
-        type = types.str;
-        default = "cross-seed";
+        type = types.nullOr types.str;
+        default = null;
         description = "User account under which cross-seed runs.";
       };
 
       group = mkOption {
-        type = types.str;
-        default = "cross-seed";
+        type = types.nullOr types.str;
+        default = null;
         description = "Group under which cross-seed runs.";
       };
     };
@@ -79,6 +79,18 @@ in {
         assertion = cfg.enable -> cfg.settings.torrentDir != null;
         message = ''
           The settings.torrentDir option must be set if cross-seed is enabled.
+        '';
+      }
+      {
+        assertion = cfg.enable -> cfg.user != null;
+        message = ''
+          The user option must be set if cross-seed is enabled.
+        '';
+      }
+      {
+        assertion = cfg.enable -> cfg.group != null;
+        message = ''
+          The group option must be set if cross-seed is enabled.
         '';
       }
     ];
