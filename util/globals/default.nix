@@ -117,8 +117,8 @@ in {
       group = globals.libraryOwner.group;
     };
     cross-seed = {
-      user = "cross-seed";
-      group = "cross-seed";
+      user = "transmission";
+      group = globals.libraryOwner.group;
     };
     whisparr = {
       user = "whisparr";

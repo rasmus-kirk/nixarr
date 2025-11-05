@@ -38,8 +38,7 @@ pkgs.nixosTest {
       lidarr.enable = true;
       prowlarr.enable = true;
       whisparr.enable = true;
-      komgarr.enable = true;
-      stash.enable = true;
+      komga.enable = true;
 
       # recyclarr = {
       #   enable = true;

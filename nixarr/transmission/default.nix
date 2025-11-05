@@ -314,8 +314,8 @@ in {
     util-nixarr.services.cross-seed = mkIf cfg-cross-seed.enable {
       enable = true;
       dataDir = cfg-cross-seed.stateDir;
-      user = globals.transmission.user;
-      group = globals.transmission.group;
+      user = globals.cross-seed.user;
+      group = globals.cross-seed.group;
       settings =
         {
           torrentDir = "${cfg.stateDir}/.config/transmission-daemon/torrents";
