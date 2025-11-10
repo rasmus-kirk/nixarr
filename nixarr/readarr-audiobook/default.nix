@@ -6,9 +6,17 @@
 }:
 with lib; let
   cfg = config.nixarr.readarr-audiobook;
+  service-cfg = config.services.readarr-audiobook;
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   port = 9494;
+
+  settings-options = pkgs.fetchurl {
+    # Master as of 2025-11-11
+    url = "https://raw.githubusercontent.com/NixOS/nixpkgs/cf540f8c9840457ed90a315dd635bceecb78495a/nixos/modules/services/misc/servarr/settings-options.nix";
+    hash = "sha256-7fh2fpYphR7kBV0zleRK+gL8gHLqVbjRbuv1B6x748s=";
+  };
+  servarr = import settings-options {inherit lib pkgs;};
 in {
   options.nixarr.readarr-audiobook = {
     enable = mkOption {
@@ -69,6 +77,42 @@ in {
     };
   };
 
+  # A tweaked copy of services.readarr from nixpkgs
+  options.services.readarr-audiobook = {
+    enable = lib.mkEnableOption "Readarr-Audiobook, a Usenet/BitTorrent audiobook downloader";
+
+    dataDir = lib.mkOption {
+      type = lib.types.str;
+      description = "The directory where Readarr-Audiobook stores its data files.";
+    };
+
+    package = lib.mkPackageOption pkgs "readarr" {};
+
+    openFirewall = lib.mkOption {
+      type = lib.types.bool;
+      description = ''
+        Open ports in the firewall for Readarr-Audiobook.
+      '';
+    };
+
+    settings = servarr.mkServarrSettingsOptions "readarr-audiobook" port;
+    environmentFiles = servarr.mkServarrEnvironmentFiles "readarr-audiobook";
+
+    user = lib.mkOption {
+      type = lib.types.str;
+      description = ''
+        User account under which Readarr-Audiobook runs.
+      '';
+    };
+
+    group = lib.mkOption {
+      type = lib.types.str;
+      description = ''
+        Group under which Readarr-Audiobook runs.
+      '';
+    };
+  };
+
   config = mkIf (nixarr.enable && cfg.enable) {
     assertions = [
       {
@@ -96,17 +140,28 @@ in {
       "d '${nixarr.mediaDir}/library/audiobooks'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
+    services.readarr-audiobook = {
+      enable = cfg.enable;
+      package = cfg.package;
+      settings.server.port = cfg.port;
+      openFirewall = cfg.openFirewall;
+      dataDir = cfg.stateDir;
+      user = globals.readarr-audiobook.user;
+      group = globals.readarr-audiobook.group;
+    };
+
     systemd.services.readarr-audiobook = {
       description = "Readarr-Audiobook";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
-      environment.READARR__SERVER__PORT = builtins.toString cfg.port;
+      environment = servarr.mkServarrSettingsEnvVars "READARR" service-cfg.settings;
 
       serviceConfig = {
         Type = "simple";
-        User = globals.readarr-audiobook.user;
-        Group = globals.readarr-audiobook.group;
-        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
+        User = service-cfg.user;
+        Group = service-cfg.group;
+        EnvironmentFile = service-cfg.environmentFiles;
+        ExecStart = "${lib.getExe service-cfg.package} -nobrowser -data=${service-cfg.dataDir}";
         Restart = "on-failure";
       };
     };
