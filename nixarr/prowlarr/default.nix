@@ -161,29 +161,30 @@ in {
         Type = "oneshot";
         RemainAfterExit = true;
         UMask = "0077"; # Results in 0600 permissions
-        User = config.services.prowlarr.user;
+        User = globals.recyclarr.user;
         ExecStart = let
           sonarr_part = optionalString nixarr.sonarr.enable ''
             sonarr_api_key = open(sonarr_api_key_path, "r").read()
             sonarr = {
-              "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
-              "baseUrl": "http://localhost:${builtins.toString nixarr.sonarr.port}",
-              "apiKey": sonarr_api_key,
+                "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+                "baseUrl": "http://localhost:${builtins.toString nixarr.sonarr.port}",
+                "apiKey": sonarr_api_key,
             } | json.loads('${builtins.toJSON cfg.sonarr.configuration}')
             data.append(("nixarr_autosync_sonarr", "Sonarr", json.dumps(sonarr), "SonarrSettings", 2, "[]"))
           '';
           radarr_part = optionalString nixarr.radarr.enable ''
             radarr_api_key = open(radarr_api_key_path, "r").read()
             radarr = {
-              "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
-              "baseUrl": "http://localhost:${builtins.toString nixarr.radarr.port}",
-              "apiKey": radarr_api_key,
+                "prowlarrUrl": "http://localhost:${builtins.toString cfg.port}",
+                "baseUrl": "http://localhost:${builtins.toString nixarr.radarr.port}",
+                "apiKey": radarr_api_key,
             } | json.loads('${builtins.toJSON cfg.radarr.configuration}')
             data.append(("nixarr_autosync_radarr", "Radarr", json.dumps(radarr), "RadarrSettings", 2, "[]"))
           '';
         in
           pkgs.writers.writePython3Bin "prowlarr-setup" {
             libraries = [];
+            flakeIgnore = ["E501"];
           } ''
             import sqlite3
             import json
