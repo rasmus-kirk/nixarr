@@ -8,7 +8,51 @@ with lib; let
   cfg = config.nixarr.recyclarr;
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
-  format = pkgs.formats.yaml {};
+  yamlGenerator = {preserved-tags ? []}: let
+    selectors =
+      pkgs.lib.strings.concatStringsSep "/"
+      (builtins.map (x: ''
+        with((.. | select(kind == "scalar") | select(test("^!${x} .*"))); . = sub("!${x} ", "") | . tag="!${x}")
+      ''))
+      preserved-tags;
+  in {
+    generate = name: value:
+      pkgs.callPackage (
+        {
+          runCommand,
+          yq-go,
+        }:
+          runCommand name
+          {
+            nativeBuildInputs = [yq-go];
+            value = builtins.toJSON value;
+            passAsFile = ["value"];
+            preferLocalBuild = true;
+          }
+          ''
+            yq '${selectors}' "$valuePath" -o yaml > $out
+          ''
+      ) {};
+    type = let
+      baseType = pkgs.lib.types.oneOf [
+        pkgs.lib.types.bool
+        pkgs.lib.types.int
+        pkgs.lib.types.float
+        pkgs.lib.types.float
+        (pkgs.lib.types.attrsOf valueType)
+        (pkgs.lib.types.listOf valueType)
+      ];
+      valueType =
+        (pkgs.lib.types.nullOr baseType)
+        // {
+          description = "Yaml value";
+        };
+    in
+      valueType;
+  };
+  format = yamlGenerator {
+    preserved-tags = ["env_var"];
+  };
 
   # Generate configuration file from Nix attribute set if provided
   generatedConfigFile = format.generate "recyclarr-config.yml" cfg.configuration;
