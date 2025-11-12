@@ -11,10 +11,12 @@ with lib; let
   yamlGenerator = {preserved-tags ? []}: let
     selectors =
       pkgs.lib.strings.concatStringsSep "/"
-      (builtins.map (x: ''
-        with((.. | select(kind == "scalar") | select(test("^!${x} .*"))); . = sub("!${x} ", "") | . tag="!${x}")
-      ''))
-      preserved-tags;
+      (builtins.map (
+          x: ''
+            with((.. | select(kind == "scalar") | select(test("^!${x} .*"))); . = sub("!${x} ", "") | . tag="!${x}")
+          ''
+        )
+        preserved-tags);
   in {
     generate = name: value:
       pkgs.callPackage (
