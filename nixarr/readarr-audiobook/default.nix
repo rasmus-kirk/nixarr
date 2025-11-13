@@ -95,8 +95,12 @@ in {
       '';
     };
 
+    # Uses name in description to refer to
+    # `services.readarr-audiobook.environmentFiles`.
     settings = servarr.mkServarrSettingsOptions "readarr-audiobook" port;
-    environmentFiles = servarr.mkServarrEnvironmentFiles "readarr-audiobook";
+
+    # Uses name in description to document `READARR__*` environment variables.
+    environmentFiles = servarr.mkServarrEnvironmentFiles "readarr";
 
     user = lib.mkOption {
       type = lib.types.str;
@@ -154,7 +158,9 @@ in {
       description = "Readarr-Audiobook";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
-      environment = servarr.mkServarrSettingsEnvVars "READARR" service-cfg.settings;
+
+      # Uses name to define `READARR__*` environment variables.
+      environment = servarr.mkServarrSettingsEnvVars "readarr" service-cfg.settings;
 
       serviceConfig = {
         Type = "simple";
