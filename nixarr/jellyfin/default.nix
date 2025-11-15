@@ -45,8 +45,8 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.jellyfin.vpn.enable'';
-      default = !cfg.vpn.enable;
+      defaultText = literalExpression ''nixarr.jellyfin.expose.https.enable'';
+      default = cfg.expose.https.enable;
       example = true;
       description = "Open firewall for Jellyfin";
     };

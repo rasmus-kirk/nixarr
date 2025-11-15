@@ -50,8 +50,8 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.jellyseerr.vpn.enable'';
-      default = !cfg.vpn.enable;
+      defaultText = literalExpression ''nixarr.jellyseer.expose.https.enable'';
+      default = cfg.expose.https.enable;
       example = true;
       description = "Open firewall for Jellyseerr";
     };

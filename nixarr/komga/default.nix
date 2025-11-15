@@ -42,8 +42,8 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.komga.vpn.enable'';
-      default = !cfg.vpn.enable;
+      defaultText = literalExpression ''nixarr.komga.expose.https.enable'';
+      default = cfg.expose.https.enable;
       example = true;
       description = "Open firewall for Komga";
     };
