@@ -43,8 +43,7 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''nixarr.plex.expose.https.enable'';
-      default = cfg.expose.https.enable;
+      default = false;
       example = true;
       description = "Open firewall for Plex";
     };
