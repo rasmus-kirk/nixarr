@@ -8,7 +8,57 @@ with lib; let
   cfg = config.nixarr.recyclarr;
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
-  format = pkgs.formats.yaml {};
+  # This is a carbon copy of the yaml implementation in nixpkgs https://github.com/NixOS/nixpkgs/blob/fde6c4aec177afa2d0248b1c5983e2a72a231442/pkgs/pkgs-lib/formats.nix#L210-L231
+  # except we've replaced json2yaml for yq-go to allow it to parse custom yaml tags
+  # ideally this would some day be upstreamed, see https://github.com/NixOS/nix/issues/4910 and https://github.com/rasmus-kirk/nixarr/issues/91
+  yamlGenerator = {preserved-tags ? []}: let
+    selectors =
+      pkgs.lib.strings.concatStringsSep "|"
+      (builtins.map (
+          # this is yq for "for all the scalers, if they match this regex, do a regex substitution and set the tag"
+          x: ''
+            with((.. | select(kind == "scalar") | select(test("^!${x} .*"))); . = sub("!${x} ", "") | . tag="!${x}")
+          ''
+        )
+        preserved-tags);
+  in {
+    generate = name: value:
+      pkgs.callPackage (
+        {
+          runCommand,
+          yq-go,
+        }:
+          runCommand name
+          {
+            nativeBuildInputs = [yq-go];
+            value = builtins.toJSON value;
+            passAsFile = ["value"];
+            preferLocalBuild = true;
+          }
+          ''
+            yq '${selectors}' "$valuePath" -o yaml > $out
+          ''
+      ) {};
+    type = let
+      baseType = pkgs.lib.types.oneOf [
+        pkgs.lib.types.bool
+        pkgs.lib.types.int
+        pkgs.lib.types.float
+        pkgs.lib.types.float
+        (pkgs.lib.types.attrsOf valueType)
+        (pkgs.lib.types.listOf valueType)
+      ];
+      valueType =
+        (pkgs.lib.types.nullOr baseType)
+        // {
+          description = "Yaml value";
+        };
+    in
+      valueType;
+  };
+  format = yamlGenerator {
+    preserved-tags = ["env_var"];
+  };
 
   # Generate configuration file from Nix attribute set if provided
   generatedConfigFile = format.generate "recyclarr-config.yml" cfg.configuration;
