@@ -7,107 +7,61 @@
   inherit
     (lib)
     types
-    pipe
     toSentenceCase
-    isString
     filter
-    concatMapStringsSep
     mkOption
     getExe
-    split
     mkIf
-    escapeShellArgs
     recursiveUpdate
     ;
 
+  inherit
+    (pkgs.writers)
+    writeJSON
+    writePython3Bin
+    ;
+
   nixarr = config.nixarr;
-
-  nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
-  inherit (nixarr-utils) call-prowlarr-api mkArrLocalUrl;
-
   cfg = nixarr.prowlarr.settings-sync;
 
-  # TODO: move to `lib/utils.nix` if we end up reusing it for other systems.
-  apply-fields = pkgs.writeShellApplication {
-    name = "apply-fields";
-    runtimeInputs = with pkgs; [jq coreutils];
-    text = builtins.readFile ./apply-fields.sh;
-  };
+  nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
+  inherit (nixarr-utils) mkArrLocalUrl toKebabSentenceCase arrCfgType;
 
-  prowlarr-sync-tags = pkgs.writeShellApplication {
-    name = "prowlarr-sync-tags";
-    runtimeInputs = with pkgs; [
-      curl
-      jq
-      call-prowlarr-api
+  nixarr-py = import ../../lib/nixarr-py {inherit pkgs lib config;};
+
+  show-schemas = writePython3Bin "nixarr-show-prowlarr-schemas" {
+    libraries = [nixarr-py];
+    flakeIgnore = [
+      "E501" # Line too long
     ];
-    text = builtins.readFile ./sync-tags.sh;
-  };
+  } (builtins.readFile ./show_schemas.py);
 
-  prowlarr-sync-indexers = pkgs.writeShellApplication {
-    name = "prowlarr-sync-indexers";
-    runtimeInputs = with pkgs; [
-      curl
-      jq
-      call-prowlarr-api
-      apply-fields
+  sync-settings = writePython3Bin "nixarr-sync-prowlarr-settings" {
+    libraries = [nixarr-py];
+    flakeIgnore = [
+      "E501" # Line too long
     ];
-    text = builtins.readFile ./sync-indexers.sh;
-  };
-
-  prowlarr-sync-applications = pkgs.writeShellApplication {
-    name = "prowlarr-sync-applications";
-    runtimeInputs = with pkgs; [
-      curl
-      jq
-      call-prowlarr-api
-      apply-fields
-    ];
-    text = builtins.readFile ./sync-applications.sh;
-  };
-
-  arrSecretType = types.submodule {
-    options = {
-      secret = mkOption {
-        type = types.pathWith {
-          inStore = false; # Secret files should not be in the Nix store
-          absolute = true;
-        };
-        description = ''
-          Path to a file containing a secret value. Must be readable by the
-          relevant service user or group!
-        '';
-      };
-    };
-  };
-
-  arrCfgType = with types; attrsOf (oneOf [str bool int arrSecretType (listOf int) (listOf str)]);
+  } (builtins.readFile ./sync_settings.py);
 
   mkAppConfigType = {
     service,
-    implementationName,
+    implementation,
   }:
     types.submodule {
       freeformType = arrCfgType;
       options = {
         name = mkOption {
           type = types.str;
-          # Turns `readarr` into `Readarr` and `readarr-audiobook` into
-          # `Readarr-Audiobook`.
-          default = pipe service [
-            (split "-")
-            (filter isString)
-            (concatMapStringsSep "-" toSentenceCase)
-          ];
+          default = toKebabSentenceCase service;
           description = ''
             The name Prowlarr uses for this instance of an application. Note
             that app names must be unique among *all* apps (not just apps of
             this type), *ignoring case*.
           '';
         };
-        implementationName = mkOption {
+        implementation = mkOption {
           type = types.str;
-          default = implementationName;
+          default = implementation;
           description = ''
             The implementation name of the application in Prowlarr. This is used
             to find the default configuration when adding a new application, and
@@ -115,18 +69,7 @@
             overwriting an existing application.
           '';
         };
-        syncLevel = mkOption {
-          type = types.enum [
-            "fullSync" # AKA "Full Sync"
-            "addOnly" # AKA "Add and Remove Only"
-            "disabled" # AKA "Disabled"
-          ];
-          default = "fullSync";
-          description = ''
-            How Prowlarr should sync indexers with an application.
-          '';
-        };
-        tagLabels = mkOption {
+        tag_labels = mkOption {
           type = with types; listOf str;
           default = [];
           description = ''
@@ -142,9 +85,10 @@
             configuration options are left unchanged from their defaults (for
             new applications) or existing values (for overwritten applications).
 
-            To see available fields, run `${getExe call-prowlarr-api}
-            application/schema`, find the definition of the application using
-            `implementationName`, and inspect the `fields` property.
+            In the schema, these are represented as an array of objects with
+            `.name` and `.value` members. Each attribute in this config attrSset
+            will update the `.value` member of the `fields` item with a matching
+            `.name`. For more details on each field, check the schema.
 
             The fields `prowlarrUrl`, `baseUrl`, and `apiKey` are set by this
             module but can be overridden here if necessary.
@@ -162,7 +106,7 @@
 
   mkAppOptions = {
     service,
-    implementationName ? toSentenceCase service,
+    implementation ? toSentenceCase service,
   }: {
     enable = mkOption {
       type = types.bool;
@@ -173,13 +117,19 @@
     };
     config = mkOption {
       type = mkAppConfigType {
-        inherit service implementationName;
+        inherit service implementation;
       };
       default = {};
-      description = "Configuration for this application in Prowlarr.";
+      description = ''
+        Configuration for this application in Prowlarr.
+
+        To see available top-level properties and `fields` members, run
+        `${getExe show-schemas} application | jq '.[] | select(.implementation
+        == "${implementation}")'` as root.
+      '';
       example = {
         name = "My special service name";
-        tagLabels = ["tag1" "tag2"];
+        tag_labels = ["tag1" "tag2"];
         fields = {
           syncCategories = [2030];
         };
@@ -201,7 +151,7 @@
           case*.
         '';
       };
-      sortName = mkOption {
+      sort_name = mkOption {
         type = types.str;
         description = ''
           The sort name of the indexer definition to base this indexer on. This
@@ -210,7 +160,7 @@
           existing indexer.
         '';
       };
-      appProfileName = mkOption {
+      app_profile_name = mkOption {
         type = types.str;
         default = "Standard";
         description = ''
@@ -219,7 +169,7 @@
           indexer configuration.
         '';
       };
-      tagLabels = mkOption {
+      tag_labels = mkOption {
         type = with types; listOf str;
         default = [];
         description = ''
@@ -235,10 +185,11 @@
           options are left unchanged from their defaults (for new indexers) or
           existing values (for overwritten indexers).
 
-          To see available fields, run `${getExe call-prowlarr-api}
-          indexer/schema`, find the definition of the indexer using `sortName`,
-          and inspect the `fields` property.
-        ''; # TODO: add schema to `nixarr` utility command?
+          In the schema, these are represented as an array of objects with
+          `.name` and `.value` members. Each attribute in this config attrSset
+          will update the `.value` member of the `fields` item with a matching
+          `.name`. For more details on each field, check the schema.
+        '';
       };
     };
   };
@@ -262,25 +213,6 @@
   wantedServices =
     map (service: "${service}-api-key.service")
     (syncServiceNames ++ ["prowlarr"]);
-
-  syncAppsJson = pipe syncServiceNames [
-    (
-      map (name:
-        recursiveUpdate
-        {
-          # TODO: we're only doing this here because if we just made these the
-          # default values in the app config type and the user adds *any* field,
-          # then *all* of the defaults would be overridden.
-          fields = {
-            prowlarrUrl = mkArrLocalUrl "prowlarr";
-            baseUrl = mkArrLocalUrl name;
-            apiKey.secret = "${nixarr.stateDir}/api-keys/${name}.key";
-          };
-        }
-        cfg.apps.${name}.config)
-    )
-    builtins.toJSON
-  ];
 in {
   options = {
     nixarr.prowlarr.settings-sync = {
@@ -323,12 +255,17 @@ in {
         default = [];
         description = ''
           List of indexers to configure in Prowlarr.
+
+          To see available top-level properties and `fields` members for each
+          indexer, run `${getExe show-schemas} indexer | jq '.'` as root. You
+          may want to filter by `sort_name` to find the indexer you want to
+          configure.
         '';
         example = [
           {
             name = "My special indexer name";
-            sortName = "nzbgeek";
-            tagLabels = ["tag1" "tag2"];
+            sort_name = "nzbgeek";
+            tag_labels = ["tag1" "tag2"];
             priority = 30;
             fields = {
               apiKey.secret = "/path/to/secret/file";
@@ -342,6 +279,8 @@ in {
   config = mkIf (nixarr.enable && nixarr.prowlarr.enable) {
     users.users.prowlarr.extraGroups = extraGroups;
 
+    environment.systemPackages = [show-schemas];
+
     systemd.services.prowlarr-sync-config = {
       description = ''
         Sync Prowlarr configuration (tags, indexers, applications)
@@ -354,36 +293,28 @@ in {
         User = "prowlarr";
         Group = "prowlarr";
         ExecStart = let
-          prowlarr-sync-all = pkgs.writeShellApplication {
-            name = "prowlarr-sync-all";
-            runtimeInputs = [
-              prowlarr-sync-tags
-              prowlarr-sync-indexers
-              prowlarr-sync-applications
-            ];
-            text = ''
-              tagLabels=$1
-              appConfigs=$2
-              indexerConfigs=$3
-
-              # Attempt to sync everything, but finally exit with failure if any
-              # step failed.
-
-              failed=0
-              prowlarr-sync-tags "$tagLabels" || failed=1
-              prowlarr-sync-indexers "$indexerConfigs" || failed=1
-              prowlarr-sync-applications "$appConfigs" || failed=1
-              if [ $failed -ne 0 ]; then
-                exit 1
-              fi
-            '';
+          mkAppConfig = name:
+            recursiveUpdate
+            {
+              /*
+              TODO: we're only doing this here because if we just made these the
+              default values in the app config type and the user adds *any*
+              field, then *all* of the defaults would be overridden.
+              */
+              fields = {
+                prowlarrUrl = mkArrLocalUrl "prowlarr";
+                baseUrl = mkArrLocalUrl name;
+                apiKey.secret = "${nixarr.stateDir}/api-keys/${name}.key";
+              };
+            }
+            cfg.apps.${name}.config;
+          config-file = writeJSON "prowlarr-sync-config.json" {
+            tag_labels = cfg.tags;
+            app_configs = map mkAppConfig syncServiceNames;
+            indexer_configs = cfg.indexers;
           };
         in ''
-          ${getExe prowlarr-sync-all} ${escapeShellArgs [
-            (builtins.toJSON cfg.tags)
-            syncAppsJson
-            (builtins.toJSON cfg.indexers)
-          ]}
+          ${getExe sync-settings} --config-file ${config-file}
         '';
       };
     };
