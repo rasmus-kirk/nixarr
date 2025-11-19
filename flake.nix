@@ -47,6 +47,9 @@
       simple-test = pkgs.callPackage ./tests/simple-test.nix {
         inherit (self) nixosModules;
       };
+      transmission-sync-test = pkgs.callPackage ./tests/transmission-sync-test.nix {
+        inherit (self) nixosModules;
+      };
       # vpn-confinement-test = pkgs.callPackage ./tests/vpn-confinement-test.nix {
       #   inherit (self) nixosModules;
       # };
