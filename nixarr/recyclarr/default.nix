@@ -44,7 +44,7 @@ with lib; let
         pkgs.lib.types.bool
         pkgs.lib.types.int
         pkgs.lib.types.float
-        pkgs.lib.types.float
+        pkgs.lib.types.str
         (pkgs.lib.types.attrsOf valueType)
         (pkgs.lib.types.listOf valueType)
       ];
