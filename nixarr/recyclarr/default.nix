@@ -17,7 +17,7 @@ with lib; let
       (builtins.map (
           # this is yq for "for all the scalers, if they match this regex, do a regex substitution and set the tag"
           x: ''
-            with((.. | select(kind == "scalar") | select(test("^!${x} .*"))); . = sub("!${x} ", "") | . tag="!${x}")
+            with((.. | select(kind == "scalar") | select(tag == "!!str") | select(test("^!${x} .*"))); . = sub("!${x} ", "") | . tag="!${x}")
           ''
         )
         preserved-tags);
