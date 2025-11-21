@@ -11,12 +11,7 @@ with lib; let
   nixarr = config.nixarr;
   port = 9494;
 
-  settings-options = pkgs.fetchurl {
-    # Master as of 2025-11-11
-    url = "https://raw.githubusercontent.com/NixOS/nixpkgs/cf540f8c9840457ed90a315dd635bceecb78495a/nixos/modules/services/misc/servarr/settings-options.nix";
-    hash = "sha256-7fh2fpYphR7kBV0zleRK+gL8gHLqVbjRbuv1B6x748s=";
-  };
-  servarr = import settings-options {inherit lib pkgs;};
+  arr-settings-options = import ../lib/arr-settings-options.nix {inherit lib pkgs;};
 in {
   options.nixarr.readarr-audiobook = {
     enable = mkOption {
@@ -97,10 +92,10 @@ in {
 
     # Uses name in description to refer to
     # `services.readarr-audiobook.environmentFiles`.
-    settings = servarr.mkServarrSettingsOptions "readarr-audiobook" port;
+    settings = arr-settings-options.mkServarrSettingsOptions "readarr-audiobook" port;
 
     # Uses name in description to document `READARR__*` environment variables.
-    environmentFiles = servarr.mkServarrEnvironmentFiles "readarr";
+    environmentFiles = arr-settings-options.mkServarrEnvironmentFiles "readarr";
 
     user = lib.mkOption {
       type = lib.types.str;
@@ -160,7 +155,7 @@ in {
       wantedBy = ["multi-user.target"];
 
       # Uses name to define `READARR__*` environment variables.
-      environment = servarr.mkServarrSettingsEnvVars "readarr" service-cfg.settings;
+      environment = arr-settings-options.mkServarrSettingsEnvVars "readarr" service-cfg.settings;
 
       serviceConfig = {
         Type = "simple";
