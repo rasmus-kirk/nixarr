@@ -25,11 +25,11 @@
     app ? service,
   }: let
     service-Kebab = toKebabSentenceCase service;
-    service_pascal = replaceString "-" "_" service;
+    service_snake = replaceString "-" "_" service;
   in ''
     import ${app}
 
-    def ${service_pascal}_client() -> ${app}.ApiClient:
+    def ${service_snake}_client() -> ${app}.ApiClient:
         """Create a ${service-Kebab} API client configured for use with Nixarr.
 
         Returns:
@@ -38,9 +38,9 @@
 
         Example:
             >>> import ${app}
-            >>> from nixarr.clients import ${service_pascal}_client
+            >>> from nixarr.clients import ${service_snake}_client
             >>>
-            >>> with ${service_pascal}_client() as client:
+            >>> with ${service_snake}_client() as client:
             ...     api_info_client = ${app}.ApiInfoApi(client)
             ...     api_info = api_info_client.get_api()
         """
