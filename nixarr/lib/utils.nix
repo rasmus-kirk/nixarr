@@ -17,7 +17,7 @@
 
   mkArrLocalUrl = service: let
     server =
-      if (config ? services && config.services ? ${service})
+      if (config ? services && config.services ? ${service} && config.services.${service} ? settings && config.services.${service}.settings ? server)
       then config.services.${service}.settings.server
       else {port = 0;};
   in "http://127.0.0.1:${toString server.port}${server.urlBase or ""}";

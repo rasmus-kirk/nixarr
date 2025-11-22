@@ -71,12 +71,36 @@
       #   app = "readarr";
       # }
     ];
-    text = pipe args [
+    textArrBase = pipe args [
       (map mkClientPySrc)
       (concatStringsSep "\n")
     ];
+
+    mkJellyfinClientPySrc = ''
+      from nixarr.jellyfin import JellyfinClient
+
+      def jellyfin_client() -> JellyfinClient:
+          """Create a Jellyfin API client configured for use with Nixarr.
+
+          Returns:
+              JellyfinClient: API client instance configured to connect to
+              the local Nixarr Jellyfin service.
+          """
+          with open(
+            "${config.nixarr.stateDir}/api-keys/jellyfin.key",
+            "r", encoding="utf-8"
+          ) as f:
+              api_key = f.read().strip()
+
+          return JellyfinClient(
+              url="http://127.0.0.1:8096",
+              api_key=api_key,
+          )
+    '';
+
+    textArr = textArrBase + "\n" + mkJellyfinClientPySrc;
   in
-    pkgs.writeTextDir "nixarr/clients.py" text;
+    pkgs.writeTextDir "nixarr/clients.py" textArr;
 
   nixarr-py = let
     inherit (pkgs.python3Packages) buildPythonPackage setuptools;

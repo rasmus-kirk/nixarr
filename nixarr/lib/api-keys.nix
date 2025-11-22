@@ -10,6 +10,7 @@ with lib; let
   serviceCfgFile = {
     bazarr = "${cfg.bazarr.stateDir}/config/config.yaml";
     jellyseerr = "${cfg.jellyseerr.stateDir}/settings.json";
+    jellyfin = "${cfg.jellyfin.stateDir}/config/system.xml";
     lidarr = "${cfg.lidarr.stateDir}/config.xml";
     prowlarr = "${cfg.prowlarr.stateDir}/config.xml";
     radarr = "${cfg.radarr.stateDir}/config.xml";
@@ -31,6 +32,61 @@ with lib; let
     '';
     jellyseerr = pkgs.writeShellScript "print-jellyseerr-api-key" ''
       ${yq} -r .main.apiKey '${serviceCfgFile.jellyseerr}'
+    '';
+    jellyfin = let
+      sqlite = getExe pkgs.sqlite;
+    in pkgs.writeShellScript "print-jellyfin-api-key" ''
+      DB_PATH="${cfg.jellyfin.stateDir}/data/data/jellyfin.db"
+      
+      # Wait for database file to exist AND be readable
+      # We check that the file exists and has non-zero size to ensure Jellyfin created it
+      RETRIES=60
+      while [ $RETRIES -gt 0 ]; do
+        if [ -f "$DB_PATH" ] && [ -s "$DB_PATH" ]; then
+          break
+        fi
+        sleep 1
+        RETRIES=$((RETRIES - 1))
+      done
+      
+      if [ ! -f "$DB_PATH" ] || [ ! -s "$DB_PATH" ]; then
+        echo "Database file not found or empty: $DB_PATH" >&2
+        exit 1
+      fi
+      
+      # Wait for database to be initialized with ApiKeys table
+      # Use -readonly mode to prevent sqlite from creating the DB if it somehow doesn't exist
+      RETRIES=60
+      while [ $RETRIES -gt 0 ]; do
+        # Try to query the ApiKeys table in read-only mode
+        if ${sqlite} -readonly "$DB_PATH" "SELECT COUNT(*) FROM ApiKeys;" >/dev/null 2>&1; then
+          break
+        fi
+        sleep 1
+        RETRIES=$((RETRIES - 1))
+      done
+      
+      if [ $RETRIES -eq 0 ]; then
+        echo "Database not initialized or ApiKeys table not found" >&2
+        exit 1
+      fi
+      
+      # Check if an API key already exists
+      EXISTING_KEY=$(${sqlite} "$DB_PATH" "SELECT AccessToken FROM ApiKeys WHERE Name = 'Nixarr' LIMIT 1;" 2>/dev/null || echo "")
+      
+      if [ -n "$EXISTING_KEY" ]; then
+        echo "$EXISTING_KEY"
+        exit 0
+      fi
+      
+      # Generate a new API key
+      API_KEY=$(head -c 32 /dev/urandom | base64 | tr -d '/+=' | head -c 32)
+      TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S")
+      
+      # Insert the API key into the database
+      ${sqlite} "$DB_PATH" "INSERT INTO ApiKeys (DateCreated, DateLastActivity, Name, AccessToken) VALUES ('$TIMESTAMP', '$TIMESTAMP', 'Nixarr', '$API_KEY');"
+      
+      echo "$API_KEY"
     '';
     lidarr = pkgs.writeShellScript "print-lidarr-api-key" ''
       ${xq} -r .Config.ApiKey '${serviceCfgFile.lidarr}'

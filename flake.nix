@@ -50,6 +50,9 @@
       transmission-sync-test = pkgs.callPackage ./tests/transmission-sync-test.nix {
         inherit (self) nixosModules;
       };
+      jellyfin-users-test = pkgs.callPackage ./tests/jellyfin-users-test.nix {
+        inherit (self) nixosModules;
+      };
       # vpn-confinement-test = pkgs.callPackage ./tests/vpn-confinement-test.nix {
       #   inherit (self) nixosModules;
       # };

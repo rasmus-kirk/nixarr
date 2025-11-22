@@ -10,6 +10,8 @@ with lib; let
   defaultPort = 8096;
   nixarr = config.nixarr;
 in {
+  imports = [./settings-sync];
+
   options.nixarr.jellyfin = {
     enable = mkOption {
       type = types.bool;
@@ -102,6 +104,23 @@ in {
           description = "The ACME mail required for the letsencrypt bot.";
         };
       };
+    };
+
+    users = mkOption {
+      type = types.listOf (types.submodule {
+        options = {
+          name = mkOption {
+            type = types.str;
+            description = "The username for the Jellyfin user.";
+          };
+          passwordFile = mkOption {
+            type = types.path;
+            description = "Path to a file containing the password for the Jellyfin user.";
+          };
+        };
+      });
+      default = [];
+      description = "List of Jellyfin users to create and manage.";
     };
   };
 
@@ -243,5 +262,6 @@ in {
         }
       ];
     };
+
   };
 }
