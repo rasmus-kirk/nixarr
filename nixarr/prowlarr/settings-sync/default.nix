@@ -292,6 +292,8 @@ in {
         Type = "oneshot";
         User = "prowlarr";
         Group = "prowlarr";
+        Restart = "on-failure"; # Retry in case Prowlarr isn't up yet...
+        RestartSec = "1s"; # But not too fast.
         ExecStart = let
           mkAppConfig = name:
             recursiveUpdate
