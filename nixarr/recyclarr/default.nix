@@ -17,7 +17,7 @@ with lib; let
       (builtins.map (
           # this is yq for "for all the scalers, if they match this regex, do a regex substitution and set the tag"
           x: ''
-            with((.. | select(kind == "scalar") | select(test("^!${x} .*"))); . = sub("!${x} ", "") | . tag="!${x}")
+            with((.. | select(kind == "scalar") | select(tag == "!!str") | select(test("^!${x} .*"))); . = sub("!${x} ", "") | . tag="!${x}")
           ''
         )
         preserved-tags);
@@ -44,7 +44,7 @@ with lib; let
         pkgs.lib.types.bool
         pkgs.lib.types.int
         pkgs.lib.types.float
-        pkgs.lib.types.float
+        pkgs.lib.types.str
         (pkgs.lib.types.attrsOf valueType)
         (pkgs.lib.types.listOf valueType)
       ];
