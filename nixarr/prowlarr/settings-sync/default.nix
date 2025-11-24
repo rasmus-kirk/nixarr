@@ -198,9 +198,8 @@
     "sonarr"
     "radarr"
     "lidarr"
-    # These are blocked on https://github.com/rasmus-kirk/nixarr/pull/98
-    # "readarr"
-    # "readarr-audiobook"
+    "readarr"
+    "readarr-audiobook"
   ];
 
   syncServiceNames =
@@ -233,12 +232,11 @@ in {
         sonarr = mkAppOptions {service = "sonarr";};
         radarr = mkAppOptions {service = "radarr";};
         lidarr = mkAppOptions {service = "lidarr";};
-        # These are blocked on https://github.com/rasmus-kirk/nixarr/pull/98
-        # readarr = mkAppOptions {service = "readarr";};
-        # readarr-audiobook = mkAppOptions {
-        #  service = "readarr-audiobook";
-        #  implementationName = "Readarr";
-        # };
+        readarr = mkAppOptions {service = "readarr";};
+        readarr-audiobook = mkAppOptions {
+          service = "readarr-audiobook";
+          implementation = "Readarr";
+        };
       };
 
       tags = mkOption {
