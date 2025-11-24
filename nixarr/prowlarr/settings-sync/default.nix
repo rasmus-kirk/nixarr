@@ -292,6 +292,7 @@ in {
         Group = "prowlarr";
         Restart = "on-failure"; # Retry in case Prowlarr isn't up yet...
         RestartSec = "1s"; # But not too fast.
+        RestartMode = "direct"; # Don't notify about transient failures.
         ExecStart = let
           mkAppConfig = name:
             recursiveUpdate
