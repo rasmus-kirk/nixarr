@@ -17,7 +17,7 @@
 
   mkArrLocalUrl = service: let
     server = config.services.${service}.settings.server;
-  in "http://127.0.0.1:${toString server.port}${server.urlBase}";
+  in "http://127.0.0.1:${toString server.port}${server.urlBase or ""}";
 
   # Turns `readarr` into `Readarr` and `readarr-audiobook` into
   # `Readarr-Audiobook`.
