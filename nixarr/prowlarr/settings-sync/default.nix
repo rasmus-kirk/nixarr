@@ -137,6 +137,24 @@
     };
   };
 
+  mkAppAssertion = service: {
+    assertion = cfg.apps.${service}.enable -> config.services.${service}.settings.auth.required == "DisabledForLocalAddresses";
+    message = ''
+      nixarr.prowlarr.settings-sync.apps.${service}.enable requires
+      config.services.${service}.settings.auth.required to be set to
+      "DisabledForLocalAddresses", but it is not set to that value.
+    '';
+  };
+
+  prowlarrAssertion = {
+    assertion = (cfg.indexers != [] || cfg.tags != [] || syncServiceNames != []) -> config.services.prowlarr.settings.auth.required == "DisabledForLocalAddresses";
+    message = ''
+      When Prowlarr is configured to sync indexers, tags, or apps, we
+      require config.services.prowlarr.settings.auth.required to be set
+      to "DisabledForLocalAddresses", but it is not set to that value.
+    '';
+  };
+
   indexerConfigType = types.submodule {
     freeformType = arrCfgType;
     options = {
@@ -278,6 +296,8 @@ in {
     users.users.prowlarr.extraGroups = extraGroups;
 
     environment.systemPackages = [show-schemas];
+
+    assertions = [prowlarrAssertion] ++ (map mkAppAssertion syncServiceNames);
 
     systemd.services.prowlarr-sync-config = {
       description = ''
