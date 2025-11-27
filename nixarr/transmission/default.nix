@@ -29,6 +29,11 @@ with lib; let
       runtimeInputs = with pkgs; [yq];
 
       text = ''
+        while [ ! -f "${nixarr.prowlarr.stateDir}/config.xml" ]; do
+          echo "Waiting for prowlarr to start..."
+          sleep 1
+        done
+
         touch ${cfg.stateDir}/prowlarr-api-key
         chmod 400 ${cfg.stateDir}/prowlarr-api-key
         chown ${globals.transmission.user} ${cfg.stateDir}/prowlarr-api-key
@@ -49,6 +54,12 @@ with lib; let
         + ''
           TMP_JSON=$(mktemp)
           CRED_FILE="/run/secrets/cross-seed/credentialsFile.json"
+
+          while [ ! -f "${nixarr.prowlarr.stateDir}/config.xml" ]; do
+            echo "Waiting for prowlarr to start..."
+            sleep 1
+          done
+
           PROWLARR_API_KEY=$(xq -r '.Config.ApiKey' "${nixarr.prowlarr.stateDir}/config.xml")
           # shellcheck disable=SC2034
           CRED_DIR=$(dirname "$CRED_FILE")
