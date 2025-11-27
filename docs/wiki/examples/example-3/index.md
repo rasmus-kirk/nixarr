@@ -65,9 +65,9 @@ This example does the following:
             };
           }
           {
-            sort_name = "1337x";
+            sort_name = "example";
             fields = {
-              baseUrl = "https://1337x.to";
+              baseUrl = "https://example.org";
             };
           }
         ];
