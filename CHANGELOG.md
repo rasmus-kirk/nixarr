@@ -14,6 +14,12 @@ Added:
   [devopsarr](https://github.com/devopsarr) clients configured to connect to
   Nixarr services.
 
+## 2025-11-15
+
+Changed:
+- Firewall is now enabled per default for all services, unless explicitly
+  set otherwise. Except for the Transmission peer-port for which the firewall
+  is disabled if the port is set.
 
 ## 2025-10-29
 

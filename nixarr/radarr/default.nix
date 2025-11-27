@@ -49,8 +49,7 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.radarr.vpn.enable'';
-      default = !cfg.vpn.enable;
+      default = false;
       example = true;
       description = "Open firewall for Radarr";
     };
