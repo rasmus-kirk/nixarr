@@ -1,5 +1,19 @@
 # Changelog
 
+## Unreleased
+
+Added:
+- Prowlarr:
+  - Options for syncing configuration from Nixarr to `prowlarr` (e.g. specifying
+    indexers in Nixarr and having them automatically added to Prowlarr).
+    Supports syncing *arr service configs, indexers, and tags.
+  - Utility command `nixarr-show-prowlarr-schemas` to show what schemas are
+    supported/expected by Prowlarr for syncing. See `prowlarr` config docs for
+    how to use these schemas when writing your Nixarr config.
+- Python library `lib/nixarr-py`: helpers for making
+  [devopsarr](https://github.com/devopsarr) clients configured to connect to
+  Nixarr services.
+
 ## 2025-11-15
 
 Changed:
