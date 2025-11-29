@@ -125,10 +125,10 @@ with JSON, and can therefore be configured with nix. The most basic settings are
 Instead of manually configuring Prowlarr, you can use the `nixarr.prowlarr.settings-sync` options to declaratively manage your configuration.
 
 **Sync Applications**:
-Automatically sync your enabled Arr applications (Sonarr, Radarr, Lidarr) to Prowlarr:
+Automatically sync your enabled Arr applications (Sonarr, Radarr, Lidarr, Readar, Readarr-Audiobook) to Prowlarr:
 
 ```nix
-nixarr.prowlarr.settings-sync.apps.enable = true;
+nixarr.prowlarr.settings-sync.enable-nixarr-apps = true;
 ```
 
 **Configure Indexers**:
