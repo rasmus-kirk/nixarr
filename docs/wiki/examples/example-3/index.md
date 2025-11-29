@@ -66,6 +66,7 @@ This example does the following:
           }
           {
             sort_name = "example";
+            tag_labels = [ "iso" ];
             fields = {
               baseUrl = "https://example.org";
             };
