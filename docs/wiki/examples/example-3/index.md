@@ -50,8 +50,8 @@ This example does the following:
       
       # Declarative Settings Sync
       settings-sync = {
-        # Automatically sync enabled apps (Sonarr, Radarr, Lidarr)
-        apps.enable = true;
+        # Automatically sync enabled apps (Sonarr, Radarr, Lidarr, Readarr, Readarr-Audiobook)
+        enable-nixarr-apps = true;
 
         # Define tags
         tags = [ "iso" "remux" "web-dl" ];
