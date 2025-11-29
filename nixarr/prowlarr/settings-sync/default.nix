@@ -70,7 +70,7 @@
           overwriting an existing application.
         '';
       };
-      tag_labels = mkOption {
+      tags = mkOption {
         type = with types; listOf str;
         default = [];
         description = ''
@@ -152,7 +152,7 @@
       '';
       example = {
         name = "My special service name";
-        tag_labels = ["tag1" "tag2"];
+        tags = ["tag1" "tag2"];
         fields = {
           syncCategories = [2030];
         };
@@ -212,7 +212,7 @@
           indexer configuration.
         '';
       };
-      tag_labels = mkOption {
+      tags = mkOption {
         type = with types; listOf str;
         default = [];
         description = ''
@@ -313,7 +313,7 @@ in {
           {
             name = "My special indexer name";
             sort_name = "nzbgeek";
-            tag_labels = ["tag1" "tag2"];
+            tags = ["tag1" "tag2"];
             priority = 30;
             fields = {
               apiKey.secret = "/path/to/secret/file";
