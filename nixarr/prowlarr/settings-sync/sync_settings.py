@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 class App(pydantic.BaseModel):
     name: str
     implementation: str
-    tag_labels: list[str] = []
+    tags: list[str] = []
     fields: dict[str, Any] = {}
 
     model_config = pydantic.ConfigDict(extra="allow")
@@ -28,7 +28,7 @@ class Indexer(pydantic.BaseModel):
     sort_name: str
     name: Optional[str] = None
     app_profile_name: str = "Default"
-    tag_labels: list[str] = []
+    tags: list[str] = []
     fields: dict[str, Any] = {}
 
     model_config = pydantic.ConfigDict(extra="allow")
@@ -76,8 +76,8 @@ def sync_apps(app_configs: list[App], api_client: prowlarr.ApiClient) -> None:
         else:
             insert_or_update = "insert"
             app = schemas_by_implementation[user_cfg.implementation]
-        user_dict = user_cfg.model_dump(exclude={"tag_labels"})
-        user_dict["tags"] = [tags_by_label[label].id for label in user_cfg.tag_labels]
+        user_dict = user_cfg.model_dump(exclude={"tags"})
+        user_dict["tags"] = [tags_by_label[label].id for label in user_cfg.tags]
         arr_dict = app.model_dump()
         apply_config(user_src=user_dict, arr_dst=arr_dict)
         app = prowlarr.ApplicationResource.model_validate(arr_dict)
@@ -115,8 +115,8 @@ def sync_indexers(
         else:
             insert_or_update = "insert"
             indexer = schemas_by_sort_name[user_cfg.sort_name]
-        user_dict = user_cfg.model_dump(exclude={"tag_labels", "app_profile_name"})
-        user_dict["tags"] = [tags_by_label[label].id for label in user_cfg.tag_labels]
+        user_dict = user_cfg.model_dump(exclude={"tags", "app_profile_name"})
+        user_dict["tags"] = [tags_by_label[label].id for label in user_cfg.tags]
         user_dict["app_profile_id"] = app_profiles_by_name[user_cfg.app_profile_name]
         arr_dict = indexer.model_dump()
         apply_config(user_src=user_dict, arr_dst=arr_dict)
