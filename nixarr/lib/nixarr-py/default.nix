@@ -48,7 +48,7 @@
               ...     api_info = api_info_client.get_api()
           """
           with open(
-            "${config.nixarr.stateDir}/api-keys/${service}.key",
+            "${config.nixarr.stateDir}/secrets/${service}.api-key",
             "r", encoding="utf-8"
           ) as f:
               api_key = f.read().strip()

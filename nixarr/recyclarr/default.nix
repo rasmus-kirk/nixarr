@@ -242,11 +242,11 @@ in {
           echo -n > '${cfg.stateDir}/env'
           ${optionalString nixarr.radarr.enable ''
             printf RADARR_API_KEY= >> '${cfg.stateDir}/env'
-            cat '${nixarr.stateDir}/api-keys/radarr.key' >> '${cfg.stateDir}/env'
+            cat '${nixarr.stateDir}/secrets/radarr.api-key' >> '${cfg.stateDir}/env'
           ''}
           ${optionalString nixarr.sonarr.enable ''
             printf SONARR_API_KEY= >> '${cfg.stateDir}/env'
-            cat '${nixarr.stateDir}/api-keys/sonarr.key' >> '${cfg.stateDir}/env'
+            cat '${nixarr.stateDir}/secrets/sonarr.api-key' >> '${cfg.stateDir}/env'
           ''}
         '';
       };

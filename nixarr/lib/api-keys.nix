@@ -79,7 +79,7 @@ with lib; let
       ];
 
       ExecStart = pkgs.writeShellScript "extract-${serviceName}-api-key" ''
-        ${printServiceApiKey.${serviceName}} > '${cfg.stateDir}/api-keys/${serviceName}.key'
+        ${printServiceApiKey.${serviceName}} > '${cfg.stateDir}/secrets/${serviceName}.api-key'
       '';
     };
   };
@@ -103,7 +103,7 @@ in {
     systemd.tmpfiles.rules = [
       # Needs to be world-executable for members of the `*-api` groups to access
       # the files inside.
-      "d ${cfg.stateDir}/api-keys 0701 root root - -"
+      "d ${cfg.stateDir}/secrets 0701 root root - -"
     ];
   };
 }
