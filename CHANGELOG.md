@@ -5,7 +5,6 @@
 Added:
 - `whisparr` service
 - `komgarr` service
-- `stash` service
 
 Fixed:
 - Cross-seed now uses `transmission` user.

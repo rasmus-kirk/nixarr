@@ -94,19 +94,14 @@ in {
       "d '${nixarr.mediaDir}/library/books' 0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
-    systemd.services.readarr = {
-      description = "Readarr";
-      after = ["network.target"];
-      wantedBy = ["multi-user.target"];
-      environment.READARR__SERVER__PORT = builtins.toString cfg.port;
-
-      serviceConfig = {
-        Type = "simple";
-        User = globals.readarr.user;
-        Group = globals.readarr.group;
-        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
-        Restart = "on-failure";
-      };
+    services.readarr = {
+      enable = cfg.enable;
+      package = cfg.package;
+      settings.server.port = cfg.port;
+      openFirewall = cfg.openFirewall;
+      dataDir = cfg.stateDir;
+      user = globals.readarr.user;
+      group = globals.readarr.group;
     };
 
     networking.firewall = mkIf cfg.openFirewall {
