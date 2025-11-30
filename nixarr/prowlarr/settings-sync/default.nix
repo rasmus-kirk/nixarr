@@ -231,7 +231,7 @@ in {
         readarr = mkAppOptions {service = "readarr";};
         readarr-audiobook = mkAppOptions {
           service = "readarr-audiobook";
-          implementationName = "Readarr";
+          implementation = "Readarr";
         };
       };
 

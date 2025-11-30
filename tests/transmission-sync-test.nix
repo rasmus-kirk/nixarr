@@ -42,9 +42,8 @@ pkgs.nixosTest {
     machine.succeed("systemctl is-active sonarr")
     machine.succeed("systemctl is-active radarr")
 
-    # They might be 'inactive' (dead) but the result should be 'success'
-    # We can't wait_for_unit("...service") because it might finish before we arrive at this line, thus waiting forever
-    # We use wait_until_succeeds() instead ensuring we dont block forever if its done
+    # These are oneshot services that may complete before we check them
+    # Use wait_until_succeeds to handle both running and already-completed states
 
     machine.wait_until_succeeds("systemctl is-active sonarr-sync-config.service || systemctl status sonarr-sync-config.service | grep 'Active: inactive (dead)'")
     machine.succeed("systemctl status sonarr-sync-config.service | grep 'Result: success'")
