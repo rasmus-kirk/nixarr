@@ -403,7 +403,10 @@ in {
           blocklist-url = "https://github.com/Naunter/BT_BlockLists/raw/master/bt_blocklists.gz";
 
           # 51413 is the default port, but if it's not explicitly set, we block the port
-          peer-port = if cfg.peerPort != null then cfg.peerPort else 51413;
+          peer-port =
+            if cfg.peerPort != null
+            then cfg.peerPort
+            else 51413;
           dht-enabled = !cfg.privateTrackers.disableDhtPex;
           pex-enabled = !cfg.privateTrackers.disableDhtPex;
           utp-enabled = false;

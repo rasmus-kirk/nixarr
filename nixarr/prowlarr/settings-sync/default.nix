@@ -126,7 +126,7 @@
             fields = {
               prowlarrUrl = mkDefault (mkArrLocalUrl "prowlarr");
               baseUrl = mkDefault (mkArrLocalUrl service);
-              apiKey.secret = mkDefault "${nixarr.stateDir}/api-keys/${service}.key";
+              apiKey.secret = mkDefault "${nixarr.stateDir}/secrets/${service}.api-key";
             };
           };
         }
@@ -139,7 +139,7 @@
           fields = {
             prowlarrUrl = "http://127.0.0.1:<prowlarr port>/<prowlarr base-url>";
             baseUrl = "http://127.0.0.1:<${service} port>/<${service} base-url>";
-            apiKey.secret = "''${nixarr.stateDir}/api-keys/${service}.key";
+            apiKey.secret = "''${nixarr.stateDir}/secrets/${service}.api-key";
           };
         }
       '';
