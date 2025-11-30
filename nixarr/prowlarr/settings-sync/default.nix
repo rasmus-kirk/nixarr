@@ -198,9 +198,8 @@
     "sonarr"
     "radarr"
     "lidarr"
-    # These are blocked on https://github.com/rasmus-kirk/nixarr/pull/98
-    # "readarr"
-    # "readarr-audiobook"
+    "readarr"
+    "readarr-audiobook"
   ];
 
   syncServiceNames =
@@ -216,10 +215,6 @@
 in {
   options = {
     nixarr.prowlarr.settings-sync = {
-      # TODO: add sync interval?
-      # TODO: allow configuring whether to overwrite existing items?
-      # TODO: allow *deleting* items not in the config?
-
       apps = {
         enable = mkOption {
           type = types.bool;
@@ -233,12 +228,11 @@ in {
         sonarr = mkAppOptions {service = "sonarr";};
         radarr = mkAppOptions {service = "radarr";};
         lidarr = mkAppOptions {service = "lidarr";};
-        # These are blocked on https://github.com/rasmus-kirk/nixarr/pull/98
-        # readarr = mkAppOptions {service = "readarr";};
-        # readarr-audiobook = mkAppOptions {
-        #  service = "readarr-audiobook";
-        #  implementationName = "Readarr";
-        # };
+        readarr = mkAppOptions {service = "readarr";};
+        readarr-audiobook = mkAppOptions {
+          service = "readarr-audiobook";
+          implementationName = "Readarr";
+        };
       };
 
       tags = mkOption {

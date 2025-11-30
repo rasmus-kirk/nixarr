@@ -64,12 +64,11 @@
       {service = "prowlarr";}
       {service = "radarr";}
       {service = "sonarr";}
-      # These are blocked on https://github.com/rasmus-kirk/nixarr/pull/98
-      # {service = "readarr";}
-      # {
-      #   service = "readarr-audiobook";
-      #   app = "readarr";
-      # }
+      {service = "readarr";}
+      {
+        service = "readarr-audiobook";
+        app = "readarr";
+      }
     ];
     text = pipe args [
       (map mkClientPySrc)
