@@ -163,7 +163,10 @@
   nixarrAppConfigs = map (name: cfg.${name}.config) syncServiceNames;
 
   mkNixarrAppAssertion = service: {
-    assertion = cfg.${service}.enable -> config.services.${service}.settings.auth.required == "DisabledForLocalAddresses";
+    assertion =
+      cfg.${service}.enable
+      -> (config ? services.${service}.settings.auth.required)
+      && config.services.${service}.settings.auth.required == "DisabledForLocalAddresses";
     message = ''
       nixarr.prowlarr.settings-sync.apps.${service}.enable requires
       config.services.${service}.settings.auth.required to be set to
@@ -172,7 +175,13 @@
   };
 
   prowlarrAssertion = {
-    assertion = (cfg.indexers != [] || cfg.tags != [] || cfg.apps != [] || nixarrAppConfigs != []) -> config.services.prowlarr.settings.auth.required == "DisabledForLocalAddresses";
+    assertion =
+      (cfg.indexers != [])
+      || cfg.tags != []
+      || cfg.apps != []
+      || nixarrAppConfigs != []
+      -> (config ? services.prowlarr.settings.auth.required)
+      && config.services.prowlarr.settings.auth.required == "DisabledForLocalAddresses";
     message = ''
       When Prowlarr is configured to sync indexers, tags, or apps, we
       require config.services.prowlarr.settings.auth.required to be set
