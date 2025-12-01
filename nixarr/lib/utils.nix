@@ -16,8 +16,9 @@
     ;
 
   mkArrLocalUrl = service: let
-    server = config.services.${service}.settings.server;
-  in "http://127.0.0.1:${toString server.port}${server.urlBase or ""}";
+    port = config.nixarr.${service}.port;
+    urlBase = config.services.${service}.settings.server.urlBase or "";
+  in "http://127.0.0.1:${toString port}${urlBase}";
 
   # Turns `readarr` into `Readarr` and `readarr-audiobook` into
   # `Readarr-Audiobook`.
