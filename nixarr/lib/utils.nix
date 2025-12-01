@@ -16,10 +16,7 @@
     ;
 
   mkArrLocalUrl = service: let
-    server =
-      if (config ? services && config.services ? ${service})
-      then config.services.${service}.settings.server
-      else {port = 0;};
+    server = config.services.${service}.settings.server;
   in "http://127.0.0.1:${toString server.port}${server.urlBase or ""}";
 
   # Turns `readarr` into `Readarr` and `readarr-audiobook` into
@@ -47,11 +44,16 @@
   };
 
   arrCfgType = with types; attrsOf (oneOf [str bool int secretFileType (listOf int) (listOf str)]);
+
+  # Use submodule merge semantics for the fields attribute of *arr config
+  # options. This lets us provide partial defaults.
+  arrFieldsType = types.submodule {freeformType = arrCfgType;};
 in {
   inherit
-    mkArrLocalUrl
-    toKebabSentenceCase
-    secretFileType
     arrCfgType
+    arrFieldsType
+    mkArrLocalUrl
+    secretFileType
+    toKebabSentenceCase
     ;
 }

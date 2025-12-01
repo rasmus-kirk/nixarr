@@ -25,38 +25,47 @@
     app ? service,
   }: let
     service-Kebab = toKebabSentenceCase service;
-    service_pascal = replaceString "-" "_" service;
-  in ''
-    import ${app}
+    service_snake = replaceString "-" "_" service;
+    enabled = config.nixarr.${service}.enable;
+  in
+    if enabled
+    then ''
+      import ${app}
 
-    def ${service_pascal}_client() -> ${app}.ApiClient:
-        """Create a ${service-Kebab} API client configured for use with Nixarr.
+      def ${service_snake}_client() -> ${app}.ApiClient:
+          """Create a ${service-Kebab} API client configured for use with Nixarr.
 
-        Returns:
-            ${app}.ApiClient: API client instance configured to connect to
-            the local Nixarr ${service-Kebab} service.
+          Returns:
+              ${app}.ApiClient: API client instance configured to connect to
+              the local Nixarr ${service-Kebab} service.
 
-        Example:
-            >>> import ${app}
-            >>> from nixarr.clients import ${service_pascal}_client
-            >>>
-            >>> with ${service_pascal}_client() as client:
-            ...     api_info_client = ${app}.ApiInfoApi(client)
-            ...     api_info = api_info_client.get_api()
-        """
-        with open(
-          "${config.nixarr.stateDir}/api-keys/${service}.key",
-          "r", encoding="utf-8"
-        ) as f:
-            api_key = f.read().strip()
+          Example:
+              >>> import ${app}
+              >>> from nixarr.clients import ${service_snake}_client
+              >>>
+              >>> with ${service_snake}_client() as client:
+              ...     api_info_client = ${app}.ApiInfoApi(client)
+              ...     api_info = api_info_client.get_api()
+          """
+          with open(
+            "${config.nixarr.stateDir}/secrets/${service}.api-key",
+            "r", encoding="utf-8"
+          ) as f:
+              api_key = f.read().strip()
 
-        configuration = ${app}.Configuration(
-            host="${mkArrLocalUrl service}",
-            api_key={"X-Api-Key": api_key},
-        )
+          configuration = ${app}.Configuration(
+              host="${mkArrLocalUrl service}",
+              api_key={"X-Api-Key": api_key},
+          )
 
-        return ${app}.ApiClient(configuration)
-  '';
+          return ${app}.ApiClient(configuration)
+    ''
+    else ''
+      import ${app}
+
+      def ${service_snake}_client() -> ${app}.ApiClient:
+          throw RuntimeError("Nixarr service ${service} is not enabled")
+    '';
 
   clientsPySrc = let
     args = [
