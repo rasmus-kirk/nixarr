@@ -103,13 +103,19 @@ in {
         default = false;
         description = ''
           Automatically configure Transmission as a download client in Radarr.
-          Requires `nixarr.transmission.enable` to be true.
         '';
       };
     };
   };
 
   config = mkIf (nixarr.enable && nixarr.radarr.enable) {
+    assertions = [
+      {
+        assertion = !cfg.transmission.enable || nixarr.transmission.enable;
+        message = "nixarr.radarr.settings-sync.transmission.enable requires nixarr.transmission.enable to be true";
+      }
+    ];
+
     # Add Transmission config if enabled
     nixarr.radarr.settings-sync.downloadClients = mkIf cfg.transmission.enable [
       {

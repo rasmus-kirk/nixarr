@@ -103,13 +103,19 @@ in {
         default = false;
         description = ''
           Automatically configure Transmission as a download client in Sonarr.
-          Requires `nixarr.transmission.enable` to be true.
         '';
       };
     };
   };
 
   config = mkIf (nixarr.enable && nixarr.sonarr.enable) {
+    assertions = [
+      {
+        assertion = !cfg.transmission.enable || nixarr.transmission.enable;
+        message = "nixarr.sonarr.settings-sync.transmission.enable requires nixarr.transmission.enable to be true";
+      }
+    ];
+
     # Add Transmission config if enabled
     nixarr.sonarr.settings-sync.downloadClients = mkIf cfg.transmission.enable [
       {
