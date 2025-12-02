@@ -47,7 +47,7 @@ This example does the following:
 
     prowlarr = {
       enable = true;
-      
+
       # Declarative Settings Sync
       settings-sync = {
         # Automatically sync enabled apps (Sonarr, Radarr, Lidarr, Readarr, Readarr-Audiobook)
@@ -66,7 +66,7 @@ This example does the following:
           }
           {
             sort_name = "example";
-            tag_labels = [ "iso" ];
+            tags = [ "iso" ];
             fields = {
               baseUrl = "https://example.org";
             };
