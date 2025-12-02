@@ -50,6 +50,9 @@
       # vpn-confinement-test = pkgs.callPackage ./tests/vpn-confinement-test.nix {
       #   inherit (self) nixosModules;
       # };
+      prowlarr-sync-test = pkgs.callPackage ./tests/prowlarr-sync-test.nix {
+        inherit (self) nixosModules;
+      };
     });
 
     devShells = forAllSystems ({pkgs}: {
