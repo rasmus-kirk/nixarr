@@ -9,6 +9,12 @@ with lib; let
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   port = 9696;
+
+  nixarr-utils = import ../lib/utils.nix {inherit config lib pkgs;};
+  inherit
+    (nixarr-utils)
+    waitForArrService
+    ;
 in {
   imports = [./settings-sync];
 
@@ -99,6 +105,10 @@ in {
       Group = globals.prowlarr.group;
       ExecStart = mkForce "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
       ReadWritePaths = [cfg.stateDir];
+
+      # Don't consider Prowlarr "started" until we can successfully connect to
+      # it (helpful for ordering with other services).
+      ExecStartPost = waitForArrService {service = "prowlarr";};
     };
 
     networking.firewall = mkIf cfg.openFirewall {

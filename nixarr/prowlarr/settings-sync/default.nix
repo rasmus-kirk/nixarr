@@ -25,7 +25,7 @@
   nixarr = config.nixarr;
   cfg = nixarr.prowlarr.settings-sync;
 
-  nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
+  nixarr-utils = import ../../lib/utils.nix {inherit config lib pkgs;};
   inherit
     (nixarr-utils)
     arrCfgType
@@ -34,7 +34,7 @@
     toKebabSentenceCase
     ;
 
-  nixarr-py = import ../../lib/nixarr-py {inherit pkgs lib config;};
+  nixarr-py = import ../../lib/nixarr-py {inherit config lib pkgs;};
 
   show-schemas = writePython3Bin "nixarr-show-prowlarr-schemas" {
     libraries = [nixarr-py];
@@ -163,7 +163,10 @@
   nixarrAppConfigs = map (name: cfg.${name}.config) syncServiceNames;
 
   mkNixarrAppAssertion = service: {
-    assertion = cfg.${service}.enable -> config.services.${service}.settings.auth.required == "DisabledForLocalAddresses";
+    assertion =
+      cfg.${service}.enable
+      -> (config ? services.${service}.settings.auth.required)
+      && config.services.${service}.settings.auth.required == "DisabledForLocalAddresses";
     message = ''
       nixarr.prowlarr.settings-sync.apps.${service}.enable requires
       config.services.${service}.settings.auth.required to be set to
@@ -172,7 +175,13 @@
   };
 
   prowlarrAssertion = {
-    assertion = (cfg.indexers != [] || cfg.tags != [] || cfg.apps != [] || nixarrAppConfigs != []) -> config.services.prowlarr.settings.auth.required == "DisabledForLocalAddresses";
+    assertion =
+      (cfg.indexers != [])
+      || cfg.tags != []
+      || cfg.apps != []
+      || nixarrAppConfigs != []
+      -> (config ? services.prowlarr.settings.auth.required)
+      && config.services.prowlarr.settings.auth.required == "DisabledForLocalAddresses";
     message = ''
       When Prowlarr is configured to sync indexers, tags, or apps, we
       require config.services.prowlarr.settings.auth.required to be set
@@ -342,9 +351,7 @@ in {
         Type = "oneshot";
         User = "prowlarr";
         Group = "prowlarr";
-        Restart = "on-failure"; # Retry in case Prowlarr isn't up yet...
-        RestartSec = "1s"; # But not too fast.
-        RestartMode = "direct"; # Don't notify about transient failures.
+        RemainAfterExit = true;
         ExecStart = let
           config-file = writeJSON "prowlarr-sync-config.json" {
             tag_labels = cfg.tags;

@@ -9,6 +9,12 @@ with lib; let
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   port = 8787;
+
+  nixarr-utils = import ../lib/utils.nix {inherit config lib pkgs;};
+  inherit
+    (nixarr-utils)
+    waitForArrService
+    ;
 in {
   options.nixarr.readarr = {
     enable = mkOption {
@@ -112,6 +118,10 @@ in {
       enable = true;
       vpnNamespace = "wg";
     };
+
+    # Don't consider Readarr "started" until we can successfully connect to it
+    # (helpful for ordering with other services).
+    systemd.services.readarr.serviceConfig.ExecStartPost = waitForArrService {service = "readarr";};
 
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [

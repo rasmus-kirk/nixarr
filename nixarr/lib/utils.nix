@@ -1,23 +1,31 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   inherit
     (lib)
-    types
+    concatMapStringsSep
+    filter
+    getExe
+    isString
     mkOption
     pipe
     split
-    filter
-    isString
-    concatMapStringsSep
     toSentenceCase
+    types
+    ;
+
+  inherit
+    (pkgs)
+    writeShellApplication
     ;
 
   mkArrLocalUrl = service: let
-    server = config.services.${service}.settings.server;
-  in "http://127.0.0.1:${toString server.port}${server.urlBase or ""}";
+    port = config.nixarr.${service}.port;
+    urlBase = config.services.${service}.settings.server.urlBase or "";
+  in "http://127.0.0.1:${toString port}${urlBase}";
 
   # Turns `readarr` into `Readarr` and `readarr-audiobook` into
   # `Readarr-Audiobook`.
@@ -48,6 +56,30 @@
   # Use submodule merge semantics for the fields attribute of *arr config
   # options. This lets us provide partial defaults.
   arrFieldsType = types.submodule {freeformType = arrCfgType;};
+
+  waitForArrService = {
+    service,
+    max-secs-per-attempt ? 5,
+    secs-between-attempts ? 5,
+  }: let
+    url = mkArrLocalUrl service;
+  in
+    getExe (writeShellApplication {
+      name = "wait-for-${service}";
+      runtimeInputs = [pkgs.curl];
+      text = ''
+        while ! curl \
+            --silent \
+            --fail \
+            --max-time ${toString max-secs-per-attempt} \
+            --output /dev/null \
+            '${url}'; do
+          echo "Waiting for ${service} at '${url}'..."
+          sleep ${toString secs-between-attempts}
+        done
+        echo "${service} is available at '${url}'"
+      '';
+    });
 in {
   inherit
     arrCfgType
@@ -55,5 +87,6 @@ in {
     mkArrLocalUrl
     secretFileType
     toKebabSentenceCase
+    waitForArrService
     ;
 }
