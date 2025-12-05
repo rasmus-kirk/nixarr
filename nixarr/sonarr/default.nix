@@ -9,6 +9,12 @@ with lib; let
   globals = config.util-nixarr.globals;
   defaultPort = 8989;
   nixarr = config.nixarr;
+
+  nixarr-utils = import ../lib/utils.nix {inherit config lib pkgs;};
+  inherit
+    (nixarr-utils)
+    waitForArrService
+    ;
 in {
   options.nixarr.sonarr = {
     enable = mkOption {
@@ -106,6 +112,10 @@ in {
       enable = true;
       vpnNamespace = "wg";
     };
+
+    # Don't consider Sonarr "started" until we can successfully connect to it
+    # (helpful for ordering with other services).
+    systemd.services.sonarr.serviceConfig.ExecStartPost = waitForArrService {service = "sonarr";};
 
     # Port mappings
     vpnNamespaces.wg = mkIf cfg.vpn.enable {

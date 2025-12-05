@@ -12,6 +12,12 @@ with lib; let
   port = 9494;
 
   arr-settings-options = import ../lib/arr-settings-options.nix {inherit lib pkgs;};
+
+  nixarr-utils = import ../lib/utils.nix {inherit config lib pkgs;};
+  inherit
+    (nixarr-utils)
+    waitForArrService
+    ;
 in {
   options.nixarr.readarr-audiobook = {
     enable = mkOption {
@@ -163,6 +169,10 @@ in {
         EnvironmentFile = service-cfg.environmentFiles;
         ExecStart = "${lib.getExe service-cfg.package} -nobrowser -data=${service-cfg.dataDir}";
         Restart = "on-failure";
+
+        # Don't consider Readarr Audiobook "started" until we can successfully
+        # connect to it (helpful for ordering with other services).
+        ExecStartPost = waitForArrService {service = "readarr-audiobook";};
       };
     };
 

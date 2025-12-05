@@ -9,6 +9,12 @@ with lib; let
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   port = 8686;
+
+  nixarr-utils = import ../lib/utils.nix {inherit config lib pkgs;};
+  inherit
+    (nixarr-utils)
+    waitForArrService
+    ;
 in {
   options.nixarr.lidarr = {
     enable = mkOption {
@@ -106,6 +112,10 @@ in {
       enable = true;
       vpnNamespace = "wg";
     };
+
+    # Don't consider Lidarr "started" until we can successfully connect to it
+    # (helpful for ordering with other services).
+    systemd.services.lidarr.serviceConfig.ExecStartPost = waitForArrService {service = "lidarr";};
 
     # Port mappings
     # TODO: openports
