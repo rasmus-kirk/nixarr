@@ -53,11 +53,8 @@ pkgs.testers.runNixOSTest {
     machine.succeed("systemctl is-active sonarr")
     machine.succeed("systemctl is-active radarr")
 
-    # These are oneshot services that may complete before we check them
-    # Use wait_until_succeeds to handle both running and already-completed states
-
-    machine.wait_until_succeeds("systemctl is-active prowlarr-sync-config.service || systemctl status prowlarr-sync-config.service | grep 'Active: inactive (dead)'")
-    machine.succeed("systemctl status prowlarr-sync-config.service | grep 'Result: success'")
+    # Once the services are running, the sync service shouldn't take long
+    machine.wait_for_unit("prowlarr-sync-config.service", timeout=60)
 
     print("\n=== Prowlarr Sync Test Completed ===")
   '';

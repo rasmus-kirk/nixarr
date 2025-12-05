@@ -25,7 +25,7 @@
   nixarr = config.nixarr;
   cfg = nixarr.prowlarr.settings-sync;
 
-  nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
+  nixarr-utils = import ../../lib/utils.nix {inherit config lib pkgs;};
   inherit
     (nixarr-utils)
     arrCfgType
@@ -34,7 +34,7 @@
     toKebabSentenceCase
     ;
 
-  nixarr-py = import ../../lib/nixarr-py {inherit pkgs lib config;};
+  nixarr-py = import ../../lib/nixarr-py {inherit config lib pkgs;};
 
   show-schemas = writePython3Bin "nixarr-show-prowlarr-schemas" {
     libraries = [nixarr-py];
@@ -351,9 +351,7 @@ in {
         Type = "oneshot";
         User = "prowlarr";
         Group = "prowlarr";
-        Restart = "on-failure"; # Retry in case Prowlarr isn't up yet...
-        RestartSec = "1s"; # But not too fast.
-        RestartMode = "direct"; # Don't notify about transient failures.
+        RemainAfterExit = true;
         ExecStart = let
           config-file = writeJSON "prowlarr-sync-config.json" {
             tag_labels = cfg.tags;
