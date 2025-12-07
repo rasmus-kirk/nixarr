@@ -1,18 +1,25 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }: let
   inherit
     (lib)
-    types
+    concatMapStringsSep
+    filter
+    getExe
+    isString
     mkOption
     pipe
     split
-    filter
-    isString
-    concatMapStringsSep
     toSentenceCase
+    types
+    ;
+
+  inherit
+    (pkgs)
+    writeShellApplication
     ;
 
   mkArrLocalUrl = service: let
@@ -49,6 +56,30 @@
   # Use submodule merge semantics for the fields attribute of *arr config
   # options. This lets us provide partial defaults.
   arrFieldsType = types.submodule {freeformType = arrCfgType;};
+
+  waitForArrService = {
+    service,
+    max-secs-per-attempt ? 5,
+    secs-between-attempts ? 5,
+  }: let
+    url = mkArrLocalUrl service;
+  in
+    getExe (writeShellApplication {
+      name = "wait-for-${service}";
+      runtimeInputs = [pkgs.curl];
+      text = ''
+        while ! curl \
+            --silent \
+            --fail \
+            --max-time ${toString max-secs-per-attempt} \
+            --output /dev/null \
+            '${url}'; do
+          echo "Waiting for ${service} at '${url}'..."
+          sleep ${toString secs-between-attempts}
+        done
+        echo "${service} is available at '${url}'"
+      '';
+    });
 in {
   inherit
     arrCfgType
@@ -56,5 +87,6 @@ in {
     mkArrLocalUrl
     secretFileType
     toKebabSentenceCase
+    waitForArrService
     ;
 }
