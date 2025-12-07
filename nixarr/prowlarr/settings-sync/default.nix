@@ -30,6 +30,7 @@
     (nixarr-utils)
     arrCfgType
     arrFieldsType
+    arrServiceNames
     mkArrLocalUrl
     toKebabSentenceCase
     ;
@@ -246,23 +247,18 @@
     };
   };
 
-  arrServiceNames = [
-    "sonarr"
-    "radarr"
-    "lidarr"
-    "readarr"
-    "readarr-audiobook"
-  ];
-
   syncServiceNames =
-    filter (name: nixarr.${name}.enable && cfg.${name}.enable) arrServiceNames;
+    filter
+    (name:
+      name != "prowlarr" && nixarr.${name}.enable && cfg.${name}.enable)
+    arrServiceNames;
 
   extraGroups =
     map (service: config.users.groups."${service}-api".name)
     (syncServiceNames ++ ["prowlarr"]);
 
   wantedServices =
-    map (service: "${service}-api-key.service")
+    map (service: "${service}-api.service")
     (syncServiceNames ++ ["prowlarr"]);
 in {
   options = {
@@ -288,6 +284,7 @@ in {
         service = "readarr-audiobook";
         implementation = "Readarr";
       };
+      whisparr = mkNixarrAppOptions {service = "whisparr";};
 
       apps = mkOption {
         type = with types; listOf appConfigType;

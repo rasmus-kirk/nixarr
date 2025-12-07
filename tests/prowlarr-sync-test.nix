@@ -53,7 +53,12 @@ pkgs.testers.runNixOSTest {
     machine.succeed("systemctl is-active sonarr")
     machine.succeed("systemctl is-active radarr")
 
-    # Once the services are running, the sync service shouldn't take long
+    # Wait for service APIs
+    machine.wait_for_unit("prowlarr-api.service")
+    machine.wait_for_unit("sonarr-api.service")
+    machine.wait_for_unit("radarr-api.service")
+
+    # Once the APIs are up, the sync service shouldn't take long
     machine.wait_for_unit("prowlarr-sync-config.service", timeout=60)
 
     print("\n=== Prowlarr Sync Test Completed ===")

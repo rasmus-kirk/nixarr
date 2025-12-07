@@ -57,13 +57,12 @@
   # options. This lets us provide partial defaults.
   arrFieldsType = types.submodule {freeformType = arrCfgType;};
 
-  waitForArrService = {
+  waitForService = {
     service,
+    url,
     max-secs-per-attempt ? 5,
     secs-between-attempts ? 5,
-  }: let
-    url = mkArrLocalUrl service;
-  in
+  }:
     getExe (writeShellApplication {
       name = "wait-for-${service}";
       runtimeInputs = [pkgs.curl];
@@ -80,13 +79,31 @@
         echo "${service} is available at '${url}'"
       '';
     });
+
+  waitForArrService = args:
+    waitForService (args
+      // {
+        url = args.url or mkArrLocalUrl args.service;
+      });
+
+  arrServiceNames = [
+    "lidarr"
+    "prowlarr"
+    "radarr"
+    "readarr-audiobook"
+    "readarr"
+    "sonarr"
+    "whisparr"
+  ];
 in {
   inherit
     arrCfgType
     arrFieldsType
+    arrServiceNames
     mkArrLocalUrl
     secretFileType
     toKebabSentenceCase
+    waitForService
     waitForArrService
     ;
 }
