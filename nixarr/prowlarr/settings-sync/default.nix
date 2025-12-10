@@ -343,7 +343,7 @@ in {
       '';
       after = wantedServices;
       wants = wantedServices;
-      wantedBy = ["prowlarr.service"];
+      wantedBy = ["prowlarr.service" "multi-user.target"];
       serviceConfig = {
         Type = "oneshot";
         User = "prowlarr";
