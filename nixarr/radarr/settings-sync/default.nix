@@ -139,7 +139,7 @@ in {
       '';
       after = wantedServices;
       wants = wantedServices;
-      wantedBy = ["radarr.service" "multi-user.target"];
+      wantedBy = ["radarr.service"];
       serviceConfig = {
         Type = "oneshot";
         User = globals.radarr.user;

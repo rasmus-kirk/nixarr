@@ -158,7 +158,7 @@ in {
       '';
       after = wantedServices;
       wants = wantedServices;
-      wantedBy = ["sonarr.service" "multi-user.target"];
+      wantedBy = ["sonarr.service"];
       serviceConfig = {
         Type = "oneshot";
         User = globals.sonarr.user;
