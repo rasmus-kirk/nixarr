@@ -226,12 +226,11 @@ in {
       requiredBy = ["recyclarr.service"];
       before = ["recyclarr.service"];
       requires =
-        (optionals nixarr.radarr.enable ["radarr.service" "radarr-api-key.service"])
-        ++ (optionals nixarr.sonarr.enable ["sonarr.service" "sonarr-api-key.service"]);
+        (optional nixarr.radarr.enable "radarr-api.service")
+        ++ (optional nixarr.sonarr.enable "sonarr-api.service");
       after =
-        (optionals nixarr.radarr.enable ["radarr.service" "radarr-api-key.service"])
-        ++ (optionals nixarr.sonarr.enable ["sonarr.service" "sonarr-api-key.service"]);
-
+        (optional nixarr.radarr.enable "radarr-api.service")
+        ++ (optional nixarr.sonarr.enable "sonarr-api.service");
       serviceConfig = {
         Type = "oneshot";
         RemainAfterExit = true;

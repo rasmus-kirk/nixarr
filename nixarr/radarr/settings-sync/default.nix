@@ -10,7 +10,6 @@
     mkOption
     getExe
     mkIf
-    recursiveUpdate
     ;
 
   inherit
@@ -83,7 +82,7 @@
     };
   };
 
-  wantedServices = ["radarr-api-key.service"];
+  wantedServices = ["radarr-api.service"];
 in {
   options = {
     nixarr.radarr.settings-sync = {
@@ -138,15 +137,14 @@ in {
       description = ''
         Sync Radarr configuration (download clients)
       '';
-      after = wantedServices ++ ["radarr.service"];
+      after = wantedServices;
       wants = wantedServices;
-      wantedBy = ["radarr.service" "multi-user.target"];
+      wantedBy = ["radarr.service"];
       serviceConfig = {
         Type = "oneshot";
-        Restart = "on-failure";
-        RestartSec = "10s";
         User = globals.radarr.user;
         Group = globals.radarr.group;
+        RemainAfterExit = true;
         ExecStart = let
           config-file = writeJSON "radarr-sync-config.json" {
             download_clients = cfg.downloadClients;

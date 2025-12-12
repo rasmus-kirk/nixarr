@@ -10,7 +10,6 @@
     mkOption
     getExe
     mkIf
-    recursiveUpdate
     ;
 
   inherit
@@ -83,7 +82,7 @@
     };
   };
 
-  wantedServices = ["sonarr-api-key.service"];
+  wantedServices = ["sonarr-api.service"];
 in {
   options = {
     nixarr.sonarr.settings-sync = {
@@ -157,15 +156,14 @@ in {
       description = ''
         Sync Sonarr configuration (download clients)
       '';
-      after = wantedServices ++ ["sonarr.service"];
+      after = wantedServices;
       wants = wantedServices;
-      wantedBy = ["sonarr.service" "multi-user.target"];
+      wantedBy = ["sonarr.service"];
       serviceConfig = {
         Type = "oneshot";
-        Restart = "on-failure";
-        RestartSec = "10s";
         User = globals.sonarr.user;
         Group = globals.sonarr.group;
+        RemainAfterExit = true;
         ExecStart = let
           config-file = writeJSON "sonarr-sync-config.json" {
             download_clients = cfg.downloadClients;
