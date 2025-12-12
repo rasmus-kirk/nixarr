@@ -8,12 +8,19 @@
 
     website-builder.url = "github:rasmus-kirk/website-builder";
     website-builder.inputs.nixpkgs.follows = "nixpkgs";
+
+    unmanic-nix = {
+      url = "github:psoewish/unmanic-nix";
+      # cant override as it depends on unstable
+      # inputs.nixpkgs.follows = "nixpkgs";
+    };
   };
 
   outputs = {
     nixpkgs,
     vpnconfinement,
     website-builder,
+    unmanic-nix,
     self,
     ...
   } @ inputs: let
@@ -35,7 +42,10 @@
           };
         });
   in {
-    nixosModules.default.imports = [./nixarr vpnconfinement.nixosModules.default];
+    nixosModules.default.imports = [
+      ((import ./nixarr) inputs)
+      vpnconfinement.nixosModules.default
+    ];
 
     # Add tests attribute to the flake outputs
     # To run interactively run:
@@ -106,7 +116,7 @@
           # For iPhone
           "180x180" = "/docs/img/favicons/180x180.png";
         };
-        nixosModules = ./nixarr;
+        nixosModules = (import ./nixarr) inputs;
       };
     in {
       default = website.package;

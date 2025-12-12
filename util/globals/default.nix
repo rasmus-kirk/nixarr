@@ -21,6 +21,7 @@ in {
 
     uids = {
       plex = 193;
+      unmanic = 203;
       jellyfin = 146;
       audiobookshelf = 156;
       autobrr = 188;
@@ -82,6 +83,10 @@ in {
     };
     plex = {
       user = "plex";
+      group = globals.libraryOwner.group;
+    };
+    unmanic = {
+      user = "unmanic";
       group = globals.libraryOwner.group;
     };
     prowlarr = {

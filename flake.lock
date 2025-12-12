@@ -2,11 +2,11 @@
   "nodes": {
     "nixpkgs": {
       "locked": {
-        "lastModified": 1761016216,
-        "narHash": "sha256-G/iC4t/9j/52i/nm+0/4ybBmAF4hzR8CNHC75qEhjHo=",
+        "lastModified": 1765363881,
+        "narHash": "sha256-3C3xWn8/2Zzr7sxVBmpc1H1QfxjNfta5IMFe3O9ZEPw=",
         "owner": "nixos",
         "repo": "nixpkgs",
-        "rev": "481cf557888e05d3128a76f14c76397b7d7cc869",
+        "rev": "d2b1213bf5ec5e62d96b003ab4b5cbc42abfc0d0",
         "type": "github"
       },
       "original": {
@@ -16,20 +16,55 @@
         "type": "github"
       }
     },
+    "nixpkgs_2": {
+      "locked": {
+        "lastModified": 1765186076,
+        "narHash": "sha256-hM20uyap1a0M9d344I692r+ik4gTMyj60cQWO+hAYP8=",
+        "owner": "NixOS",
+        "repo": "nixpkgs",
+        "rev": "addf7cf5f383a3101ecfba091b98d0a1263dc9b8",
+        "type": "github"
+      },
+      "original": {
+        "owner": "NixOS",
+        "ref": "nixos-unstable",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
+        "unmanic-nix": "unmanic-nix",
         "vpnconfinement": "vpnconfinement",
         "website-builder": "website-builder"
       }
     },
+    "unmanic-nix": {
+      "inputs": {
+        "nixpkgs": "nixpkgs_2"
+      },
+      "locked": {
+        "lastModified": 1764181786,
+        "narHash": "sha256-9nY79vCyq67NcOjy24uytZ7YPnpySjzpw/zfqRP5dR8=",
+        "owner": "psoewish",
+        "repo": "unmanic-nix",
+        "rev": "f8ba03aac83371f66a5bce891c19664c67adcc2d",
+        "type": "github"
+      },
+      "original": {
+        "owner": "psoewish",
+        "repo": "unmanic-nix",
+        "type": "github"
+      }
+    },
     "vpnconfinement": {
       "locked": {
-        "lastModified": 1759956062,
-        "narHash": "sha256-NUZu0Rb0fwUjfdp51zMm0xM3lcK8Kw4c97LLog7+JjA=",
+        "lastModified": 1765185554,
+        "narHash": "sha256-W9OqhyaTk4AjQ5o2yNupi09eJcNn65a4ulBSLr2a81U=",
         "owner": "Maroka-chan",
         "repo": "VPN-Confinement",
-        "rev": "fabe7247b720b5eb4c3c053e24a2b3b70e64c52b",
+        "rev": "08cdda8013611e874ac6d3d59d508e56dfee0405",
         "type": "github"
       },
       "original": {

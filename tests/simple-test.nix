@@ -39,6 +39,7 @@ pkgs.nixosTest {
       prowlarr.enable = true;
       whisparr.enable = true;
       komga.enable = true;
+      unmanic.enable = true;
 
       # recyclarr = {
       #   enable = true;
