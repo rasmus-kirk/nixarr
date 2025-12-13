@@ -296,24 +296,25 @@ in {
       };
     };
 
-    systemd.tmpfiles.rules = [
-      "d '${cfg.stateDir}'                         0750 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${cfg.stateDir}/qBittorrent'             0750 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${cfg.stateDir}/qBittorrent/config'      0750 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-    ]
-    ++ optional cfg.qui.enable
+    systemd.tmpfiles.rules =
+      [
+        "d '${cfg.stateDir}'                         0750 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${cfg.stateDir}/qBittorrent'             0750 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${cfg.stateDir}/qBittorrent/config'      0750 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+      ]
+      ++ optional cfg.qui.enable
       "d '${cfg.stateDir}/qui'                     0750 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-    ++ [
-      # Media Dirs - shared with transmission (0775 for group write access)
-      "d '${nixarr.mediaDir}/torrents'             0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${nixarr.mediaDir}/torrents/.incomplete' 0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${nixarr.mediaDir}/torrents/.watch'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${nixarr.mediaDir}/torrents/manual'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${nixarr.mediaDir}/torrents/lidarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${nixarr.mediaDir}/torrents/radarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${nixarr.mediaDir}/torrents/sonarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-      "d '${nixarr.mediaDir}/torrents/readarr'     0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-    ];
+      ++ [
+        # Media Dirs - shared with transmission (0775 for group write access)
+        "d '${nixarr.mediaDir}/torrents'             0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/torrents/.incomplete' 0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/torrents/.watch'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/torrents/manual'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/torrents/lidarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/torrents/radarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/torrents/sonarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/torrents/readarr'     0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+      ];
 
     # Use NixOS qbittorrent service
     services.qbittorrent = {
