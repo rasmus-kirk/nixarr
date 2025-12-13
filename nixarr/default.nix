@@ -30,6 +30,7 @@ in {
     ./sonarr
     ./transmission
     ./whisparr
+    ./monitoring
     ../util
   ];
 
