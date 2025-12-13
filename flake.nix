@@ -55,11 +55,19 @@
       };
     });
 
-    devShells = forAllSystems ({pkgs}: {
+    devShells = forAllSystems ({pkgs}: let
+      nixarr-py = pkgs.callPackage ./nixarr/lib/nixarr-py {};
+      nixarr-py-deps = pkgs.callPackage ./nixarr/lib/nixarr-py/python-deps.nix {};
+    in {
       default = pkgs.mkShell {
         packages = with pkgs; [
           alejandra
           nixd
+          (python3.withPackages (
+            _:
+              [nixarr-py] # For testing against the library itself
+              ++ nixarr-py-deps # For working on the library
+          ))
         ];
       };
     });
@@ -114,6 +122,7 @@
     in {
       default = website.package;
       debug = website.loop;
+      nixarr-py = pkgs.callPackage ./nixarr/lib/nixarr-py {};
     });
 
     formatter = forAllSystems ({pkgs}: pkgs.alejandra);

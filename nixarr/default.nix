@@ -15,7 +15,7 @@ in {
     ./ddns
     ./jellyfin
     ./jellyseerr
-    ./lib/apis.nix
+    ./lib
     ./komga
     ./lidarr
     ./nixarr-command

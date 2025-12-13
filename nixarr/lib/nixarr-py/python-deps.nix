@@ -109,10 +109,25 @@
     build-system = [setuptools];
     dependencies = arr-deps;
   };
+
+  whisparr = buildPythonPackage rec {
+    pname = "whisparr";
+    version = "1.1.1";
+    pyproject = true;
+
+    src = fetchPypi {
+      inherit pname version;
+      hash = "sha256-1jtLKpt7Ec806iiR8dMm+xsMMLozA7CyDw06CmsbMgo=";
+    };
+
+    build-system = [setuptools];
+    dependencies = arr-deps;
+  };
 in [
   lidarr
   prowlarr
   radarr
   readarr
   sonarr
+  whisparr
 ]
