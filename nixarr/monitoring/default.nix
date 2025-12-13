@@ -20,7 +20,7 @@ with lib; let
     cfg.vpn.enable
     && (cfg.wireguard.exporter.enable == null || cfg.wireguard.exporter.enable);
 in {
-  imports = [../lib/api-keys.nix];
+  # apis.nix is already imported in nixarr/default.nix
 
   options = {
     nixarr = {
@@ -187,7 +187,7 @@ in {
         exportarr-sonarr = mkIf (shouldEnableExporter "sonarr") {
           enable = true;
           url = "http://127.0.0.1:8989";
-          apiKeyFile = "${cfg.stateDir}/api-keys/sonarr.key";
+          apiKeyFile = "${cfg.stateDir}/secrets/sonarr.api-key";
           port = cfg.sonarr.exporter.port;
           listenAddress =
             if isVpnConfined "sonarr"
@@ -198,7 +198,7 @@ in {
         exportarr-radarr = mkIf (shouldEnableExporter "radarr") {
           enable = true;
           url = "http://127.0.0.1:7878";
-          apiKeyFile = "${cfg.stateDir}/api-keys/radarr.key";
+          apiKeyFile = "${cfg.stateDir}/secrets/radarr.api-key";
           port = cfg.radarr.exporter.port;
           listenAddress =
             if isVpnConfined "radarr"
@@ -209,7 +209,7 @@ in {
         exportarr-lidarr = mkIf (shouldEnableExporter "lidarr") {
           enable = true;
           url = "http://127.0.0.1:8686";
-          apiKeyFile = "${cfg.stateDir}/api-keys/lidarr.key";
+          apiKeyFile = "${cfg.stateDir}/secrets/lidarr.api-key";
           port = cfg.lidarr.exporter.port;
           listenAddress =
             if isVpnConfined "lidarr"
@@ -220,7 +220,7 @@ in {
         exportarr-readarr = mkIf (shouldEnableExporter "readarr") {
           enable = true;
           url = "http://127.0.0.1:8787";
-          apiKeyFile = "${cfg.stateDir}/api-keys/readarr.key";
+          apiKeyFile = "${cfg.stateDir}/secrets/readarr.api-key";
           port = cfg.readarr.exporter.port;
           listenAddress =
             if isVpnConfined "readarr"
@@ -231,7 +231,7 @@ in {
         exportarr-prowlarr = mkIf (shouldEnableExporter "prowlarr") {
           enable = true;
           url = "http://127.0.0.1:9696";
-          apiKeyFile = "${cfg.stateDir}/api-keys/prowlarr.key";
+          apiKeyFile = "${cfg.stateDir}/secrets/prowlarr.api-key";
           port = cfg.prowlarr.exporter.port;
           listenAddress =
             if isVpnConfined "prowlarr"
@@ -270,8 +270,8 @@ in {
                   vpnNamespace = "wg";
                 };
                 # Add dependency on API key extraction
-                after = ["${service}-api-key.service"];
-                requires = ["${service}-api-key.service"];
+                after = ["${service}-api.service"];
+                requires = ["${service}-api.service"];
                 serviceConfig = {
                   DynamicUser = true;
                   SupplementaryGroups = ["${service}-api"];
@@ -303,28 +303,28 @@ in {
       # Add dependencies for non-VPN exporters
       {
         "prometheus-exportarr-sonarr-exporter" = mkIf (shouldEnableExporter "sonarr" && !isVpnConfined "sonarr") {
-          after = ["sonarr-api-key.service"];
-          requires = ["sonarr-api-key.service"];
+          after = ["sonarr-api.service"];
+          requires = ["sonarr-api.service"];
           serviceConfig.SupplementaryGroups = ["sonarr-api"];
         };
         "prometheus-exportarr-radarr-exporter" = mkIf (shouldEnableExporter "radarr" && !isVpnConfined "radarr") {
-          after = ["radarr-api-key.service"];
-          requires = ["radarr-api-key.service"];
+          after = ["radarr-api.service"];
+          requires = ["radarr-api.service"];
           serviceConfig.SupplementaryGroups = ["radarr-api"];
         };
         "prometheus-exportarr-lidarr-exporter" = mkIf (shouldEnableExporter "lidarr" && !isVpnConfined "lidarr") {
-          after = ["lidarr-api-key.service"];
-          requires = ["lidarr-api-key.service"];
+          after = ["lidarr-api.service"];
+          requires = ["lidarr-api.service"];
           serviceConfig.SupplementaryGroups = ["lidarr-api"];
         };
         "prometheus-exportarr-readarr-exporter" = mkIf (shouldEnableExporter "readarr" && !isVpnConfined "readarr") {
-          after = ["readarr-api-key.service"];
-          requires = ["readarr-api-key.service"];
+          after = ["readarr-api.service"];
+          requires = ["readarr-api.service"];
           serviceConfig.SupplementaryGroups = ["readarr-api"];
         };
         "prometheus-exportarr-prowlarr-exporter" = mkIf (shouldEnableExporter "prowlarr" && !isVpnConfined "prowlarr") {
-          after = ["prowlarr-api-key.service"];
-          requires = ["prowlarr-api-key.service"];
+          after = ["prowlarr-api.service"];
+          requires = ["prowlarr-api.service"];
           serviceConfig.SupplementaryGroups = ["prowlarr-api"];
         };
       }
