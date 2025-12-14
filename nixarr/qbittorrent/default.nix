@@ -379,8 +379,12 @@ in {
     # VPN port mappings
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings =
-        # qui runs on host, so no webui port mapping needed
-        optional shouldEnableExporter {
+        # qui runs on host and connects to qBittorrent's internal port
+        optional cfg.qui.enable {
+          from = cfg.qui.internalPort;
+          to = cfg.qui.internalPort;
+        }
+        ++ optional shouldEnableExporter {
           from = cfg.exporter.port;
           to = cfg.exporter.port;
         };
