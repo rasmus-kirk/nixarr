@@ -354,10 +354,7 @@ in {
 
       environment = {
         QUI__PORT = toString cfg.webuiPort;
-        QUI__HOST =
-          if cfg.vpn.enable
-          then "192.168.15.1"
-          else "0.0.0.0";
+        QUI__HOST = "0.0.0.0";
         QUI__DATA_DIR = "${cfg.stateDir}/qui";
         QUI__LOG_LEVEL = "INFO";
         # Prevent qui from trying to write to /var/empty/.config
@@ -375,23 +372,15 @@ in {
         StateDirectory = ""; # We manage state via tmpfiles
       };
 
-      # VPN confinement for qui
-      vpnConfinement = mkIf cfg.vpn.enable {
-        enable = true;
-        vpnNamespace = "wg";
-      };
+      # qui runs on host network to access other services (prowlarr, etc.)
+      # It connects to qBittorrent via the VPN namespace bridge at 192.168.15.1
     };
 
     # VPN port mappings
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings =
-        [
-          {
-            from = cfg.webuiPort;
-            to = cfg.webuiPort;
-          }
-        ]
-        ++ optional shouldEnableExporter {
+        # qui runs on host, so no webui port mapping needed
+        optional shouldEnableExporter {
           from = cfg.exporter.port;
           to = cfg.exporter.port;
         };
@@ -403,46 +392,29 @@ in {
       ];
     };
 
-    # Nginx proxy for VPN-confined services
-    services.nginx = mkIf cfg.vpn.enable {
+    # Nginx proxy for VPN-confined exporter (qui runs on host, no proxy needed)
+    services.nginx = mkIf (cfg.vpn.enable && shouldEnableExporter) {
       enable = true;
 
       recommendedTlsSettings = true;
       recommendedOptimisation = true;
       recommendedGzipSettings = true;
 
-      virtualHosts =
-        {
-          # WebUI proxy
-          "127.0.0.1:${builtins.toString cfg.webuiPort}" = {
-            listen = [
-              {
-                addr = "0.0.0.0";
-                port = cfg.webuiPort;
-              }
-            ];
-            locations."/" = {
-              recommendedProxySettings = true;
-              proxyWebsockets = true;
-              proxyPass = "http://192.168.15.1:${builtins.toString cfg.webuiPort}";
-            };
-          };
-        }
-        // optionalAttrs shouldEnableExporter {
-          # Exporter proxy
-          "127.0.0.1:${toString cfg.exporter.port}" = {
-            listen = [
-              {
-                addr = "0.0.0.0";
-                port = cfg.exporter.port;
-              }
-            ];
-            locations."/" = {
-              recommendedProxySettings = true;
-              proxyPass = "http://192.168.15.1:${toString cfg.exporter.port}";
-            };
+      virtualHosts = {
+        # Exporter proxy
+        "127.0.0.1:${toString cfg.exporter.port}" = {
+          listen = [
+            {
+              addr = "0.0.0.0";
+              port = cfg.exporter.port;
+            }
+          ];
+          locations."/" = {
+            recommendedProxySettings = true;
+            proxyPass = "http://192.168.15.1:${toString cfg.exporter.port}";
           };
         };
+      };
     };
 
     # qBittorrent Prometheus exporter
@@ -479,9 +451,11 @@ in {
       };
     };
 
-    # Open firewall for exporter if not VPN-confined
-    networking.firewall.allowedTCPPorts = mkIf (shouldEnableExporter && !cfg.vpn.enable) [
-      cfg.exporter.port
-    ];
+    # Open firewall for services
+    networking.firewall.allowedTCPPorts =
+      # qui runs on host, so open its port when enabled and openFirewall is set
+      optional (cfg.openFirewall && cfg.qui.enable) cfg.webuiPort
+      # Open exporter port if not VPN-confined
+      ++ optional (shouldEnableExporter && !cfg.vpn.enable) cfg.exporter.port;
   };
 }
