@@ -217,7 +217,7 @@ in {
       networking.firewall = mkMerge [
         (mkIf cfg.openFirewall {
           allowedTCPPorts = [cfg.port];
-         })
+        })
         (mkIf cfg.expose.https.enable {
           allowedTCPPorts = [80 443];
         })
