@@ -35,7 +35,7 @@
     toKebabSentenceCase
     ;
 
-  nixarr-py = import ../../lib/nixarr-py {inherit config lib pkgs;};
+  nixarr-py = nixarr.nixarr-py.package;
 
   show-schemas = writePython3Bin "nixarr-show-prowlarr-schemas" {
     libraries = [nixarr-py];
