@@ -17,8 +17,6 @@ in {
       example = true;
       description = ''
         Whether or not to enable the Plex service.
-
-        **Conflicting options:** [`nixarr.jellyfin.enable`](#nixarr.jellyfin.enable)
       '';
     };
 
@@ -45,8 +43,7 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.plex.vpn.enable'';
-      default = !cfg.vpn.enable;
+      default = false;
       example = true;
       description = "Open firewall for Plex";
     };

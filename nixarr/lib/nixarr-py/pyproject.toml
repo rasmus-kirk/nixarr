@@ -1,0 +1,15 @@
+[project]
+name = "nixarr"
+version = "0.1.0"
+description = "Python clients and utilities for working with Nixarr services"
+
+dependencies = [
+  "lidarr",
+  "prowlarr",
+  "radarr",
+  "readarr",
+  "sonarr",
+]
+
+[build-system]
+requires = ["setuptools"]
