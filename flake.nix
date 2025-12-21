@@ -59,16 +59,28 @@
       }
     );
 
-    devShells = forAllSystems (
-      {pkgs}: {
-        default = pkgs.mkShell {
-          packages = with pkgs; [
+    devShells = forAllSystems ({pkgs}: let
+      nixarr-py-deps = pkgs.callPackage ./nixarr/lib/nixarr-py/python-deps.nix {};
+    in {
+      default = pkgs.mkShell {
+        venvDir = "./.venv";
+        packages = with pkgs;
+          [
             alejandra
             nixd
-          ];
-        };
-      }
-    );
+            python3Packages.python
+            python3Packages.venvShellHook
+          ]
+          ++ nixarr-py-deps;
+        postVenvCreation = ''
+          unset SOURCE_DATE_EPOCH
+          python -m pip install --editable ./nixarr/lib/nixarr-py
+        '';
+        postShellHook = ''
+          unset SOURCE_DATE_EPOCH
+        '';
+      };
+    });
 
     packages = forAllSystems (
       {pkgs}: let
@@ -118,11 +130,13 @@
           };
           nixosModules = ./nixarr;
         };
-      in {
-        default = website.package;
-        debug = website.loop;
-      }
-    );
+        nixosModules = ./nixarr;
+      };
+    in {
+      default = website.package;
+      debug = website.loop;
+      nixarr-py = pkgs.callPackage ./nixarr/lib/nixarr-py {};
+    });
 
     formatter = forAllSystems ({pkgs}: pkgs.alejandra);
   };

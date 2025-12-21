@@ -9,6 +9,7 @@ dependencies = [
   "radarr",
   "readarr",
   "sonarr",
+  "whisparr",
 ]
 
 [build-system]
