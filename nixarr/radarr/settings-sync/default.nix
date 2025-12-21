@@ -23,7 +23,7 @@
   cfg = nixarr.radarr.settings-sync;
 
   nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
-  inherit (nixarr-utils) arrCfgType;
+  inherit (nixarr-utils) arrDownloadClientConfigType arrDownloadClientConfigModule;
 
   nixarr-py = import ../../lib/nixarr-py {inherit pkgs lib config;};
 
@@ -41,53 +41,12 @@
     ];
   } (builtins.readFile ./sync_settings.py);
 
-  downloadClientConfigType = types.submodule {
-    freeformType = arrCfgType;
-    options = {
-      name = mkOption {
-        type = types.str;
-        description = ''
-          The name Radarr uses for this download client.
-          Note that names must be unique among *all download clients*, *ignoring case*.
-        '';
-      };
-      implementation = mkOption {
-        type = types.str;
-        description = ''
-          The implementation name of the download client in Radarr. This is used
-          to find the default configuration when adding a new download client, and
-          must match the existing download client's implementation name when
-          overwriting an existing download client.
-        '';
-      };
-      enable = mkOption {
-        type = types.bool;
-        default = true;
-        description = "Whether the download client is enabled.";
-      };
-      fields = mkOption {
-        type = arrCfgType;
-        default = {};
-        description = ''
-          Fields to set on the configuration for a download client. Other configuration
-          options are left unchanged from their defaults (for new download clients) or
-          existing values (for overwritten download clients).
-
-          In the schema, these are represented as an array of objects with
-          `.name` and `.value` members. Each attribute in this config attrSset
-          will update the `.value` member of the `fields` item with a matching
-          `.name`. For more details on each field, check the schema.
-        '';
-      };
-    };
-  };
-
   wantedServices = ["radarr-api.service"];
 in {
   options = {
     nixarr.radarr.settings-sync = {
       downloadClients = mkOption {
-        type = with types; listOf downloadClientConfigType;
+        type = types.listOf (arrDownloadClientConfigType "radarr");
         default = [];
         description = ''
           List of download clients to configure in Radarr.
@@ -97,12 +56,50 @@ in {
         '';
       };
 
-      transmission.enable = mkOption {
-        type = types.bool;
-        default = false;
-        description = ''
-          Automatically configure Transmission as a download client in Radarr.
-        '';
+      transmission = {
+        enable = mkOption {
+          type = types.bool;
+          default = false;
+          description = ''
+            Automatically configure Transmission as a download client in Radarr.
+          '';
+        };
+        config = mkOption {
+          type = types.submodule [
+            (arrDownloadClientConfigModule "radarr")
+            {
+              config = {
+                name = "Transmission";
+                implementation = "Transmission";
+                enable = true;
+                fields = {
+                  # We can use localhost even if Sonarr or Transmission are in
+                  # the VPN because nginx proxies the Transmission port when
+                  # needed.
+                  host = "localhost";
+                  port = nixarr.transmission.uiPort;
+                  useSsl = false;
+                };
+              };
+            }
+          ];
+          default = {};
+          defaultText = lib.literalExpression ''
+            {
+              name = "Transmission";
+                implementation = "Transmission";
+                enable = true;
+                fields = {
+                  host = "localhost";
+                  port = nixarr.transmission.uiPort;
+                  useSsl = false;
+                };
+              }
+          '';
+          description = ''
+            Configuration for Transmission as a download client in Radarr.
+          '';
+        };
       };
     };
   };
@@ -110,23 +107,14 @@ in {
   config = mkIf (nixarr.enable && nixarr.radarr.enable) {
     assertions = [
       {
-        assertion = !cfg.transmission.enable || nixarr.transmission.enable;
+        assertion = cfg.transmission.enable -> nixarr.transmission.enable;
         message = "nixarr.radarr.settings-sync.transmission.enable requires nixarr.transmission.enable to be true";
       }
     ];
 
     # Add Transmission config if enabled
     nixarr.radarr.settings-sync.downloadClients = mkIf cfg.transmission.enable [
-      {
-        name = "Transmission";
-        implementation = "Transmission";
-        enable = true;
-        fields = {
-          host = "localhost";
-          port = nixarr.transmission.uiPort;
-          useSsl = false;
-        };
-      }
+      cfg.transmission.config
     ];
 
     users.users.radarr.extraGroups = ["radarr-api"];
