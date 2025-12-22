@@ -2,7 +2,7 @@
   description = "The Nixarr Media Server Nixos Module";
 
   inputs = {
-    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.05";
+    nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
 
@@ -27,15 +27,20 @@
 
     # Helper to provide system-specific attributes
     forAllSystems = f:
-      nixpkgs.lib.genAttrs supportedSystems (system:
-        f {
-          pkgs = import nixpkgs {
-            inherit system;
-            config.allowUnfree = true;
-          };
-        });
+      nixpkgs.lib.genAttrs supportedSystems (
+        system:
+          f {
+            pkgs = import nixpkgs {
+              inherit system;
+              config.allowUnfree = true;
+            };
+          }
+      );
   in {
-    nixosModules.default.imports = [./nixarr vpnconfinement.nixosModules.default];
+    nixosModules.default.imports = [
+      ./nixarr
+      vpnconfinement.nixosModules.default
+    ];
 
     # Add tests attribute to the flake outputs
     # To run interactively run:
@@ -56,14 +61,31 @@
       # vpn-confinement-test = pkgs.callPackage ./tests/vpn-confinement-test.nix {
       #   inherit (self) nixosModules;
       # };
+      prowlarr-sync-test = pkgs.callPackage ./tests/prowlarr-sync-test.nix {
+        inherit (self) nixosModules;
+      };
     });
 
-    devShells = forAllSystems ({pkgs}: {
+    devShells = forAllSystems ({pkgs}: let
+      nixarr-py-deps = pkgs.callPackage ./nixarr/lib/nixarr-py/python-deps.nix {};
+    in {
       default = pkgs.mkShell {
-        packages = with pkgs; [
-          alejandra
-          nixd
-        ];
+        venvDir = "./.venv";
+        packages = with pkgs;
+          [
+            alejandra
+            nixd
+            python3Packages.python
+            python3Packages.venvShellHook
+          ]
+          ++ nixarr-py-deps;
+        postVenvCreation = ''
+          unset SOURCE_DATE_EPOCH
+          python -m pip install --editable ./nixarr/lib/nixarr-py
+        '';
+        postShellHook = ''
+          unset SOURCE_DATE_EPOCH
+        '';
       };
     });
 
@@ -117,6 +139,7 @@
     in {
       default = website.package;
       debug = website.loop;
+      nixarr-py = pkgs.callPackage ./nixarr/lib/nixarr-py {};
     });
 
     formatter = forAllSystems ({pkgs}: pkgs.alejandra);

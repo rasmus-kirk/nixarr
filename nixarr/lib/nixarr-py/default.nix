@@ -110,13 +110,7 @@
       version = "0.1.0";
       pyproject = true;
 
-      src = pkgs.symlinkJoin {
-        name = "nixarr-py-src";
-        paths = [
-          ./.
-          clientsPySrc
-        ];
-      };
+      src = ./.;
       build-system = [setuptools];
       dependencies = pkgs.callPackage ./python-deps.nix {};
     };

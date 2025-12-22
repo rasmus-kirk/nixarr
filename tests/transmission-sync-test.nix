@@ -1,7 +1,6 @@
 {
   pkgs,
   nixosModules,
-  lib ? pkgs.lib,
 }:
 pkgs.nixosTest {
   name = "transmission-sync-test";
@@ -15,9 +14,11 @@ pkgs.nixosTest {
 
     networking.firewall.enable = false;
 
+    virtualisation.cores = 4; # one per service plus one for luck
+
     nixarr = {
       enable = true;
-      
+
       transmission = {
         enable = true;
       };
@@ -42,24 +43,13 @@ pkgs.nixosTest {
     machine.succeed("systemctl is-active sonarr")
     machine.succeed("systemctl is-active radarr")
 
-    # Check that sync services ran successfully
-    # We use 'systemctl status' to check if it exited with success (0)
-    # Since they are oneshot services, they might be 'inactive' (dead) but the result should be 'success'
-    
-    # Wait for them to finish (they are wantedBy sonarr/radarr so they should start around the same time)
-    # But they depend on api-key services which depend on the main services being up? 
-    # No, api-key services wait for the file to exist.
-    # The sync services wait for api-key services AND the main service (added in my fix).
-    
-    # Let's wait for the sync services to be active or finished.
-    # Since they are oneshot, we can't wait_for_unit("...service") because it might exit quickly.
-    # But we can check if they *failed*.
-    
-    machine.wait_until_succeeds("systemctl is-active sonarr-sync-config.service || systemctl status sonarr-sync-config.service | grep 'Active: inactive (dead)'")
-    machine.succeed("systemctl status sonarr-sync-config.service | grep 'Result: success'")
+    # Wait for service APIs
+    machine.wait_for_unit("sonarr-api.service")
+    machine.wait_for_unit("radarr-api.service")
 
-    machine.wait_until_succeeds("systemctl is-active radarr-sync-config.service || systemctl status radarr-sync-config.service | grep 'Active: inactive (dead)'")
-    machine.succeed("systemctl status radarr-sync-config.service | grep 'Result: success'")
+    # Once the APIs are up, the sync services shouldn't take long
+    machine.wait_for_unit("sonarr-sync-config.service", timeout=60)
+    machine.wait_for_unit("radarr-sync-config.service", timeout=60)
 
     print("\n=== Transmission Sync Test Completed ===")
   '';

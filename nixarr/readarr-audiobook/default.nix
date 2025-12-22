@@ -6,9 +6,12 @@
 }:
 with lib; let
   cfg = config.nixarr.readarr-audiobook;
+  service-cfg = config.services.readarr-audiobook;
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
   port = 9494;
+
+  arr-settings-options = import ../lib/arr-settings-options.nix {inherit lib pkgs;};
 in {
   options.nixarr.readarr-audiobook = {
     enable = mkOption {
@@ -51,8 +54,7 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.readarr-audiobook.vpn.enable'';
-      default = !cfg.vpn.enable;
+      default = false;
       example = true;
       description = "Open firewall for Readarr Audiobook";
     };
@@ -65,6 +67,46 @@ in {
         **Required options:** [`nixarr.vpn.enable`](#nixarr.vpn.enable)
 
         Route Readarr Audiobook traffic through the VPN.
+      '';
+    };
+  };
+
+  # A tweaked copy of services.readarr from nixpkgs
+  options.services.readarr-audiobook = {
+    enable = lib.mkEnableOption "Readarr-Audiobook, a Usenet/BitTorrent audiobook downloader";
+
+    dataDir = lib.mkOption {
+      type = lib.types.str;
+      description = "The directory where Readarr-Audiobook stores its data files.";
+    };
+
+    package = lib.mkPackageOption pkgs "readarr" {};
+
+    openFirewall = lib.mkOption {
+      type = lib.types.bool;
+      description = ''
+        Open ports in the firewall for Readarr-Audiobook.
+      '';
+    };
+
+    # Uses name in description to refer to
+    # `services.readarr-audiobook.environmentFiles`.
+    settings = arr-settings-options.mkServarrSettingsOptions "readarr-audiobook" port;
+
+    # Uses name in description to document `READARR__*` environment variables.
+    environmentFiles = arr-settings-options.mkServarrEnvironmentFiles "readarr";
+
+    user = lib.mkOption {
+      type = lib.types.str;
+      description = ''
+        User account under which Readarr-Audiobook runs.
+      '';
+    };
+
+    group = lib.mkOption {
+      type = lib.types.str;
+      description = ''
+        Group under which Readarr-Audiobook runs.
       '';
     };
   };
@@ -96,17 +138,30 @@ in {
       "d '${nixarr.mediaDir}/library/audiobooks'  0775 ${globals.libraryOwner.user} ${globals.libraryOwner.group} - -"
     ];
 
+    services.readarr-audiobook = {
+      enable = cfg.enable;
+      package = cfg.package;
+      settings.server.port = cfg.port;
+      openFirewall = cfg.openFirewall;
+      dataDir = cfg.stateDir;
+      user = globals.readarr-audiobook.user;
+      group = globals.readarr-audiobook.group;
+    };
+
     systemd.services.readarr-audiobook = {
       description = "Readarr-Audiobook";
       after = ["network.target"];
       wantedBy = ["multi-user.target"];
-      environment.READARR__SERVER__PORT = builtins.toString cfg.port;
+
+      # Uses name to define `READARR__*` environment variables.
+      environment = arr-settings-options.mkServarrSettingsEnvVars "readarr" service-cfg.settings;
 
       serviceConfig = {
         Type = "simple";
-        User = globals.readarr-audiobook.user;
-        Group = globals.readarr-audiobook.group;
-        ExecStart = "${lib.getExe cfg.package} -nobrowser -data=${cfg.stateDir}";
+        User = service-cfg.user;
+        Group = service-cfg.group;
+        EnvironmentFile = service-cfg.environmentFiles;
+        ExecStart = "${lib.getExe service-cfg.package} -nobrowser -data=${service-cfg.dataDir}";
         Restart = "on-failure";
       };
     };

@@ -6,13 +6,14 @@
 }: let
   inherit
     (lib)
-    types
-    toSentenceCase
     filter
-    mkOption
     getExe
+    literalExpression
+    mkDefault
     mkIf
-    recursiveUpdate
+    mkOption
+    toSentenceCase
+    types
     ;
 
   inherit
@@ -24,10 +25,17 @@
   nixarr = config.nixarr;
   cfg = nixarr.prowlarr.settings-sync;
 
-  nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
-  inherit (nixarr-utils) mkArrLocalUrl toKebabSentenceCase arrCfgType;
+  nixarr-utils = import ../../lib/utils.nix {inherit config lib pkgs;};
+  inherit
+    (nixarr-utils)
+    arrCfgType
+    arrFieldsType
+    arrServiceNames
+    mkArrLocalUrl
+    toKebabSentenceCase
+    ;
 
-  nixarr-py = import ../../lib/nixarr-py {inherit pkgs lib config;};
+  nixarr-py = nixarr.nixarr-py.package;
 
   show-schemas = writePython3Bin "nixarr-show-prowlarr-schemas" {
     libraries = [nixarr-py];
@@ -43,83 +51,99 @@
     ];
   } (builtins.readFile ./sync_settings.py);
 
-  mkAppConfigType = {
-    service,
-    implementation,
-  }:
-    types.submodule {
-      freeformType = arrCfgType;
-      options = {
-        name = mkOption {
-          type = types.str;
-          default = toKebabSentenceCase service;
-          description = ''
-            The name Prowlarr uses for this instance of an application. Note
-            that app names must be unique among *all* apps (not just apps of
-            this type), *ignoring case*.
-          '';
-        };
-        implementation = mkOption {
-          type = types.str;
-          default = implementation;
-          description = ''
-            The implementation name of the application in Prowlarr. This is used
-            to find the default configuration when adding a new application, and
-            must match the existing application's implementation name when
-            overwriting an existing application.
-          '';
-        };
-        tag_labels = mkOption {
-          type = with types; listOf str;
-          default = [];
-          description = ''
-            List of tag labels to associate with this application. Overwrites
-            any existing tags on the application.
-          '';
-        };
-        fields = mkOption {
-          type = arrCfgType;
-          default = {};
-          description = ''
-            Additional fields to set on the application configuration. Other
-            configuration options are left unchanged from their defaults (for
-            new applications) or existing values (for overwritten applications).
+  appConfigModule = {
+    freeformType = arrCfgType;
+    options = {
+      name = mkOption {
+        type = types.str;
+        description = ''
+          The name Prowlarr uses for this instance of an application. Note
+          that app names must be unique among *all* apps (not just apps of
+          this type), *ignoring case*.
+        '';
+      };
+      implementation = mkOption {
+        type = types.str;
+        description = ''
+          The implementation name of the application in Prowlarr. This is used
+          to find the default configuration when adding a new application, and
+          must match the existing application's implementation name when
+          overwriting an existing application.
+        '';
+      };
+      tags = mkOption {
+        type = with types; listOf str;
+        default = [];
+        description = ''
+          List of tag labels to associate with this application. Overwrites
+          any existing tags on the application.
+        '';
+      };
+      fields = mkOption {
+        type = arrFieldsType;
+        default = {};
+        description = ''
+          Additional fields to set on the application configuration. Other
+          configuration options are left unchanged from their defaults (for
+          new applications) or existing values (for overwritten applications).
 
-            In the schema, these are represented as an array of objects with
-            `.name` and `.value` members. Each attribute in this config attrSset
-            will update the `.value` member of the `fields` item with a matching
-            `.name`. For more details on each field, check the schema.
-
-            The fields `prowlarrUrl`, `baseUrl`, and `apiKey` are set by this
-            module but can be overridden here if necessary.
-          ''; # TODO: add schema to `nixarr` utility command?
-          example = {
-            syncCategories = [2030];
-            syncRejectBlocklistedTorrentHashesWhileGrabbing = true;
-            somePassword = {
-              secret = "/path/to/secret/file";
-            };
+          In the schema, these are represented as an array of objects with
+          `.name` and `.value` members. Each attribute in this config attrSset
+          will update the `.value` member of the `fields` item with a matching
+          `.name`. For more details on each field, check the schema.
+        ''; # TODO: add schema to `nixarr` utility command?
+        example = {
+          syncCategories = [2030];
+          syncRejectBlocklistedTorrentHashesWhileGrabbing = true;
+          somePassword = {
+            secret = "/path/to/secret/file";
           };
         };
       };
     };
+  };
 
-  mkAppOptions = {
+  appConfigType = types.submodule appConfigModule;
+
+  mkNixarrAppOptions = {
     service,
     implementation ? toSentenceCase service,
   }: {
     enable = mkOption {
       type = types.bool;
-      default = cfg.apps.enable;
+      default = cfg.enable-nixarr-apps;
       description = ''
-        Whether to sync the config for this application to Prowlarr.
+        Whether to sync the config for this Nixarr-managed application to
+        Prowlarr.
       '';
     };
     config = mkOption {
-      type = mkAppConfigType {
-        inherit service implementation;
-      };
+      type = types.submodule [
+        appConfigModule
+        {
+          config = {
+            name = mkDefault (toKebabSentenceCase service);
+            implementation = mkDefault implementation;
+            fields = {
+              prowlarrUrl = mkDefault (mkArrLocalUrl "prowlarr");
+              baseUrl = mkDefault (mkArrLocalUrl service);
+              apiKey.secret = mkDefault "${nixarr.stateDir}/secrets/${service}.api-key";
+            };
+          };
+        }
+      ];
       default = {};
+      defaultText = literalExpression ''
+        {
+          name = "${toKebabSentenceCase service}";
+          implementation = "${implementation}";
+          fields = {
+            prowlarrUrl = "http://127.0.0.1:<prowlarr port>/<prowlarr base-url>";
+            baseUrl = "http://127.0.0.1:<${service} port>/<${service} base-url>";
+            apiKey.secret = "''${nixarr.stateDir}/secrets/${service}.api-key";
+          };
+        }
+      '';
       description = ''
         Configuration for this application in Prowlarr.
 
@@ -129,12 +153,41 @@
       '';
       example = {
         name = "My special service name";
-        tag_labels = ["tag1" "tag2"];
+        tags = ["tag1" "tag2"];
         fields = {
           syncCategories = [2030];
         };
       };
     };
+  };
+
+  nixarrAppConfigs = map (name: cfg.${name}.config) syncServiceNames;
+
+  mkNixarrAppAssertion = service: {
+    assertion =
+      cfg.${service}.enable
+      -> (config ? services.${service}.settings.auth.required)
+      && config.services.${service}.settings.auth.required == "DisabledForLocalAddresses";
+    message = ''
+      nixarr.prowlarr.settings-sync.apps.${service}.enable requires
+      config.services.${service}.settings.auth.required to be set to
+      "DisabledForLocalAddresses", but it is not set to that value.
+    '';
+  };
+
+  prowlarrAssertion = {
+    assertion =
+      (cfg.indexers != [])
+      || cfg.tags != []
+      || cfg.apps != []
+      || nixarrAppConfigs != []
+      -> (config ? services.prowlarr.settings.auth.required)
+      && config.services.prowlarr.settings.auth.required == "DisabledForLocalAddresses";
+    message = ''
+      When Prowlarr is configured to sync indexers, tags, or apps, we
+      require config.services.prowlarr.settings.auth.required to be set
+      to "DisabledForLocalAddresses", but it is not set to that value.
+    '';
   };
 
   indexerConfigType = types.submodule {
@@ -169,7 +222,7 @@
           indexer configuration.
         '';
       };
-      tag_labels = mkOption {
+      tags = mkOption {
         type = with types; listOf str;
         default = [];
         description = ''
@@ -178,7 +231,7 @@
         '';
       };
       fields = mkOption {
-        type = arrCfgType;
+        type = arrFieldsType;
         default = {};
         description = ''
           Fields to set on the configuration for an indexer. Other configuration
@@ -194,24 +247,18 @@
     };
   };
 
-  arrServiceNames = [
-    "sonarr"
-    "radarr"
-    "lidarr"
-    # These are blocked on https://github.com/rasmus-kirk/nixarr/pull/98
-    # "readarr"
-    # "readarr-audiobook"
-  ];
-
   syncServiceNames =
-    filter (name: nixarr.${name}.enable && cfg.apps.${name}.enable) arrServiceNames;
+    filter
+    (name:
+      name != "prowlarr" && nixarr.${name}.enable && cfg.${name}.enable)
+    arrServiceNames;
 
   extraGroups =
     map (service: config.users.groups."${service}-api".name)
     (syncServiceNames ++ ["prowlarr"]);
 
   wantedServices =
-    map (service: "${service}-api-key.service")
+    map (service: "${service}-api.service")
     (syncServiceNames ++ ["prowlarr"]);
 in {
   options = {
@@ -220,25 +267,32 @@ in {
       # TODO: allow configuring whether to overwrite existing items?
       # TODO: allow *deleting* items not in the config?
 
-      apps = {
-        enable = mkOption {
-          type = types.bool;
-          default = false;
-          description = ''
-            Enable syncing application information to Prowlarr by default. You
-            can override this per application.
-          '';
-        };
+      enable-nixarr-apps = mkOption {
+        type = types.bool;
+        default = false;
+        description = ''
+          Enable syncing information about Nixarr-managed applications to
+          Prowlarr by default. You can override this per application.
+        '';
+      };
 
-        sonarr = mkAppOptions {service = "sonarr";};
-        radarr = mkAppOptions {service = "radarr";};
-        lidarr = mkAppOptions {service = "lidarr";};
-        # These are blocked on https://github.com/rasmus-kirk/nixarr/pull/98
-        # readarr = mkAppOptions {service = "readarr";};
-        # readarr-audiobook = mkAppOptions {
-        #  service = "readarr-audiobook";
-        #  implementationName = "Readarr";
-        # };
+      sonarr = mkNixarrAppOptions {service = "sonarr";};
+      radarr = mkNixarrAppOptions {service = "radarr";};
+      lidarr = mkNixarrAppOptions {service = "lidarr";};
+      readarr = mkNixarrAppOptions {service = "readarr";};
+      readarr-audiobook = mkNixarrAppOptions {
+        service = "readarr-audiobook";
+        implementation = "Readarr";
+      };
+      whisparr = mkNixarrAppOptions {service = "whisparr";};
+
+      apps = mkOption {
+        type = with types; listOf appConfigType;
+        default = [];
+        description = ''
+          List of applications to configure in Prowlarr. This is in addition to
+          the Nixarr-managed application sync options.
+        '';
       };
 
       tags = mkOption {
@@ -265,7 +319,7 @@ in {
           {
             name = "My special indexer name";
             sort_name = "nzbgeek";
-            tag_labels = ["tag1" "tag2"];
+            tags = ["tag1" "tag2"];
             priority = 30;
             fields = {
               apiKey.secret = "/path/to/secret/file";
@@ -281,6 +335,8 @@ in {
 
     environment.systemPackages = [show-schemas];
 
+    assertions = [prowlarrAssertion] ++ (map mkNixarrAppAssertion syncServiceNames);
+
     systemd.services.prowlarr-sync-config = {
       description = ''
         Sync Prowlarr configuration (tags, indexers, applications)
@@ -292,25 +348,11 @@ in {
         Type = "oneshot";
         User = "prowlarr";
         Group = "prowlarr";
+        RemainAfterExit = true;
         ExecStart = let
-          mkAppConfig = name:
-            recursiveUpdate
-            {
-              /*
-              TODO: we're only doing this here because if we just made these the
-              default values in the app config type and the user adds *any*
-              field, then *all* of the defaults would be overridden.
-              */
-              fields = {
-                prowlarrUrl = mkArrLocalUrl "prowlarr";
-                baseUrl = mkArrLocalUrl name;
-                apiKey.secret = "${nixarr.stateDir}/api-keys/${name}.key";
-              };
-            }
-            cfg.apps.${name}.config;
           config-file = writeJSON "prowlarr-sync-config.json" {
             tag_labels = cfg.tags;
-            app_configs = map mkAppConfig syncServiceNames;
+            app_configs = cfg.apps ++ nixarrAppConfigs;
             indexer_configs = cfg.indexers;
           };
         in ''
