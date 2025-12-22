@@ -25,16 +25,17 @@
   nixarr = config.nixarr;
   cfg = nixarr.prowlarr.settings-sync;
 
-  nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
+  nixarr-utils = import ../../lib/utils.nix {inherit config lib pkgs;};
   inherit
     (nixarr-utils)
     arrCfgType
     arrFieldsType
+    arrServiceNames
     mkArrLocalUrl
     toKebabSentenceCase
     ;
 
-  nixarr-py = import ../../lib/nixarr-py {inherit pkgs lib config;};
+  nixarr-py = nixarr.nixarr-py.package;
 
   show-schemas = writePython3Bin "nixarr-show-prowlarr-schemas" {
     libraries = [nixarr-py];
@@ -70,7 +71,7 @@
           overwriting an existing application.
         '';
       };
-      tag_labels = mkOption {
+      tags = mkOption {
         type = with types; listOf str;
         default = [];
         description = ''
@@ -152,7 +153,7 @@
       '';
       example = {
         name = "My special service name";
-        tag_labels = ["tag1" "tag2"];
+        tags = ["tag1" "tag2"];
         fields = {
           syncCategories = [2030];
         };
@@ -163,7 +164,10 @@
   nixarrAppConfigs = map (name: cfg.${name}.config) syncServiceNames;
 
   mkNixarrAppAssertion = service: {
-    assertion = cfg.${service}.enable -> config.services.${service}.settings.auth.required == "DisabledForLocalAddresses";
+    assertion =
+      cfg.${service}.enable
+      -> (config ? services.${service}.settings.auth.required)
+      && config.services.${service}.settings.auth.required == "DisabledForLocalAddresses";
     message = ''
       nixarr.prowlarr.settings-sync.apps.${service}.enable requires
       config.services.${service}.settings.auth.required to be set to
@@ -172,7 +176,13 @@
   };
 
   prowlarrAssertion = {
-    assertion = (cfg.indexers != [] || cfg.tags != [] || cfg.apps != [] || nixarrAppConfigs != []) -> config.services.prowlarr.settings.auth.required == "DisabledForLocalAddresses";
+    assertion =
+      (cfg.indexers != [])
+      || cfg.tags != []
+      || cfg.apps != []
+      || nixarrAppConfigs != []
+      -> (config ? services.prowlarr.settings.auth.required)
+      && config.services.prowlarr.settings.auth.required == "DisabledForLocalAddresses";
     message = ''
       When Prowlarr is configured to sync indexers, tags, or apps, we
       require config.services.prowlarr.settings.auth.required to be set
@@ -212,7 +222,7 @@
           indexer configuration.
         '';
       };
-      tag_labels = mkOption {
+      tags = mkOption {
         type = with types; listOf str;
         default = [];
         description = ''
@@ -237,23 +247,18 @@
     };
   };
 
-  arrServiceNames = [
-    "sonarr"
-    "radarr"
-    "lidarr"
-    "readarr"
-    "readarr-audiobook"
-  ];
-
   syncServiceNames =
-    filter (name: nixarr.${name}.enable && cfg.${name}.enable) arrServiceNames;
+    filter
+    (name:
+      name != "prowlarr" && nixarr.${name}.enable && cfg.${name}.enable)
+    arrServiceNames;
 
   extraGroups =
     map (service: config.users.groups."${service}-api".name)
     (syncServiceNames ++ ["prowlarr"]);
 
   wantedServices =
-    map (service: "${service}-api-key.service")
+    map (service: "${service}-api.service")
     (syncServiceNames ++ ["prowlarr"]);
 in {
   options = {
@@ -279,6 +284,7 @@ in {
         service = "readarr-audiobook";
         implementation = "Readarr";
       };
+      whisparr = mkNixarrAppOptions {service = "whisparr";};
 
       apps = mkOption {
         type = with types; listOf appConfigType;
@@ -313,7 +319,7 @@ in {
           {
             name = "My special indexer name";
             sort_name = "nzbgeek";
-            tag_labels = ["tag1" "tag2"];
+            tags = ["tag1" "tag2"];
             priority = 30;
             fields = {
               apiKey.secret = "/path/to/secret/file";
@@ -342,9 +348,7 @@ in {
         Type = "oneshot";
         User = "prowlarr";
         Group = "prowlarr";
-        Restart = "on-failure"; # Retry in case Prowlarr isn't up yet...
-        RestartSec = "1s"; # But not too fast.
-        RestartMode = "direct"; # Don't notify about transient failures.
+        RemainAfterExit = true;
         ExecStart = let
           config-file = writeJSON "prowlarr-sync-config.json" {
             tag_labels = cfg.tags;

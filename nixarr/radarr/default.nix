@@ -10,6 +10,8 @@ with lib; let
   port = 7878;
   nixarr = config.nixarr;
 in {
+  imports = [./settings-sync];
+
   options.nixarr.radarr = {
     enable = mkOption {
       type = types.bool;
