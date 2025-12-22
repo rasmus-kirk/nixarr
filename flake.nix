@@ -86,53 +86,50 @@
       };
     });
 
-    packages = forAllSystems (
-      {pkgs}: let
-        website = website-builder.lib {
-          pkgs = pkgs;
-          src = "${self}";
-          timestamp = self.lastModified;
-          headerTitle = "Nixarr";
-          standalonePages = [
-            {
-              title = "Nixarr - Media Server Nixos Module";
-              inputFile = ./README.md;
-              outputFile = "index.html";
-            }
-          ];
-          includedDirs = ["docs"];
-          articleDirs = ["docs/wiki"];
-          navbar = [
-            {
-              title = "Home";
-              location = "/";
-            }
-            {
-              title = "Options";
-              location = "/nixos-options";
-            }
-            {
-              title = "Wiki";
-              location = "/wiki";
-            }
-            {
-              title = "Github";
-              location = "https://github.com/rasmus-kirk/nixarr";
-            }
-          ];
-          favicons = {
-            # For all browsers
-            "16x16" = "/docs/img/favicons/16x16.png";
-            "32x32" = "/docs/img/favicons/32x32.png";
-            # For Google and Android
-            "48x48" = "/docs/img/favicons/48x48.png";
-            "192x192" = "/docs/img/favicons/192x192.png";
-            # For iPad
-            "167x167" = "/docs/img/favicons/167x167.png";
-            # For iPhone
-            "180x180" = "/docs/img/favicons/180x180.png";
-          };
-          nixosModules = ./nixarr;
+    packages = forAllSystems ({pkgs}: let
+      website = website-builder.lib {
+        pkgs = pkgs;
+        src = "${self}";
+        timestamp = self.lastModified;
+        headerTitle = "Nixarr";
+        standalonePages = [
+          {
+            title = "Nixarr - Media Server Nixos Module";
+            inputFile = ./README.md;
+            outputFile = "index.html";
+          }
+        ];
+        includedDirs = ["docs"];
+        articleDirs = ["docs/wiki"];
+        navbar = [
+          {
+            title = "Home";
+            location = "/";
+          }
+          {
+            title = "Options";
+            location = "/nixos-options";
+          }
+          {
+            title = "Wiki";
+            location = "/wiki";
+          }
+          {
+            title = "Github";
+            location = "https://github.com/rasmus-kirk/nixarr";
+          }
+        ];
+        favicons = {
+          # For all browsers
+          "16x16" = "/docs/img/favicons/16x16.png";
+          "32x32" = "/docs/img/favicons/32x32.png";
+          # For Google and Android
+          "48x48" = "/docs/img/favicons/48x48.png";
+          "192x192" = "/docs/img/favicons/192x192.png";
+          # For iPad
+          "167x167" = "/docs/img/favicons/167x167.png";
+          # For iPhone
+          "180x180" = "/docs/img/favicons/180x180.png";
         };
         nixosModules = ./nixarr;
       };
