@@ -29,6 +29,7 @@ class NixarrPyConfig(BaseModel):
     readarr: SimpleService | None = None
     sonarr: SimpleService | None = None
     whisparr: SimpleService | None = None
+    jellyfin: SimpleService | None = None
 
 
 @cache

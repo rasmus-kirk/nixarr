@@ -27,10 +27,22 @@
 
   cfg = config.nixarr;
 
-  nixarr-py-config = genAttrs arrServiceNames (serviceName: {
+  arrConfig = genAttrs arrServiceNames (serviceName: {
     base_url = mkArrLocalUrl serviceName;
     api_key_file = "${cfg.stateDir}/secrets/${serviceName}.api-key";
   });
+
+  jellyfinConfig =
+    if cfg.jellyfin.enable
+    then {
+      jellyfin = {
+        base_url = "http://127.0.0.1:${toString cfg.jellyfin.port}";
+        api_key_file = "${cfg.stateDir}/api-keys/jellyfin.key";
+      };
+    }
+    else {};
+
+  nixarr-py-config = arrConfig // jellyfinConfig;
 
   nixarr-py-json = writeJSON "nixarr-py.json" nixarr-py-config;
 

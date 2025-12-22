@@ -47,6 +47,32 @@ in {
         User = globals.jellyfin.user;
         Group = globals.jellyfin.group;
         SupplementaryGroups = ["jellyfin-api"];
+        # Wait for Jellyfin to be fully ready before syncing.
+        # The jellyfin-api-key service may have triggered an async restart of Jellyfin
+        # after inserting a new API key (via --no-block). We need to wait for Jellyfin
+        # to be STABLY available, not just briefly up during a restart transition.
+        # We require 3 consecutive successful checks to ensure stability.
+        ExecStartPre = pkgs.writeShellScript "wait-for-jellyfin" ''
+          RETRIES=120
+          CONSECUTIVE_SUCCESS=0
+          REQUIRED_SUCCESS=3
+
+          while [ $RETRIES -gt 0 ]; do
+            if ${pkgs.curl}/bin/curl -sf http://127.0.0.1:${toString cfg.port}/System/Info/Public >/dev/null 2>&1; then
+              CONSECUTIVE_SUCCESS=$((CONSECUTIVE_SUCCESS + 1))
+              if [ $CONSECUTIVE_SUCCESS -ge $REQUIRED_SUCCESS ]; then
+                exit 0
+              fi
+            else
+              # Reset on failure - Jellyfin might be restarting
+              CONSECUTIVE_SUCCESS=0
+            fi
+            sleep 1
+            RETRIES=$((RETRIES - 1))
+          done
+          echo "Jellyfin did not become stably ready in time" >&2
+          exit 1
+        '';
         ExecStart = let
           config-file = writeJSON "jellyfin-settings.json" {
             users = map (u: {

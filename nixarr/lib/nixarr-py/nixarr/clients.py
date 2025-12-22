@@ -17,6 +17,7 @@ import sonarr
 import whisparr
 
 from nixarr.config import get_simple_service_config
+from nixarr.jellyfin import JellyfinClient
 
 
 def _make_client(service: str, module):
@@ -166,3 +167,27 @@ def whisparr_client() -> whisparr.ApiClient:
         ...     api_info = api_info_client.get_api()
     """
     return _make_client("whisparr", whisparr)
+
+
+def jellyfin_client() -> JellyfinClient:
+    """Create a Jellyfin API client configured for use with Nixarr.
+
+    Returns:
+        JellyfinClient: API client instance configured to connect to
+        the local Nixarr Jellyfin service.
+
+    Example:
+        >>> from nixarr.clients import jellyfin_client
+        >>>
+        >>> with jellyfin_client() as client:
+        ...     users = client.get_users()
+    """
+    cfg = get_simple_service_config("jellyfin")
+
+    with open(cfg.api_key_file, "r", encoding="utf-8") as f:
+        api_key = f.read().strip()
+
+    return JellyfinClient(
+        url=cfg.base_url,
+        api_key=api_key,
+    )

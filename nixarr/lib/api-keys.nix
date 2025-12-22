@@ -35,9 +35,10 @@ with lib; let
     '';
     jellyfin = let
       sqlite = getExe pkgs.sqlite;
+      systemctl = getExe' pkgs.systemd "systemctl";
     in pkgs.writeShellScript "print-jellyfin-api-key" ''
       DB_PATH="${cfg.jellyfin.stateDir}/data/data/jellyfin.db"
-      
+
       # Wait for database file to exist AND be readable
       # We check that the file exists and has non-zero size to ensure Jellyfin created it
       RETRIES=60
@@ -48,12 +49,12 @@ with lib; let
         sleep 1
         RETRIES=$((RETRIES - 1))
       done
-      
+
       if [ ! -f "$DB_PATH" ] || [ ! -s "$DB_PATH" ]; then
         echo "Database file not found or empty: $DB_PATH" >&2
         exit 1
       fi
-      
+
       # Wait for database to be initialized with ApiKeys table
       # Use -readonly mode to prevent sqlite from creating the DB if it somehow doesn't exist
       RETRIES=60
@@ -65,28 +66,37 @@ with lib; let
         sleep 1
         RETRIES=$((RETRIES - 1))
       done
-      
+
       if [ $RETRIES -eq 0 ]; then
         echo "Database not initialized or ApiKeys table not found" >&2
         exit 1
       fi
-      
+
       # Check if an API key already exists
       EXISTING_KEY=$(${sqlite} "$DB_PATH" "SELECT AccessToken FROM ApiKeys WHERE Name = 'Nixarr' LIMIT 1;" 2>/dev/null || echo "")
-      
+
       if [ -n "$EXISTING_KEY" ]; then
         echo "$EXISTING_KEY"
         exit 0
       fi
-      
+
       # Generate a new API key
       API_KEY=$(head -c 32 /dev/urandom | base64 | tr -d '/+=' | head -c 32)
       TIMESTAMP=$(date -u +"%Y-%m-%d %H:%M:%S")
-      
+
       # Insert the API key into the database
       ${sqlite} "$DB_PATH" "INSERT INTO ApiKeys (DateCreated, DateLastActivity, Name, AccessToken) VALUES ('$TIMESTAMP', '$TIMESTAMP', 'Nixarr', '$API_KEY');"
-      
+
+      # Output the key first, so even if the restart fails, the key file is written
       echo "$API_KEY"
+
+      # Jellyfin caches API keys in memory at startup and does not monitor the
+      # database for changes. Since we inserted the key directly into SQLite
+      # after Jellyfin was already running, we must restart Jellyfin for it to
+      # load and recognize the new API key.
+      # We use --no-block so this script can complete before the restart finishes.
+      # The jellyfin-settings-sync service will wait for Jellyfin to become ready.
+      ${systemctl} restart --no-block jellyfin.service
     '';
     lidarr = pkgs.writeShellScript "print-lidarr-api-key" ''
       ${xq} -r .Config.ApiKey '${serviceCfgFile.lidarr}'

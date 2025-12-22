@@ -12,7 +12,7 @@ class JellyfinClient:
             'Content-Type': 'application/json'
         }
         if api_key:
-            self.headers['Authorization'] = f"MediaBrowser Client=\"a\", Device=\"a\", DeviceId=\"a\", Version=\"a\", Token=\"{api_key}\"" 
+            self.headers['X-Emby-Token'] = api_key 
 
     def __enter__(self):
         return self
