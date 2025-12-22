@@ -3,7 +3,7 @@
   nixosModules,
   lib ? pkgs.lib,
 }:
-pkgs.nixosTest {
+pkgs.testers.nixosTest {
   name = "simple-test";
 
   nodes.machine = {
