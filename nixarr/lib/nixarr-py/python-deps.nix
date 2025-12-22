@@ -13,6 +13,7 @@
     setuptools
     typing-extensions
     urllib3
+    requests
     ;
 
   lazy-imports = buildPythonPackage rec {
@@ -129,5 +130,6 @@ in [
   radarr
   readarr
   sonarr
+  python3Packages.requests
   whisparr
 ]

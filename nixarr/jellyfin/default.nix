@@ -7,9 +7,10 @@
 with lib; let
   cfg = config.nixarr.jellyfin;
   globals = config.util-nixarr.globals;
-  defaultPort = 8096;
   nixarr = config.nixarr;
 in {
+  imports = [./settings-sync];
+
   options.nixarr.jellyfin = {
     enable = mkOption {
       type = types.bool;
@@ -23,6 +24,12 @@ in {
     };
 
     package = mkPackageOption pkgs "jellyfin" {};
+
+    port = mkOption {
+      type = types.port;
+      default = 8096;
+      description = "The port Jellyfin listens on.";
+    };
 
     stateDir = mkOption {
       type = types.path;
@@ -101,6 +108,23 @@ in {
           description = "The ACME mail required for the letsencrypt bot.";
         };
       };
+    };
+
+    users = mkOption {
+      type = types.listOf (types.submodule {
+        options = {
+          name = mkOption {
+            type = types.str;
+            description = "The username for the Jellyfin user.";
+          };
+          passwordFile = mkOption {
+            type = types.path;
+            description = "Path to a file containing the password for the Jellyfin user.";
+          };
+        };
+      });
+      default = [];
+      description = "List of Jellyfin users to create and manage.";
     };
   };
 
@@ -201,22 +225,22 @@ in {
           locations."/" = {
             recommendedProxySettings = true;
             proxyWebsockets = true;
-            proxyPass = "http://127.0.0.1:${builtins.toString defaultPort}";
+            proxyPass = "http://127.0.0.1:${builtins.toString cfg.port}";
           };
         };
       })
       (mkIf cfg.vpn.enable {
-        virtualHosts."127.0.0.1:${builtins.toString defaultPort}" = mkIf cfg.vpn.enable {
+        virtualHosts."127.0.0.1:${builtins.toString cfg.port}" = mkIf cfg.vpn.enable {
           listen = [
             {
               addr = "0.0.0.0";
-              port = defaultPort;
+              port = cfg.port;
             }
           ];
           locations."/" = {
             recommendedProxySettings = true;
             proxyWebsockets = true;
-            proxyPass = "http://192.168.15.1:${builtins.toString defaultPort}";
+            proxyPass = "http://192.168.15.1:${builtins.toString cfg.port}";
           };
         };
       })
@@ -237,10 +261,11 @@ in {
     vpnNamespaces.wg = mkIf cfg.vpn.enable {
       portMappings = [
         {
-          from = defaultPort;
-          to = defaultPort;
+          from = cfg.port;
+          to = cfg.port;
         }
       ];
     };
+
   };
 }
