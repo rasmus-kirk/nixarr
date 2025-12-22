@@ -86,6 +86,57 @@
         url = args.url or mkArrLocalUrl args.service;
       });
 
+  arrDownloadClientConfigModule = service: let
+    Service = toKebabSentenceCase service;
+  in {
+    freeformType = arrCfgType;
+    options = {
+      name = mkOption {
+        type = types.str;
+        description = ''
+          The name ${Service} uses for this download client. Note that names
+          must be unique among *all download clients*, *ignoring case*.
+        '';
+      };
+      implementation = mkOption {
+        type = types.str;
+        description = ''
+          The implementation name of the download client in ${Service}. This is
+          used to find the default configuration when adding a new download
+          client, and must match the existing download client's implementation
+          name when overwriting an existing download client.
+        '';
+      };
+      enable = mkOption {
+        type = types.bool;
+        default = true;
+        description = ''
+          Whether the download client is enabled. Note that this option is
+          merely copied by Nixarr to ${Service}; it doesn't control any Nixarr
+          behavior.
+        '';
+      };
+      fields = mkOption {
+        type = arrCfgType;
+        default = {};
+        description = ''
+          Fields to set on the configuration for a download client. Other
+          configuration options are left unchanged from their defaults (for new
+          download clients) or existing values (for overwritten download
+          clients).
+
+          In the schema, these are represented as an array of objects with
+          `.name` and `.value` members. Each attribute in this config attrset
+          will update the `.value` member of the `fields` item with a matching
+          `.name`. For more details on each field, check the schema.
+        '';
+      };
+    };
+  };
+
+  arrDownloadClientConfigType = service:
+    types.submodule (arrDownloadClientConfigModule service);
+
   arrServiceNames = [
     "lidarr"
     "prowlarr"
@@ -98,6 +149,8 @@
 in {
   inherit
     arrCfgType
+    arrDownloadClientConfigModule
+    arrDownloadClientConfigType
     arrFieldsType
     arrServiceNames
     mkArrLocalUrl
