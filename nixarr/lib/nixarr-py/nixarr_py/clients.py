@@ -2,7 +2,7 @@
 Pre-configured API clients for Nixarr-managed services.
 
 Example usage:
-    >>> from nixarr.clients import radarr_client
+    >>> from nixarr_py.clients import radarr_client
     >>> import radarr
     >>>
     >>> with radarr_client() as client:
@@ -16,10 +16,10 @@ import readarr
 import sonarr
 import whisparr
 
-from nixarr.config import get_simple_service_config
+from nixarr_py.config import get_simple_service_config
 
 
-def _make_client(service: str, module):
+def _make_arr_client(service: str, module):
     """Factory for creating *arr API clients.
 
     Args:
@@ -51,13 +51,13 @@ def lidarr_client() -> lidarr.ApiClient:
 
     Example:
         >>> import lidarr
-        >>> from nixarr.clients import lidarr_client
+        >>> from nixarr_py.clients import lidarr_client
         >>>
         >>> with lidarr_client() as client:
         ...     api_info_client = lidarr.ApiInfoApi(client)
         ...     api_info = api_info_client.get_api()
     """
-    return _make_client("lidarr", lidarr)
+    return _make_arr_client("lidarr", lidarr)
 
 
 def prowlarr_client() -> prowlarr.ApiClient:
@@ -69,13 +69,13 @@ def prowlarr_client() -> prowlarr.ApiClient:
 
     Example:
         >>> import prowlarr
-        >>> from nixarr.clients import prowlarr_client
+        >>> from nixarr_py.clients import prowlarr_client
         >>>
         >>> with prowlarr_client() as client:
         ...     api_info_client = prowlarr.ApiInfoApi(client)
         ...     api_info = api_info_client.get_api()
     """
-    return _make_client("prowlarr", prowlarr)
+    return _make_arr_client("prowlarr", prowlarr)
 
 
 def radarr_client() -> radarr.ApiClient:
@@ -87,13 +87,13 @@ def radarr_client() -> radarr.ApiClient:
 
     Example:
         >>> import radarr
-        >>> from nixarr.clients import radarr_client
+        >>> from nixarr_py.clients import radarr_client
         >>>
         >>> with radarr_client() as client:
         ...     api_info_client = radarr.ApiInfoApi(client)
         ...     api_info = api_info_client.get_api()
     """
-    return _make_client("radarr", radarr)
+    return _make_arr_client("radarr", radarr)
 
 
 def readarr_client() -> readarr.ApiClient:
@@ -105,13 +105,13 @@ def readarr_client() -> readarr.ApiClient:
 
     Example:
         >>> import readarr
-        >>> from nixarr.clients import readarr_client
+        >>> from nixarr_py.clients import readarr_client
         >>>
         >>> with readarr_client() as client:
         ...     api_info_client = readarr.ApiInfoApi(client)
         ...     api_info = api_info_client.get_api()
     """
-    return _make_client("readarr", readarr)
+    return _make_arr_client("readarr", readarr)
 
 
 def readarr_audiobook_client() -> readarr.ApiClient:
@@ -123,13 +123,13 @@ def readarr_audiobook_client() -> readarr.ApiClient:
 
     Example:
         >>> import readarr
-        >>> from nixarr.clients import readarr_audiobook_client
+        >>> from nixarr_py.clients import readarr_audiobook_client
         >>>
         >>> with readarr_audiobook_client() as client:
         ...     api_info_client = readarr.ApiInfoApi(client)
         ...     api_info = api_info_client.get_api()
     """
-    return _make_client("readarr-audiobook", readarr)
+    return _make_arr_client("readarr-audiobook", readarr)
 
 
 def sonarr_client() -> sonarr.ApiClient:
@@ -141,13 +141,13 @@ def sonarr_client() -> sonarr.ApiClient:
 
     Example:
         >>> import sonarr
-        >>> from nixarr.clients import sonarr_client
+        >>> from nixarr_py.clients import sonarr_client
         >>>
         >>> with sonarr_client() as client:
         ...     api_info_client = sonarr.ApiInfoApi(client)
         ...     api_info = api_info_client.get_api()
     """
-    return _make_client("sonarr", sonarr)
+    return _make_arr_client("sonarr", sonarr)
 
 
 def whisparr_client() -> whisparr.ApiClient:
@@ -159,10 +159,10 @@ def whisparr_client() -> whisparr.ApiClient:
 
     Example:
         >>> import whisparr
-        >>> from nixarr.clients import whisparr_client
+        >>> from nixarr_py.clients import whisparr_client
         >>>
         >>> with whisparr_client() as client:
         ...     api_info_client = whisparr.ApiInfoApi(client)
         ...     api_info = api_info_client.get_api()
     """
-    return _make_client("whisparr", whisparr)
+    return _make_arr_client("whisparr", whisparr)

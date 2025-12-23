@@ -77,11 +77,7 @@
           ]
           ++ nixarr-py-deps;
         postVenvCreation = ''
-          unset SOURCE_DATE_EPOCH
           python -m pip install --editable ./nixarr/lib/nixarr-py
-        '';
-        postShellHook = ''
-          unset SOURCE_DATE_EPOCH
         '';
       };
     });

@@ -1,5 +1,5 @@
 from typing import Any, Union
-from nixarr.clients import prowlarr_client
+from nixarr_py.clients import prowlarr_client
 import prowlarr
 import json
 import argparse

@@ -4,8 +4,8 @@ import radarr
 import pydantic
 import pathlib
 import logging
-from nixarr.clients import radarr_client
-from nixarr.utils import apply_config
+from nixarr_py.clients import radarr_client
+from nixarr_py.utils import apply_config
 
 
 logging.basicConfig(level=logging.INFO)
