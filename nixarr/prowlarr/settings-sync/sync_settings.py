@@ -70,9 +70,9 @@ def sync_apps(app_configs: list[App], api_client: prowlarr.ApiClient) -> None:
         if user_cfg.name in apps_by_name:
             insert_or_update = "update"
             app = apps_by_name[user_cfg.name]
-            assert (
-                app.implementation == user_cfg.implementation
-            ), f"Cannot change implementation of existing app '{user_cfg.name}' from '{app.implementation}' to '{user_cfg.implementation}'. Please delete the existing app first."
+            assert app.implementation == user_cfg.implementation, (
+                f"Cannot change implementation of existing app '{user_cfg.name}' from '{app.implementation}' to '{user_cfg.implementation}'. Please delete the existing app first."
+            )
         else:
             insert_or_update = "insert"
             app = schemas_by_implementation[user_cfg.implementation]
@@ -109,9 +109,9 @@ def sync_indexers(
         if user_cfg.name in indexers_by_name:
             insert_or_update = "update"
             indexer = indexers_by_name[user_cfg.name]
-            assert (
-                indexer.sort_name == user_cfg.sort_name
-            ), f"Cannot change sortName of existing indexer '{user_cfg.name}' from '{indexer.sort_name}' to '{user_cfg.sort_name}'. Please delete the existing indexer first."
+            assert indexer.sort_name == user_cfg.sort_name, (
+                f"Cannot change sortName of existing indexer '{user_cfg.name}' from '{indexer.sort_name}' to '{user_cfg.sort_name}'. Please delete the existing indexer first."
+            )
         else:
             insert_or_update = "insert"
             indexer = schemas_by_sort_name[user_cfg.sort_name]

@@ -10,9 +10,7 @@ def main(client: radarr.ApiClient, kind: str) -> None:
     if kind == "download_client":
         schema = [
             schema.model_dump()
-            for schema in radarr.DownloadClientApi(
-                client
-            ).list_download_client_schema()
+            for schema in radarr.DownloadClientApi(client).list_download_client_schema()
         ]
     else:
         raise ValueError(f"Unknown schema kind: {kind}")
