@@ -29,15 +29,16 @@
     build-system = [setuptools];
   };
 
-  arr-deps = [
-    lazy-imports
+  openapi-deps = [
     pydantic
     python-dateutil
     typing-extensions
     urllib3
   ];
 
-  lidarr = buildPythonPackage rec {
+  arr-deps = openapi-deps ++ [lazy-imports];
+
+  lidarr-py = buildPythonPackage rec {
     pname = "lidarr";
     version = "1.2.1";
     pyproject = true;
@@ -51,7 +52,7 @@
     dependencies = arr-deps;
   };
 
-  prowlarr = buildPythonPackage rec {
+  prowlarr-py = buildPythonPackage rec {
     pname = "prowlarr";
     version = "1.1.1";
     pyproject = true;
@@ -65,7 +66,7 @@
     dependencies = arr-deps;
   };
 
-  radarr = buildPythonPackage rec {
+  radarr-py = buildPythonPackage rec {
     pname = "radarr";
     version = "1.2.1";
     pyproject = true;
@@ -79,7 +80,7 @@
     dependencies = arr-deps;
   };
 
-  readarr = buildPythonPackage rec {
+  readarr-py = buildPythonPackage rec {
     pname = "readarr";
     version = "1.2.0";
     pyproject = true;
@@ -93,7 +94,7 @@
     dependencies = arr-deps;
   };
 
-  sonarr = buildPythonPackage rec {
+  sonarr-py = buildPythonPackage rec {
     pname = "sonarr";
     version = "1.1.1";
     pyproject = true;
@@ -110,7 +111,7 @@
     dependencies = arr-deps;
   };
 
-  whisparr = buildPythonPackage rec {
+  whisparr-py = buildPythonPackage rec {
     pname = "whisparr";
     version = "1.1.1";
     pyproject = true;
@@ -124,10 +125,10 @@
     dependencies = arr-deps;
   };
 in [
-  lidarr
-  prowlarr
-  radarr
-  readarr
-  sonarr
-  whisparr
+  lidarr-py
+  prowlarr-py
+  radarr-py
+  readarr-py
+  sonarr-py
+  whisparr-py
 ]

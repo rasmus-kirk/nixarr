@@ -1,5 +1,5 @@
 from typing import Any, Union
-from nixarr.clients import radarr_client
+from nixarr_py.clients import radarr_client
 import radarr
 import json
 import argparse

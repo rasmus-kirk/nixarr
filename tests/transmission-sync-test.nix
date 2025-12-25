@@ -2,7 +2,7 @@
   pkgs,
   nixosModules,
 }:
-pkgs.nixosTest {
+pkgs.testers.nixosTest {
   name = "transmission-sync-test";
 
   nodes.machine = {
