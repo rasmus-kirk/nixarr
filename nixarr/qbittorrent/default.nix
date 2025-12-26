@@ -281,6 +281,14 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
+      {
+        assertion = !(cfg.enable && nixarr.transmission.enable);
+        message = ''
+          Both nixarr.qbittorrent and nixarr.transmission are enabled.
+          Only one torrent client can be active at a time since they
+          share the same download directories.
+        '';
+      }
     ];
 
     users = {
