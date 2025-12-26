@@ -4,6 +4,9 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
 
     website-builder.url = "github:rasmus-kirk/website-builder";
@@ -12,6 +15,7 @@
 
   outputs = {
     nixpkgs,
+    treefmt-nix,
     vpnconfinement,
     website-builder,
     self,
@@ -135,6 +139,8 @@
       nixarr-py = pkgs.callPackage ./nixarr/lib/nixarr-py {};
     });
 
-    formatter = forAllSystems ({pkgs}: pkgs.alejandra);
+    formatter =
+      forAllSystems ({pkgs}:
+        treefmt-nix.lib.mkWrapper pkgs ./util/formatting);
   };
 }

@@ -129,7 +129,7 @@ def apply_config(
             f"""
             The following properties/fields are present in the user config but
             not in the *arr config:
-            {', '.join(unexpected_items)}.
+            {", ".join(unexpected_items)}.
 
             If these are correct, add them to the unchecked_user_properties
             argument to suppress this error.
