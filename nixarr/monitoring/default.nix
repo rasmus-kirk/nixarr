@@ -12,13 +12,11 @@ with lib; let
 
   # Helper to determine if an exporter should be enabled
   shouldEnableExporter = service:
-    cfg.${service}.enable
-    && (cfg.${service}.exporter.enable == null || cfg.${service}.exporter.enable);
+    cfg.${service}.enable && cfg.${service}.exporter.enable;
 
   # Helper to determine if wireguard exporter should be enabled
   shouldEnableWireguardExporter =
-    cfg.vpn.enable
-    && (cfg.wireguard.exporter.enable == null || cfg.wireguard.exporter.enable);
+    cfg.vpn.enable && cfg.wireguard.exporter.enable;
 in {
   # apis.nix is already imported in nixarr/default.nix
 
@@ -30,13 +28,11 @@ in {
 
       wireguard.exporter = {
         enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+          type = types.bool;
+          default = true;
           description = ''
             Whether to enable the Wireguard Prometheus exporter.
-            - null: enable if exporters.enable is true and VPN is enabled (default)
-            - true: force enable if exporters.enable is true
-            - false: always disable
+            Only has an effect if nixarr.exporters.enable and nixarr.vpn.enable are true.
           '';
         };
         port = mkOption {
@@ -53,13 +49,11 @@ in {
 
       sonarr.exporter = {
         enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+          type = types.bool;
+          default = true;
           description = ''
             Whether to enable the Sonarr Prometheus exporter.
-            - null: enable if exporters.enable is true and sonarr service is enabled (default)
-            - true: force enable if exporters.enable is true
-            - false: always disable
+            Only has an effect if nixarr.exporters.enable and nixarr.sonarr.enable are true.
           '';
         };
         port = mkOption {
@@ -78,13 +72,11 @@ in {
       };
       radarr.exporter = {
         enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+          type = types.bool;
+          default = true;
           description = ''
             Whether to enable the Radarr Prometheus exporter.
-            - null: enable if exporters.enable is true and radarr service is enabled (default)
-            - true: force enable if exporters.enable is true
-            - false: always disable
+            Only has an effect if nixarr.exporters.enable and nixarr.radarr.enable are true.
           '';
         };
         port = mkOption {
@@ -103,13 +95,11 @@ in {
       };
       lidarr.exporter = {
         enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+          type = types.bool;
+          default = true;
           description = ''
             Whether to enable the Lidarr Prometheus exporter.
-            - null: enable if exporters.enable is true and lidarr service is enabled (default)
-            - true: force enable if exporters.enable is true
-            - false: always disable
+            Only has an effect if nixarr.exporters.enable and nixarr.lidarr.enable are true.
           '';
         };
         port = mkOption {
@@ -128,13 +118,11 @@ in {
       };
       readarr.exporter = {
         enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+          type = types.bool;
+          default = true;
           description = ''
             Whether to enable the Readarr Prometheus exporter.
-            - null: enable if exporters.enable is true and readarr service is enabled (default)
-            - true: force enable if exporters.enable is true
-            - false: always disable
+            Only has an effect if nixarr.exporters.enable and nixarr.readarr.enable are true.
           '';
         };
         port = mkOption {
@@ -153,13 +141,11 @@ in {
       };
       prowlarr.exporter = {
         enable = mkOption {
-          type = types.nullOr types.bool;
-          default = null;
+          type = types.bool;
+          default = true;
           description = ''
             Whether to enable the Prowlarr Prometheus exporter.
-            - null: enable if exporters.enable is true and prowlarr service is enabled (default)
-            - true: force enable if exporters.enable is true
-            - false: always disable
+            Only has an effect if nixarr.exporters.enable and nixarr.prowlarr.enable are true.
           '';
         };
         port = mkOption {
