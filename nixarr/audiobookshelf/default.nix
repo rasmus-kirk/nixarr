@@ -239,7 +239,7 @@ in {
           virtualHosts."127.0.0.1:${builtins.toString cfg.port}" = mkIf cfg.vpn.enable {
             listen = [
               {
-                addr = "0.0.0.0";
+                addr = nixarr.vpn.proxyListenAddr;
                 port = cfg.port;
               }
             ];

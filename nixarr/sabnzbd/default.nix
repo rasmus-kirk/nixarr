@@ -256,7 +256,7 @@ in {
         virtualHosts."127.0.0.1:${builtins.toString cfg.guiPort}" = {
           listen = [
             {
-              addr = "0.0.0.0";
+              addr = nixarr.vpn.proxyListenAddr;
               port = cfg.guiPort;
             }
           ];
