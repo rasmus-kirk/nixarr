@@ -225,8 +225,8 @@ in {
 
     webuiPort = mkOption {
       type = types.port;
-      default = 8080;
-      example = 8081;
+      default = 8082;
+      example = 8080;
       description = "qBittorrent WebUI port.";
     };
 
