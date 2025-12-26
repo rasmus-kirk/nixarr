@@ -28,10 +28,9 @@ pkgs.testers.nixosTest {
         privateTrackers.cross-seed.enable = true;
       };
 
-      qbittorrent = {
-        enable = true;
-        webuiPort = 8081; # Avoid conflict with default 8080
-      };
+      # Note: qbittorrent and transmission are mutually exclusive
+      # (they share the same download directories)
+      # qbittorrent.enable = true;
 
       autobrr.enable = true;
       bazarr.enable = true;
@@ -108,7 +107,6 @@ pkgs.testers.nixosTest {
     machine.succeed("systemctl is-active audiobookshelf")
     machine.succeed("systemctl is-active plex")
     machine.succeed("systemctl is-active transmission")
-    machine.succeed("systemctl is-active qbittorrent")
     machine.succeed("systemctl is-active autobrr")
     machine.succeed("systemctl is-active bazarr")
     machine.succeed("systemctl is-active sonarr")
