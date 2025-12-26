@@ -13,9 +13,7 @@ with lib; let
 
   # Helper to determine if exporter should be enabled
   shouldEnableExporter =
-    cfg.enable
-    && nixarr.exporters.enable
-    && (cfg.exporter.enable == null || cfg.exporter.enable);
+    cfg.enable && nixarr.exporters.enable && cfg.exporter.enable;
 
   # When qui is enabled, qBittorrent uses internal port; otherwise uses webuiPort
   qbittorrentPort =
@@ -251,13 +249,11 @@ in {
 
     exporter = {
       enable = mkOption {
-        type = types.nullOr types.bool;
-        default = null;
+        type = types.bool;
+        default = true;
         description = ''
           Whether to enable the qBittorrent Prometheus exporter.
-          - null: enable if nixarr.exporters.enable is true and qbittorrent is enabled (default)
-          - true: force enable if nixarr.exporters.enable is true
-          - false: always disable
+          Only has an effect if nixarr.exporters.enable and nixarr.qbittorrent.enable are true.
         '';
       };
       port = mkOption {
