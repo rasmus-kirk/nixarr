@@ -61,6 +61,11 @@ with lib; let
         chown -R ${globals.transmission.user}:${globals.cross-seed.group} "${nixarr.transmission.stateDir}"
         find "${nixarr.transmission.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
       ''}
+        ${strings.optionalString nixarr.qbittorrent.enable ''
+        chown -R ${globals.qbittorrent.user}:${globals.qbittorrent.group} "${nixarr.mediaDir}/torrents"
+        chown -R ${globals.qbittorrent.user}:root "${nixarr.qbittorrent.stateDir}"
+        find "${nixarr.qbittorrent.stateDir}" \( -type d -exec chmod 0750 {} + -true \) -o \( -exec chmod 0640 {} + \)
+      ''}
         ${strings.optionalString nixarr.sabnzbd.enable ''
         chown -R ${globals.sabnzbd.user}:${globals.sabnzbd.group} "${nixarr.mediaDir}/usenet"
         chown -R ${globals.sabnzbd.user}:root "${nixarr.sabnzbd.stateDir}"
@@ -195,7 +200,7 @@ with lib; let
 
         echo "Wiping all nixarr users and groups from /etc/passwd and /etc/group..."
 
-        sed -i -E '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet|whisparr|komgarr)/d' /etc/passwd
+        sed -i -E '/^(audiobookshelf|autobrr|bazarr|cross-seed|jellyfin|jellyseerr|lidarr|plex|prowlarr|qbittorrent|radarr|readarr|recyclarr|sabnzbd|sonarr|streamer|torrenter|transmission|usenet|whisparr|komgarr)/d' /etc/passwd
         sed -i -E '/^(autobrr|cross-seed|jellyseerr|media|prowlarr|recyclarr|sabnzbd|streamer|torrenter|transmission|usenet)/d' /etc/group
 
         echo ""

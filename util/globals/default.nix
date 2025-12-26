@@ -36,6 +36,7 @@ in {
       recyclarr = 269;
       sabnzbd = 38;
       transmission = 70;
+      qbittorrent = 71;
       # Removed 2025-10-29
       # cross-seed = 183;
       whisparr = 272;
@@ -114,6 +115,10 @@ in {
     };
     transmission = {
       user = "transmission";
+      group = globals.libraryOwner.group;
+    };
+    qbittorrent = {
+      user = "qbittorrent";
       group = globals.libraryOwner.group;
     };
     cross-seed = {
