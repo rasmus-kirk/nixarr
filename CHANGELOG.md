@@ -3,6 +3,7 @@
 ## Unreleased
 
 Added:
+- qBittorrent service with VPN support, qui WebUI, and Prometheus exporter
 - Prowlarr:
   - Options for syncing configuration from Nixarr to `prowlarr` (e.g. specifying
     indexers in Nixarr and having them automatically added to Prowlarr).

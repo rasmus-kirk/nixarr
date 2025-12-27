@@ -36,7 +36,8 @@ in {
       recyclarr = 269;
       sabnzbd = 38;
       transmission = 70;
-      qbittorrent = 71;
+      # 71 is reserved for postgres in nixpkgs
+      qbittorrent = 72;
       # Removed 2025-10-29
       # cross-seed = 183;
       whisparr = 272;

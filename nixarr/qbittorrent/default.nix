@@ -9,7 +9,7 @@ with lib; let
   globals = config.util-nixarr.globals;
   nixarr = config.nixarr;
 
-  downloadDir = "${nixarr.mediaDir}/torrents";
+  downloadDir = "${nixarr.mediaDir}/qbittorrent";
 
   # Helper to determine if exporter should be enabled
   shouldEnableExporter =
@@ -225,7 +225,7 @@ in {
 
     webuiPort = mkOption {
       type = types.port;
-      default = 8082;
+      default = 5252;
       example = 8080;
       description = "qBittorrent WebUI port.";
     };
@@ -281,14 +281,6 @@ in {
           nixarr.vpn.enable option to be set, but it was not.
         '';
       }
-      {
-        assertion = !(cfg.enable && nixarr.transmission.enable);
-        message = ''
-          Both nixarr.qbittorrent and nixarr.transmission are enabled.
-          Only one torrent client can be active at a time since they
-          share the same download directories.
-        '';
-      }
     ];
 
     users = {
@@ -309,15 +301,15 @@ in {
       ++ optional cfg.qui.enable
       "d '${cfg.stateDir}/qui'                     0750 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
       ++ [
-        # Media Dirs - shared with transmission (0775 for group write access)
-        "d '${nixarr.mediaDir}/torrents'             0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-        "d '${nixarr.mediaDir}/torrents/.incomplete' 0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-        "d '${nixarr.mediaDir}/torrents/.watch'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-        "d '${nixarr.mediaDir}/torrents/manual'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-        "d '${nixarr.mediaDir}/torrents/lidarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-        "d '${nixarr.mediaDir}/torrents/radarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-        "d '${nixarr.mediaDir}/torrents/sonarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
-        "d '${nixarr.mediaDir}/torrents/readarr'     0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        # Media Dirs (0775 for group write access)
+        "d '${nixarr.mediaDir}/qbittorrent'             0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/qbittorrent/.incomplete' 0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/qbittorrent/.watch'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/qbittorrent/manual'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/qbittorrent/lidarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/qbittorrent/radarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/qbittorrent/sonarr'      0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
+        "d '${nixarr.mediaDir}/qbittorrent/readarr'     0775 ${globals.qbittorrent.user} ${globals.qbittorrent.group} - -"
       ];
 
     # Use NixOS qbittorrent service
