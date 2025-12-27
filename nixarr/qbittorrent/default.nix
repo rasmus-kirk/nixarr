@@ -54,9 +54,6 @@ with lib; let
         "Session\\DisableAutoTMMTriggers\\DefaultSavePathChanged" = false;
       };
       Preferences = {
-        # Disable update checks (NixOS handles updates)
-        "General\\CheckForUpdates" = false;
-
         # WebUI - when qui is enabled, qBittorrent uses internal port
         "WebUI\\Port" = qbittorrentPort;
         "WebUI\\Address" =
@@ -353,6 +350,8 @@ in {
         QUI__HOST = "0.0.0.0";
         QUI__DATA_DIR = "${cfg.stateDir}/qui";
         QUI__LOG_LEVEL = "INFO";
+        # Disable update checks (NixOS handles updates)
+        QUI__CHECK_FOR_UPDATES = "false";
         # Prevent qui from trying to write to /var/empty/.config
         HOME = "${cfg.stateDir}/qui";
         XDG_CONFIG_HOME = "${cfg.stateDir}/qui";
