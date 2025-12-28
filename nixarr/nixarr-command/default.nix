@@ -50,8 +50,7 @@ with lib; let
     text = ''
       command="''${1:-}"
 
-      # Check if a parameter is provided
-      if [ -z "$command" ]; then
+      show-usage() {
         echo "Usage: nixarr <command>"
         echo ""
         echo "Commands:"
@@ -63,14 +62,16 @@ with lib; let
         echo "                        run this command, then rebuild and finally run"
         echo "                        nixarr fix-permissions, to fix these issues."
         echo "  show-prowlarr-schemas <schema>"
-        echo "                        Show schemas for various Prowlarr settings."
-        echo "                        Requires Prowlarr to be enabled and running."
-        echo "  show-radarr-schemas <schema>"
-        echo "                        Show schemas for various Radarr settings."
-        echo "                        Requires Radarr to be enabled and running."
         echo "  show-sonarr-schemas <schema>"
-        echo "                        Show schemas for various Sonarr settings."
-        echo "                        Requires Sonarr to be enabled and running."
+        echo "  show-radarr-schemas <schema>"
+        echo "                        Show schemas for various app settings."
+        echo "                        Requires the app to be enabled and running."
+        echo "                        See the per-app settings-sync documentation for more info."
+      }
+
+      # Check if a parameter is provided
+      if [ -z "$command" ]; then
+        show-usage
         exit 1
       fi
 
@@ -264,16 +265,50 @@ with lib; let
           wipe-uids-gids
           ;;
         show-prowlarr-schemas)
+          ${
+        if nixarr.prowlarr.enable
+        then ''
           show-prowlarr-schemas "$@"
+        ''
+        else ''
+          echo "Prowlarr is not enabled in your configuration."
+          echo "Please set config.nixarr.prowlarr.enable = true; and rebuild your configuration to use this command."
+          exit 1
+        ''
+      }
           ;;
         show-radarr-schemas)
+          ${
+        if nixarr.radarr.enable
+        then ''
           show-radarr-schemas "$@"
+        ''
+        else ''
+          echo "Radarr is not enabled in your configuration."
+          echo "Please set config.nixarr.radarr.enable = true; and rebuild your configuration to use this command."
+          exit 1
+        ''
+      }
           ;;
         show-sonarr-schemas)
+          ${
+        if nixarr.sonarr.enable
+        then ''
           show-sonarr-schemas "$@"
+        ''
+        else ''
+          echo "Sonarr is not enabled in your configuration."
+          echo "Please set config.nixarr.sonarr.enable = true; and rebuild your configuration to use this command."
+          exit 1
+        ''
+      }
+          ;;
+        -h|--help)
+          show-usage
           ;;
         *)
           echo "Unknown command: $COMMAND"
+          show-usage
           exit 1
           ;;
       esac
