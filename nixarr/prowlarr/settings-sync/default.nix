@@ -37,13 +37,6 @@
 
   nixarr-py = nixarr.nixarr-py.package;
 
-  show-schemas = writePython3Bin "nixarr-show-prowlarr-schemas" {
-    libraries = [nixarr-py];
-    flakeIgnore = [
-      "E501" # Line too long
-    ];
-  } (builtins.readFile ./show_schemas.py);
-
   sync-settings = writePython3Bin "nixarr-sync-prowlarr-settings" {
     libraries = [nixarr-py];
     flakeIgnore = [
@@ -147,9 +140,9 @@
       description = ''
         Configuration for this application in Prowlarr.
 
-        To see available top-level properties and `fields` members, run
-        `${getExe show-schemas} application | jq '.[] | select(.implementation
-        == "${implementation}")'` as root.
+        To see available top-level properties and `fields` members, run `nixarr
+        show-prowlarr-schemas application | jq '.[] | select(.implementation ==
+        "${implementation}")'` as root.
       '';
       example = {
         name = "My special service name";
@@ -311,8 +304,8 @@ in {
           List of indexers to configure in Prowlarr.
 
           To see available top-level properties and `fields` members for each
-          indexer, run `${getExe show-schemas} indexer | jq '.'` as root. You
-          may want to filter by `sort_name` to find the indexer you want to
+          indexer, run `nixarr show-prowlarr-schemas indexer | jq '.'` as root.
+          You may want to filter by `sort_name` to find the indexer you want to
           configure.
         '';
         example = [
@@ -332,8 +325,6 @@ in {
 
   config = mkIf (nixarr.enable && nixarr.prowlarr.enable) {
     users.users.prowlarr.extraGroups = extraGroups;
-
-    environment.systemPackages = [show-schemas];
 
     assertions = [prowlarrAssertion] ++ (map mkNixarrAppAssertion syncServiceNames);
 

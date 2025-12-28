@@ -6,8 +6,36 @@
   ...
 }:
 with lib; let
+  inherit
+    (pkgs.writers)
+    writePython3Bin
+    ;
+
   nixarr = config.nixarr;
+  nixarr-py = nixarr.nixarr-py.package;
   globals = config.util-nixarr.globals;
+
+  show-prowlarr-schemas = writePython3Bin "show-prowlarr-schemas" {
+    libraries = [nixarr-py];
+    flakeIgnore = [
+      "E501" # Line too long
+    ];
+  } (builtins.readFile ./show-schemas/prowlarr.py);
+
+  show-radarr-schemas = writePython3Bin "show-radarr-schemas" {
+    libraries = [nixarr-py];
+    flakeIgnore = [
+      "E501" # Line too long
+    ];
+  } (builtins.readFile ./show-schemas/radarr.py);
+
+  show-sonarr-schemas = writePython3Bin "show-sonarr-schemas" {
+    libraries = [nixarr-py];
+    flakeIgnore = [
+      "E501" # Line too long
+    ];
+  } (builtins.readFile ./show-schemas/sonarr.py);
+
   nixarr-command = pkgs.writeShellApplication {
     name = "nixarr";
     runtimeInputs = with pkgs; [
@@ -15,6 +43,9 @@ with lib; let
       yq
       gnugrep
       gnused
+      show-prowlarr-schemas
+      show-radarr-schemas
+      show-sonarr-schemas
     ];
     text = ''
       command="''${1:-}"
@@ -31,6 +62,15 @@ with lib; let
         echo "  wipe-uids-gids        The update on 2025-06-03 causes issues with UID/GIDs,"
         echo "                        run this command, then rebuild and finally run"
         echo "                        nixarr fix-permissions, to fix these issues."
+        echo "  show-prowlarr-schemas <schema>"
+        echo "                        Show schemas for various Prowlarr settings."
+        echo "                        Requires Prowlarr to be enabled and running."
+        echo "  show-radarr-schemas <schema>"
+        echo "                        Show schemas for various Radarr settings."
+        echo "                        Requires Radarr to be enabled and running."
+        echo "  show-sonarr-schemas <schema>"
+        echo "                        Show schemas for various Sonarr settings."
+        echo "                        Requires Sonarr to be enabled and running."
         exit 1
       fi
 
@@ -222,6 +262,19 @@ with lib; let
           ;;
         wipe-uids-gids)
           wipe-uids-gids
+          ;;
+        show-prowlarr-schemas)
+          show-prowlarr-schemas "$@"
+          ;;
+        show-radarr-schemas)
+          show-radarr-schemas "$@"
+          ;;
+        show-sonarr-schemas)
+          show-sonarr-schemas "$@"
+          ;;
+        *)
+          echo "Unknown command: $COMMAND"
+          exit 1
           ;;
       esac
     '';
