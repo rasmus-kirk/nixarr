@@ -134,7 +134,7 @@
     version = "0.1.0";
 
     openapi-spec = fetchurl {
-      url = "https://https://repo.jellyfin.org/files/openapi/stable/jellyfin-openapi-${jellyfin.version}.json";
+      url = "https://repo.jellyfin.org/files/openapi/stable/jellyfin-openapi-${jellyfin.version}.json";
       hash =
         ({
           "10.10.0" = "sha256-c9KQv0TJFpGkmzWaUjhzsX9wO6gCNgkcVlJ30Lb936A=";
