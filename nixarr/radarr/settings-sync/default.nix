@@ -25,17 +25,8 @@
   nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
   inherit (nixarr-utils) arrDownloadClientConfigType arrDownloadClientConfigModule;
 
-  nixarr-py = import ../../lib/nixarr-py {inherit pkgs lib config;};
-
-  show-schemas = writePython3Bin "nixarr-show-radarr-schemas" {
-    libraries = [nixarr-py];
-    flakeIgnore = [
-      "E501" # Line too long
-    ];
-  } (builtins.readFile ./show_schemas.py);
-
   sync-settings = writePython3Bin "nixarr-sync-radarr-settings" {
-    libraries = [nixarr-py];
+    libraries = [nixarr.nixarr-py.package];
     flakeIgnore = [
       "E501" # Line too long
     ];
@@ -52,7 +43,8 @@ in {
           List of download clients to configure in Radarr.
 
           To see available top-level properties and `fields` members for each
-          download client, run `${getExe show-schemas} download_client | jq '.'` as root.
+          download client, run `nixarr show-radarr-schemas download_client | jq
+          '.'` as root.
         '';
       };
 
@@ -118,8 +110,6 @@ in {
     ];
 
     users.users.radarr.extraGroups = ["radarr-api"];
-
-    environment.systemPackages = [show-schemas];
 
     systemd.services.radarr-sync-config = {
       description = ''
