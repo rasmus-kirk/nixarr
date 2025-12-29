@@ -263,14 +263,15 @@ in {
         protocol = "tcp";
       };
       accessibleFrom =
-        (if cfg.vpn.exposeOnLAN then
-          [
+        (
+          if cfg.vpn.exposeOnLAN
+          then [
             "192.168.1.0/24"
             "192.168.0.0/24"
             "127.0.0.1"
           ]
-        else
-          ["127.0.0.1"])
+          else ["127.0.0.1"]
+        )
         ++ cfg.vpn.accessibleFrom;
       wireguardConfigFile = cfg.vpn.wgConf;
     };
