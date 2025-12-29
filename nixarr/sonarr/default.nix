@@ -10,6 +10,8 @@ with lib; let
   defaultPort = 8989;
   nixarr = config.nixarr;
 in {
+  imports = [./settings-sync];
+
   options.nixarr.sonarr = {
     enable = mkOption {
       type = types.bool;
@@ -49,8 +51,7 @@ in {
 
     openFirewall = mkOption {
       type = types.bool;
-      defaultText = literalExpression ''!nixarr.sonarr.vpn.enable'';
-      default = !cfg.vpn.enable;
+      default = false;
       example = true;
       description = "Open firewall for Sonarr";
     };

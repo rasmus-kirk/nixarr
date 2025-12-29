@@ -15,13 +15,14 @@ in {
     ./ddns
     ./jellyfin
     ./jellyseerr
-    ./lib/api-keys.nix
+    ./lib
     ./komga
     ./lidarr
     ./nixarr-command
     ./openssh
     ./plex
     ./prowlarr
+    ./qbittorrent
     ./radarr
     ./readarr
     ./readarr-audiobook
@@ -30,6 +31,7 @@ in {
     ./sonarr
     ./transmission
     ./whisparr
+    ./monitoring
     ../util
   ];
 
@@ -67,6 +69,7 @@ in {
         - [Lidarr](#nixarr.lidarr.enable)
         - [Plex](#nixarr.plex.enable)
         - [Prowlarr](#nixarr.prowlarr.enable)
+        - [qBittorrent](#nixarr.qbittorrent.enable)
         - [Radarr](#nixarr.radarr.enable)
         - [Readarr](#nixarr.readarr.enable)
         - [Readarr Audiobook](#nixarr.readarr-audiobook.enable)
