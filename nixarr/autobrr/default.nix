@@ -234,7 +234,7 @@ in {
         "127.0.0.1:${builtins.toString cfg.settings.port}" = {
           listen = [
             {
-              addr = "0.0.0.0";
+              addr = nixarr.vpn.proxyListenAddr;
               port = cfg.settings.port;
             }
           ];
@@ -249,7 +249,7 @@ in {
         "127.0.0.1:${builtins.toString cfg.exporter.port}" = mkIf metricsEnabled {
           listen = [
             {
-              addr = "0.0.0.0";
+              addr = nixarr.vpn.proxyListenAddr;
               port = cfg.exporter.port;
             }
           ];
