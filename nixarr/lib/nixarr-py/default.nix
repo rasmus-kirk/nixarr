@@ -1,4 +1,8 @@
-{pkgs, ...}: let
+{
+  pkgs,
+  jellyfin ? pkgs.jellyfin,
+  ...
+}: let
   nixarr-py = let
     inherit (pkgs.python3Packages) buildPythonPackage setuptools;
   in
@@ -9,7 +13,7 @@
 
       src = ./.;
       build-system = [setuptools];
-      dependencies = pkgs.callPackage ./python-deps.nix {};
+      dependencies = pkgs.callPackage ./python-deps.nix {inherit jellyfin;};
     };
 in
   nixarr-py

@@ -1,5 +1,5 @@
 from typing import Any, Union
-from nixarr.clients import sonarr_client
+from nixarr_py.clients import sonarr_client
 import sonarr
 import json
 import argparse
@@ -10,9 +10,7 @@ def main(client: sonarr.ApiClient, kind: str) -> None:
     if kind == "download_client":
         schema = [
             schema.model_dump()
-            for schema in sonarr.DownloadClientApi(
-                client
-            ).list_download_client_schema()
+            for schema in sonarr.DownloadClientApi(client).list_download_client_schema()
         ]
     else:
         raise ValueError(f"Unknown schema kind: {kind}")

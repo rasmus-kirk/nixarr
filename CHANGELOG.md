@@ -3,13 +3,17 @@
 ## Unreleased
 
 Added:
-- Prowlarr:
-  - Options for syncing configuration from Nixarr to `prowlarr` (e.g. specifying
+- qBittorrent service with VPN support, qui WebUI, and Prometheus exporter
+- Prowlarr, Radarr, Sonarr:
+  - Options for syncing configuration from Nixarr to apps (e.g. specifying
     indexers in Nixarr and having them automatically added to Prowlarr).
-    Supports syncing *arr service configs, indexers, and tags.
-  - Utility command `nixarr-show-prowlarr-schemas` to show what schemas are
-    supported/expected by Prowlarr for syncing. See `prowlarr` config docs for
-    how to use these schemas when writing your Nixarr config.
+    See individual app config docs for what is supported.
+- `nixarr` command:
+  - `nixarr show-prowlarr-schemas`, `nixarr show-radarr-schemas`,
+    `nixarr show-sonarr-schemas`
+    - Show what schemas are supported/expected by those apps for syncing. See
+      individual app config docs for how to use these schemas when writing your
+      Nixarr config.
 - Python library `lib/nixarr-py`: helpers for making
   [devopsarr](https://github.com/devopsarr) clients configured to connect to
   Nixarr services.

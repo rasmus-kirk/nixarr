@@ -4,6 +4,9 @@
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-25.11";
 
+    treefmt-nix.url = "github:numtide/treefmt-nix";
+    treefmt-nix.inputs.nixpkgs.follows = "nixpkgs";
+
     vpnconfinement.url = "github:Maroka-chan/VPN-Confinement";
 
     website-builder.url = "github:rasmus-kirk/website-builder";
@@ -12,6 +15,7 @@
 
   outputs = {
     nixpkgs,
+    treefmt-nix,
     vpnconfinement,
     website-builder,
     self,
@@ -61,6 +65,9 @@
       prowlarr-sync-test = pkgs.callPackage ./tests/prowlarr-sync-test.nix {
         inherit (self) nixosModules;
       };
+      jellyfin-api-test = pkgs.callPackage ./tests/jellyfin-api-test.nix {
+        inherit (self) nixosModules;
+      };
     });
 
     devShells = forAllSystems ({pkgs}: let
@@ -77,11 +84,7 @@
           ]
           ++ nixarr-py-deps;
         postVenvCreation = ''
-          unset SOURCE_DATE_EPOCH
           python -m pip install --editable ./nixarr/lib/nixarr-py
-        '';
-        postShellHook = ''
-          unset SOURCE_DATE_EPOCH
         '';
       };
     });
@@ -139,6 +142,8 @@
       nixarr-py = pkgs.callPackage ./nixarr/lib/nixarr-py {};
     });
 
-    formatter = forAllSystems ({pkgs}: pkgs.alejandra);
+    formatter =
+      forAllSystems ({pkgs}:
+        treefmt-nix.lib.mkWrapper pkgs ./util/formatting);
   };
 }

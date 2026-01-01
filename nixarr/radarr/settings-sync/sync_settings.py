@@ -4,8 +4,8 @@ import radarr
 import pydantic
 import pathlib
 import logging
-from nixarr.clients import radarr_client
-from nixarr.utils import apply_config
+from nixarr_py.clients import radarr_client
+from nixarr_py.utils import apply_config
 
 
 logging.basicConfig(level=logging.INFO)
@@ -34,12 +34,9 @@ def sync_download_clients(
     download_client_configs: list[DownloadClient], api_client: radarr.ApiClient
 ) -> None:
     dc_api = radarr.DownloadClientApi(api_client)
-    download_clients_by_name = {
-        dc.name: dc for dc in dc_api.list_download_client()
-    }
+    download_clients_by_name = {dc.name: dc for dc in dc_api.list_download_client()}
     schemas_by_implementation = {
-        schema.implementation: schema
-        for schema in dc_api.list_download_client_schema()
+        schema.implementation: schema for schema in dc_api.list_download_client_schema()
     }
 
     for user_cfg in download_client_configs:
@@ -47,9 +44,9 @@ def sync_download_clients(
         if user_cfg.name in download_clients_by_name:
             insert_or_update = "update"
             dc = download_clients_by_name[user_cfg.name]
-            assert (
-                dc.implementation == user_cfg.implementation
-            ), f"Cannot change implementation of existing download client '{user_cfg.name}' from '{dc.implementation}' to '{user_cfg.implementation}'. Please delete the existing download client first."
+            assert dc.implementation == user_cfg.implementation, (
+                f"Cannot change implementation of existing download client '{user_cfg.name}' from '{dc.implementation}' to '{user_cfg.implementation}'. Please delete the existing download client first."
+            )
         else:
             insert_or_update = "insert"
             dc = schemas_by_implementation[user_cfg.implementation]
@@ -62,9 +59,7 @@ def sync_download_clients(
         if insert_or_update == "insert":
             dc_api.create_download_client(download_client_resource=dc)
         else:
-            dc_api.update_download_client(
-                id=dc.id, download_client_resource=dc
-            )
+            dc_api.update_download_client(id=dc.id, download_client_resource=dc)
 
 
 def main(config: SettingsSyncConfig, api_client: radarr.ApiClient) -> None:

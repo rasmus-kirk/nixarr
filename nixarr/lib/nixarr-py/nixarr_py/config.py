@@ -21,7 +21,15 @@ class SimpleService(BaseModel):
     api_key_file: Path
 
 
+class Jellyfin(BaseModel):
+    base_url: str
+    username: str
+    password_file: Path
+
+
 class NixarrPyConfig(BaseModel):
+    jellyfin: Jellyfin | None = None
+
     lidarr: SimpleService | None = None
     prowlarr: SimpleService | None = None
     radarr: SimpleService | None = None
@@ -31,16 +39,25 @@ class NixarrPyConfig(BaseModel):
     whisparr: SimpleService | None = None
 
 
+CONFIG_PATH: Path = Path(os.environ.get("NIXARR_PY_CONFIG_PATH", DEFAULT_CONFIG_PATH))
+
+
 @cache
 def load_config() -> NixarrPyConfig:
     """Load nixarr-py configuration from file."""
-    config_path = os.environ.get("NIXARR_PY_CONFIG_PATH", DEFAULT_CONFIG_PATH)
+    if not CONFIG_PATH.is_file():
+        raise FileNotFoundError(f"Config file not found: {CONFIG_PATH}")
 
-    if not Path(config_path).is_file():
-        raise FileNotFoundError(f"Config file not found: {config_path}")
-
-    with open(config_path, "r", encoding="utf-8") as f:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         return NixarrPyConfig.model_validate(json.load(f))
+
+
+def get_jellyfin_config() -> Jellyfin:
+    config = load_config()
+    assert config.jellyfin is not None, (
+        f"Jellyfin configuration not found in {CONFIG_PATH}"
+    )
+    return config.jellyfin
 
 
 def get_simple_service_config(service: str) -> SimpleService:
@@ -58,7 +75,9 @@ def get_simple_service_config(service: str) -> SimpleService:
     """
     config = load_config()
     simple_service = getattr(config, service, None)
-    assert simple_service is not None, f"No configuration found for service: {service}"
+    assert simple_service is not None, (
+        f"No configuration found for service '{service}' in {CONFIG_PATH}"
+    )
     assert isinstance(simple_service, SimpleService), (
         f"{service} is not a simple service"
     )

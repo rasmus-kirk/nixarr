@@ -25,17 +25,8 @@
   nixarr-utils = import ../../lib/utils.nix {inherit pkgs lib config;};
   inherit (nixarr-utils) arrDownloadClientConfigType arrDownloadClientConfigModule;
 
-  nixarr-py = import ../../lib/nixarr-py {inherit pkgs lib config;};
-
-  show-schemas = writePython3Bin "nixarr-show-sonarr-schemas" {
-    libraries = [nixarr-py];
-    flakeIgnore = [
-      "E501" # Line too long
-    ];
-  } (builtins.readFile ./show_schemas.py);
-
   sync-settings = writePython3Bin "nixarr-sync-sonarr-settings" {
-    libraries = [nixarr-py];
+    libraries = [nixarr.nixarr-py.package];
     flakeIgnore = [
       "E501" # Line too long
     ];
@@ -52,7 +43,7 @@ in {
           List of download clients to configure in Sonarr.
 
           To see available top-level properties and `fields` members for each
-          download client, run `${getExe show-schemas} download_client | jq '.'` as root.
+          download client, run `nixarr show-sonarr-schemas download_client | jq '.'` as root.
         '';
       };
 
@@ -118,8 +109,6 @@ in {
     ];
 
     users.users.sonarr.extraGroups = ["sonarr-api"];
-
-    environment.systemPackages = [show-schemas];
 
     systemd.services.sonarr-sync-config = {
       description = ''
