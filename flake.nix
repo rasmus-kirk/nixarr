@@ -45,6 +45,7 @@
     # Add tests attribute to the flake outputs
     # To run interactively run:
     # > nix build .#checks.x86_64-linux.monitoring-test.driver -L
+<<<<<<< Updated upstream
     checks = forAllSystems (
       {pkgs}: {
         permissions-test = pkgs.callPackage ./tests/permissions-test.nix {
@@ -58,6 +59,31 @@
         # };
       }
     );
+=======
+    checks = forAllSystems ({pkgs}: {
+      permissions-test = pkgs.callPackage ./tests/permissions-test.nix {
+        inherit (self) nixosModules;
+      };
+      simple-test = pkgs.callPackage ./tests/simple-test.nix {
+        inherit (self) nixosModules;
+      };
+      transmission-sync-test = pkgs.callPackage ./tests/transmission-sync-test.nix {
+        inherit (self) nixosModules;
+      };
+      # vpn-confinement-test = pkgs.callPackage ./tests/vpn-confinement-test.nix {
+      #   inherit (self) nixosModules;
+      # };
+      prowlarr-sync-test = pkgs.callPackage ./tests/prowlarr-sync-test.nix {
+        inherit (self) nixosModules;
+      };
+      bazarr-sync-test = pkgs.callPackage ./tests/bazarr-sync-test.nix {
+        inherit (self) nixosModules;
+      };
+      jellyfin-api-test = pkgs.callPackage ./tests/jellyfin-api-test.nix {
+        inherit (self) nixosModules;
+      };
+    });
+>>>>>>> Stashed changes
 
     devShells = forAllSystems (
       {pkgs}: {
